@@ -776,7 +776,7 @@ def api_import():
                 SELECT {col_str} FROM source.projects src
                 WHERE src.name NOT IN (SELECT name FROM main.projects)
             """)
-            imported = db.changes()
+            imported = db.execute("SELECT changes()").fetchone()[0]
 
             # Status logs
             if "project_id" in src_cols:
