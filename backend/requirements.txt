@@ -1,4 +1,6 @@
 flask==3.1.0
 flask-cors==5.0.1
 gunicorn==23.0.0
-（内容由AI生成，仅供参考）
+matplotlib==3.9.4
+Pillow==11.3.0
+fpdf2==2.8.4
