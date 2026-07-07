@@ -752,63 +752,71 @@ def api_import():
 
     try:
         if ext in (".db", ".sqlite", ".sqlite3"):
-            # Save temp file then attach
+            # Use separate connection to avoid ATTACH locking issues
             import tempfile
             tmp_path = os.path.join(tempfile.gettempdir(), f"_ultraclean_import_{int(datetime.now().timestamp())}.db")
             f.save(tmp_path)
 
-            db.execute("ATTACH DATABASE ? AS source", (tmp_path,))
+            src_conn = sqlite3.connect(tmp_path)
+            src_conn.row_factory = sqlite3.Row
+            src_db = src_conn.cursor()
 
             try:
-                src_cols = {r["name"] for r in db.execute("PRAGMA source.table_info(projects)").fetchall()}
+                src_cols = {r["name"] for r in src_db.execute("PRAGMA table_info(projects)").fetchall()}
             except Exception:
-                db.execute("DETACH DATABASE source")
+                src_conn.close()
                 os.unlink(tmp_path)
                 return jsonify({"error": "no projects table in source"}), 400
 
             target_cols = ["name", "category", "current_status", "note", "deleted",
                            "created_at", "updated_at", "edit_date", "review_date"]
             available = [c for c in target_cols if c in src_cols]
-            col_str = ", ".join(available)
 
-            db.execute(f"""
-                INSERT INTO main.projects ({col_str})
-                SELECT {col_str} FROM source.projects src
-                WHERE src.name NOT IN (SELECT name FROM main.projects)
-            """)
-            imported = db.execute("SELECT changes()").fetchone()[0]
+            existing_names = {r["name"] for r in db.execute("SELECT name FROM projects").fetchall()}
+            src_projects = src_db.execute(f"SELECT {', '.join(available)} FROM projects").fetchall()
+
+            imported = 0
+            name_to_new_id = {}
+            for row in src_projects:
+                if row["name"] in existing_names:
+                    continue
+                values = [row[c] for c in available]
+                placeholders = ", ".join(["?"] * len(available))
+                db.execute(f"INSERT INTO projects ({', '.join(available)}) VALUES ({placeholders})", values)
+                new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+                name_to_new_id[row["name"]] = new_id
+                imported += 1
 
             # Status logs
-            if "project_id" in src_cols:
-                tgt_name_to_id = {r["name"]: r["id"] for r in db.execute("SELECT id, name FROM main.projects").fetchall()}
+            if "project_id" in src_cols and imported > 0:
                 try:
-                    log_cols = {r["name"] for r in db.execute("PRAGMA source.table_info(status_logs)").fetchall()}
+                    log_cols = {r["name"] for r in src_db.execute("PRAGMA table_info(status_logs)").fetchall()}
                 except Exception:
                     log_cols = set()
 
                 if log_cols:
                     log_target = ["project_id", "old_status", "new_status", "changed_at", "note"]
                     log_avail = [c for c in log_target if c in log_cols]
-                    src_logs = db.execute(
-                        f"SELECT sl.{', sl.'.join(log_avail)}, p.name FROM source.status_logs sl "
-                        "JOIN source.projects p ON sl.project_id = p.id"
+                    src_logs = src_db.execute(
+                        f"SELECT sl.{', sl.'.join(log_avail)}, p.name FROM status_logs sl "
+                        "JOIN projects p ON sl.project_id = p.id"
                     ).fetchall()
                     log_inserted = 0
                     for lr in src_logs:
                         name = lr["name"]
-                        if name in tgt_name_to_id:
-                            new_id = tgt_name_to_id[name]
+                        if name in name_to_new_id:
+                            new_id = name_to_new_id[name]
                             values = [new_id if c == "project_id" else lr[c] for c in log_avail]
                             try:
                                 db.execute(
-                                    f"INSERT INTO main.status_logs ({', '.join(log_avail)}) VALUES ({', '.join(['?']*len(log_avail))})",
+                                    f"INSERT INTO status_logs ({', '.join(log_avail)}) VALUES ({', '.join(['?']*len(log_avail))})",
                                     values
                                 )
                                 log_inserted += 1
                             except Exception:
                                 pass
 
-            db.execute("DETACH DATABASE source")
+            src_conn.close()
             os.unlink(tmp_path)
 
         elif ext == ".csv":
