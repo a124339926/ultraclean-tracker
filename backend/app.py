@@ -24,7 +24,7 @@ APP_NAME = "UltraClean Tracker API"
 APP_VERSION = "3.0"
 
 # Database path – macOS local default, env override for Render
-_DEFAULT_DB_DIR = os.path.join(str(Path.home()), "Library", "Application Support", "UltraCleanTracker")
+_DEFAULT_DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 DB_DIR = os.environ.get("ULTRACLEAN_DB_DIR", _DEFAULT_DB_DIR)
 os.makedirs(DB_DIR, exist_ok=True)
 DB_PATH = os.path.join(DB_DIR, "video_tracker.db")
