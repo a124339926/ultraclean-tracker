@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UltraClean Tracker</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <style>
 :root {
   --bg: #12121f; --card: #1a1a30; --header: #1e1e32;
@@ -740,8 +742,11 @@ ${fmt(d.todo)}`;
   main.innerHTML = `
     <div class="toolbar"><h2>每日日報</h2><span style="color:var(--muted)">${d.date}</span>
       <button class="btn btn-gray" onclick="renderDaily()">重新整理</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PNG')">匯出PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','JPG')">匯出JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PDF')">匯出PDF</button>
     </div>
-    <div class="report-box">${report.replace(/\n/g,'<br>')}</div>
+    <div class="report-box" id="dailyContent">${report.replace(/\n/g,'<br>')}</div>
   `;
 }
 
@@ -775,7 +780,7 @@ ${fmt(d.editing_week)}
 ──────────────────────────────
 ${fmt(d.review_week)}
 ──────────────────────────────
-本週狀態變更（${d.active.length} 部）
+本週活動（${d.active.length} 部）
 ──────────────────────────────
 ${fmtStatus(d.active)}
 ──────────────────────────────
@@ -794,8 +799,11 @@ ${fmt(d.pending)}`;
   main.innerHTML = `
     <div class="toolbar"><h2>每週週報</h2><span style="color:var(--muted)">${d.monday}（一）～ ${d.sunday}（日）</span>
       <button class="btn btn-gray" onclick="renderWeekly()">重新整理</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PNG')">匯出PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','JPG')">匯出JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PDF')">匯出PDF</button>
     </div>
-    <div class="report-box">${report.replace(/\n/g,'<br>')}</div>
+    <div class="report-box" id="weeklyContent">${report.replace(/\n/g,'<br>')}</div>
   `;
 }
 
@@ -850,6 +858,9 @@ async function renderStats() {
       <span id="statsLabel" style="font-weight:700;margin:0 15px"></span>
       <button class="btn btn-sm btn-gray" onclick="statsState.idx++;renderStats()">▶</button>
       <button class="btn btn-sm btn-gray" onclick="statsState.idx=0;renderStats()" style="margin-left:auto">今天</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PNG')">匯出PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','JPG')">匯出JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PDF')">匯出PDF</button>
     </div>
     <div id="statsContent"></div>
   `;
@@ -1024,6 +1035,85 @@ async function trashClearAll() {
   const res = await api('/api/trash/clear', {method:'POST'});
   const d = await res.json();
   toast(`已清空垃圾桶（共 ${d.purged} 個專案）`); renderTrash();
+}
+
+// ── Export ────────────────────────────────────────────────────
+async function exportReport(elementId, format) {
+  const el = document.getElementById(elementId);
+  if (!el) return toast('找不到報表內容');
+
+  // For PDF: auto-paginate
+  if (format === 'PDF') {
+    // Temporarily set a fixed width for PDF
+    const origWidth = el.style.width;
+    const origOverflow = el.style.overflow;
+    const origMaxH = el.style.maxHeight;
+    el.style.width = '780px';
+    el.style.overflow = 'visible';
+    el.style.maxHeight = 'none';
+
+    const canvas = await html2canvas(el, {
+      backgroundColor: '#1a1a30',
+      scale: 2,
+      logging: false,
+    });
+
+    // Restore
+    el.style.width = origWidth;
+    el.style.overflow = origOverflow;
+    el.style.maxHeight = origMaxH;
+
+    const { jsPDF } = window.jspdf;
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgW = pageW - 10;
+    const imgH = (canvas.height * imgW) / canvas.width;
+
+    let heightLeft = imgH;
+    let position = 5;
+
+    pdf.addImage(imgData, 'JPEG', 5, position, imgW, imgH);
+    heightLeft -= pageH;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgH + 5;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 5, position, imgW, imgH);
+      heightLeft -= pageH;
+    }
+
+    pdf.save(`report-${new Date().toISOString().slice(0,10)}.pdf`);
+    toast('PDF 下載中...');
+    return;
+  }
+
+  // Image export (PNG / JPG)
+  const mime = format === 'JPG' ? 'image/jpeg' : 'image/png';
+  const ext = format === 'JPG' ? 'jpg' : 'png';
+
+  // Temporarily make element fully visible
+  const origOverflow = el.style.overflow;
+  const origMaxH = el.style.maxHeight;
+  el.style.overflow = 'visible';
+  el.style.maxHeight = 'none';
+
+  const canvas = await html2canvas(el, {
+    backgroundColor: '#1a1a30',
+    scale: 2,
+    logging: false,
+  });
+
+  // Restore
+  el.style.overflow = origOverflow;
+  el.style.maxHeight = origMaxH;
+
+  const link = document.createElement('a');
+  link.download = `report-${new Date().toISOString().slice(0,10)}.${ext}`;
+  link.href = canvas.toDataURL(mime, 0.95);
+  link.click();
+  toast(`${format} 下載中...`);
 }
 
 // ── Init ──────────────────────────────────────────────────────
