@@ -28,8 +28,8 @@ body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
 .sidebar .logo span{font-size:11px;color:var(--muted)}
 .sidebar .nav-title{font-size:11px;color:#666;font-weight:700;padding:0 15px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
 .sidebar .nav-btn{display:block;width:100%;text-align:left;padding:10px 15px;margin:2px 12px;border:none;background:transparent;color:#aaa;font-size:13px;border-radius:6px;cursor:pointer;transition:.15s}
-.sidebar .nav-btn:hover{background:#2a2a4a;color:#ddd}
-.sidebar .nav-btn.active{background:#2a2a4a;color:var(--accent)}
+.sidebar .nav-btn:hover{background:#2d2d50;color:#ddd}
+.sidebar .nav-btn.active{background:#2d2d50;color:var(--accent)}
 .main{flex:1;display:flex;flex-direction:column;padding:15px 20px;height:100vh;overflow:hidden;min-width:0}
 .main-scroll{flex:1;overflow-y:auto;overflow-x:auto;min-height:0}
 .main-scroll::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:6px;height:6px}
@@ -47,13 +47,14 @@ body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
 .btn-accent{background:var(--accent);color:#000}
 .btn-outline{background:transparent;border:1px solid #444;color:#aaa}
 input,select,textarea{background:#1a1a30;border:1px solid #2a2a4a;border-radius:var(--radius-sm);color:var(--text);padding:7px 10px;font-size:12px;outline:none}
-input:focus,select:focus{ border-color:var(--accent)}
+input:focus,select:focus,button:focus-visible{ border-color:var(--accent);outline:2px solid var(--accent);outline-offset:1px}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 select{min-width:120px;background:var(--card);color:var(--text);border:1px solid #3a3a5a;border-radius:4px;padding:4px 8px;font-size:12px;cursor:pointer}
 select option{background:#1e1e3a;color:#ccc}
 .table-header{display:flex;background:var(--header);border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:0;font-size:12px;font-weight:700;color:#aaa;overflow:hidden}
 .table-header span{ padding:10px 4px;cursor:pointer;user-select:none}
 .table-header span:hover{background:#2a2a4a}
-.table-header span{position:relative;padding:10px 8px 10px 4px}
+.table-header span{position:relative;padding:8px 8px 8px 6px}
 .resize-handle{position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:5}
 .resize-handle:hover,.resize-handle.active{background:var(--accent);opacity:.6}
 .table-header span:last-child .resize-handle{display:none}
@@ -61,9 +62,9 @@ body.col-resizing{cursor:col-resize!important;user-select:none!important}
 body.col-resizing .table-header span{cursor:col-resize!important}
 .row{display:flex;align-items:center;background:var(--card);border-radius:var(--radius-sm);margin:2px 0;padding:6px 0;font-size:12px;transition:.1s}
 .row:hover{background:#222240}
-.row span,.row .cell{padding:2px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row span,.row .cell{padding:5px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .status-dot{font-size:10px;margin-right:3px}
-.card{background:var(--card);border-radius:var(--radius);padding:15px}
+.card{background:var(--card);border-radius:var(--radius);padding:15px;border:1px solid #2a2a4a}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
 .status-card{display:flex;align-items:center;gap:8px;padding:12px 15px;background:var(--card);border-radius:var(--radius)}
 .status-card .count{font-size:22px;font-weight:700;margin-left:auto}
@@ -86,7 +87,7 @@ canvas{max-width:100%}
 .bar-outer{flex:1;background:var(--bg);border-radius:5px;height:18px;overflow:hidden;min-width:100px}
 .bar-inner{height:100%;background:#20c997;border-radius:5px;transition:width .3s}
 .tab-bar{display:flex;gap:4px;margin-bottom:10px}
-.report-box{background:var(--card);border:1px solid #2a2a4a;border-radius:var(--radius);padding:15px;font-family:monospace;font-size:13px;white-space:pre-wrap;line-height:1.6;flex:1;overflow-y:auto;min-height:0}
+.report-box{background:var(--card);border:1px solid #2a2a4a;border-radius:var(--radius);padding:20px;font-family:monospace;font-size:13px;white-space:pre-wrap;line-height:1.6;flex:1;overflow-y:auto;min-height:0}
 .status-tag{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
 input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px}
 .progress-row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}
@@ -245,7 +246,7 @@ async function loadProjects() {
 
 function renderProjectRows(projects) {
   const list = document.getElementById('projList');
-  if(!projects.length) { list.innerHTML='<div class="empty">尚無專案</div>'; return; }
+  if(!projects.length) { list.innerHTML='<div class="empty">尚無專案<br><br><button class="btn btn-accent" onclick="showAddModal()">＋ 新增第一個專案</button></div>'; return; }
   list.innerHTML = projects.map((r,i) => {
     const cat = CATEGORIES[r.category] || r.category;
     const color = STATUS_COLORS[r.current_status]||'#fff';
@@ -440,7 +441,7 @@ async function loadMaterials() {
 
 function renderMaterialRows(materials) {
   const list = document.getElementById('matList');
-  if(!materials.length) { list.innerHTML='<div class="empty">尚無素材</div>'; return; }
+  if(!materials.length) { list.innerHTML='<div class="empty">尚無素材<br><br><button class="btn btn-accent" onclick="showMatAddModal()">＋ 新增第一個素材</button></div>'; return; }
   list.innerHTML = materials.map(m => {
     const cat = CATEGORIES[m.category] || m.category;
     const created = (m.created_at||'').substring(0,10);
