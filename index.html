@@ -19,7 +19,10 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
-.sidebar{width:200px;min-width:200px;background:var(--sidebar);display:flex;flex-direction:column;padding:25px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar{width:200px;min-width:120px;background:var(--sidebar);display:flex;flex-direction:column;padding:25px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-resize{width:5px;min-width:5px;cursor:col-resize;background:transparent;transition:background .15s;flex-shrink:0}
+.sidebar-resize:hover,.sidebar-resize.active{background:var(--accent)}
+body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
 .sidebar .logo{padding:0 15px;margin-bottom:30px}
 .sidebar .logo h1{font-size:15px;color:var(--accent);font-weight:700}
 .sidebar .logo span{font-size:11px;color:var(--muted)}
@@ -28,7 +31,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei
 .sidebar .nav-btn:hover{background:#2a2a4a;color:#ddd}
 .sidebar .nav-btn.active{background:#2a2a4a;color:var(--accent)}
 .main{flex:1;display:flex;flex-direction:column;padding:15px 20px;height:100vh;overflow:hidden;min-width:0}
-.main-scroll{flex:1;overflow-y:auto;min-height:0}
+.main-scroll{flex:1;overflow-y:auto;overflow-x:auto;min-height:0}
+.main-scroll::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:6px;height:6px}
+.main-scroll::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#3a3a5a;border-radius:3px}
 .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .toolbar h2{font-size:18px;font-weight:700;margin-right:auto}
 .btn{padding:7px 14px;border:none;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-weight:600;transition:.15s;white-space:nowrap}
@@ -47,6 +52,12 @@ select{min-width:120px}
 .table-header{display:flex;background:var(--header);border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:0;font-size:12px;font-weight:700;color:#aaa;overflow:hidden}
 .table-header span{ padding:10px 4px;cursor:pointer;user-select:none}
 .table-header span:hover{background:#2a2a4a}
+.table-header span{position:relative;padding:10px 8px 10px 4px}
+.resize-handle{position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:5}
+.resize-handle:hover,.resize-handle.active{background:var(--accent);opacity:.6}
+.table-header span:last-child .resize-handle{display:none}
+body.col-resizing{cursor:col-resize!important;user-select:none!important}
+body.col-resizing .table-header span{cursor:col-resize!important}
 .row{display:flex;align-items:center;background:var(--card);border-radius:var(--radius-sm);margin:2px 0;padding:6px 0;font-size:12px;transition:.1s}
 .row:hover{background:#222240}
 .row span,.row .cell{padding:2px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -87,6 +98,7 @@ input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px}
   .main{padding:10px}
   .table-header span,.row span{font-size:10px}
   .card-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .sidebar-resize{display:none}
 }
 </style>
 </head>
@@ -104,7 +116,7 @@ input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px}
   <button class="nav-btn" data-page="stats">報表中心</button>
   <button class="nav-btn" data-page="trash">垃圾桶</button>
 </nav>
-
+<div class="sidebar-resize" id="sidebarResize"></div>
 <!-- Main -->
 <div class="main" id="main"></div>
 
@@ -207,6 +219,7 @@ async function renderProjects() {
   `;
   projState.selected.clear();
   await loadProjects();
+  injectResizeHandles();
 }
 
 function sortArrow(col) { return projState.sortCol===col ? (projState.sortAsc?' ▲':' ▼') : ''; }
@@ -401,6 +414,7 @@ async function renderMaterials() {
   matState.selected.clear();
   matLastClickedId = null;
   await loadMaterials();
+  injectResizeHandles();
 }
 
 function matSortArrow(col) { return matState.sortCol===col ? (matState.sortAsc?' ▲':' ▼') : ''; }
@@ -1160,6 +1174,98 @@ async function exportReport(elementId, format) {
   link.click();
   toast(`${format} 下載中...`);
 }
+
+// ── Column Resize ──────────────────────────────────────────────
+let colResize = null;
+
+function injectResizeHandles() {
+  document.querySelectorAll('.table-header').forEach(header => {
+    header.querySelectorAll('span').forEach(span => {
+      if (!span.querySelector('.resize-handle')) {
+        const h = document.createElement('div');
+        h.className = 'resize-handle';
+        span.appendChild(h);
+      }
+    });
+  });
+}
+
+document.addEventListener('mousedown', e => {
+  if (!e.target.classList.contains('resize-handle')) return;
+  const span = e.target.parentElement;
+  const header = span.parentElement;
+  const idx = Array.from(header.children).indexOf(span);
+  colResize = { header, span, idx, startX: e.clientX, startW: span.offsetWidth };
+  e.target.classList.add('active');
+  document.body.classList.add('col-resizing');
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', e => {
+  if (!colResize) return;
+  const diff = e.clientX - colResize.startX;
+  const newW = Math.max(40, colResize.startW + diff);
+  colResize.span.style.width = newW + 'px';
+  const container = colResize.header.nextElementSibling;
+  if (container) {
+    container.querySelectorAll('.row').forEach(row => {
+      const spans = row.querySelectorAll(':scope > span');
+      if (spans[colResize.idx]) spans[colResize.idx].style.width = newW + 'px';
+    });
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  if (colResize) {
+    const h = colResize.span.querySelector('.resize-handle');
+    if (h) h.classList.remove('active');
+    document.body.classList.remove('col-resizing');
+    colResize = null;
+  }
+});
+
+// sync table-header horizontal scroll with main-scroll
+document.addEventListener('scroll', e => {
+  const t = e.target;
+  if (t.classList.contains('main-scroll')) {
+    const hdr = t.previousElementSibling;
+    if (hdr && hdr.classList.contains('table-header')) hdr.scrollLeft = t.scrollLeft;
+  }
+}, true);
+
+// ── Sidebar Resize ────────────────────────────────────────────
+(function(){
+  const sidebar = document.querySelector('.sidebar');
+  const handle = document.getElementById('sidebarResize');
+  let sbResize = null;
+
+  // restore saved width
+  const savedW = localStorage.getItem('sidebarWidth');
+  if (savedW) { const w = parseInt(savedW); if (w >= 120 && w <= 500) sidebar.style.width = w + 'px'; }
+
+  handle.addEventListener('mousedown', e => {
+    sbResize = { startX: e.clientX, startW: sidebar.offsetWidth };
+    handle.classList.add('active');
+    document.body.classList.add('sidebar-resizing');
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!sbResize) return;
+    const diff = e.clientX - sbResize.startX;
+    const newW = Math.max(120, Math.min(500, sbResize.startW + diff));
+    sidebar.style.width = newW + 'px';
+    localStorage.setItem('sidebarWidth', newW);
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (sbResize) {
+      handle.classList.remove('active');
+      document.body.classList.remove('sidebar-resizing');
+      sbResize = null;
+    }
+  });
+})();
 
 // ── Init ──────────────────────────────────────────────────────
 loadPage('projects');
