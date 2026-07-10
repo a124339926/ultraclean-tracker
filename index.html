@@ -21,7 +21,7 @@
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;scroll-behavior:smooth}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");opacity:.4}
 .table-header span,.row span,[style*="width"]{font-variant-numeric:tabular-nums}
-.sidebar{width:200px;min-width:120px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;padding:25px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar{width:240px;min-width:140px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;padding:25px 0;position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden}
 .sidebar-resize{width:5px;min-width:5px;cursor:col-resize;background:transparent;transition:background .15s;flex-shrink:0}
 .sidebar-resize:hover,.sidebar-resize.active{background:var(--accent)}
 body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
@@ -29,7 +29,7 @@ body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
 .sidebar .logo h1{font-size:15px;color:var(--accent);font-weight:700}
 .sidebar .logo span{font-size:11px;color:var(--muted)}
 .sidebar .nav-title{font-size:11px;color:#5c5652;font-weight:700;padding:0 15px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
-.sidebar .nav-btn{display:block;width:100%;text-align:left;padding:10px 15px;margin:2px 12px;border:none;background:transparent;color:#9a9490;font-size:13px;border-radius:6px;cursor:pointer;transition:.15s}
+.sidebar .nav-btn{display:block;width:100%;text-align:left;padding:10px 15px;margin:2px 12px;border:none;background:transparent;color:#9a9490;font-size:13px;border-radius:6px;cursor:pointer;transition:.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sidebar .nav-btn:hover{background:#29233a;color:#c4beb8}
 .sidebar .nav-btn.active{background:#29233a;color:var(--accent)}
 .main{flex:1;display:flex;flex-direction:column;padding:15px 20px;height:100vh;overflow:hidden;min-width:0}
@@ -52,7 +52,7 @@ body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
 input,select,textarea{background:#1a1a30;border:1px solid #282233;border-radius:var(--radius-sm);color:var(--text);padding:7px 10px;font-size:12px;outline:none}
 input:focus,select:focus,button:focus-visible{ border-color:var(--accent);outline:2px solid var(--accent);outline-offset:1px}
 .btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-select{min-width:120px;background:var(--card);color:var(--text);border:1px solid #363049;border-radius:4px;padding:4px 8px;font-size:12px;cursor:pointer}
+select{min-width:120px;background:var(--card);color:var(--text);border:1px solid #363049;border-radius:4px;padding:4px 8px;font-size:12px;cursor:pointer;color-scheme:dark}
 select option{background:#1e1e36;color:#c4c4cc}
 .table-header{display:flex;background:var(--header);border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:0;font-size:12px;font-weight:700;color:#9a9490;overflow:hidden}
 .table-header span{ padding:10px 4px;cursor:pointer;user-select:none}
@@ -262,7 +262,7 @@ function renderProjectRows(projects) {
       <span style="width:270px" title="${r.name}">${r.name}</span>
       <span style="width:90px">${cat}</span>
       <span style="width:100px">
-        <select style="font-size:11px;padding:2px 4px;background:var(--card);border:1px solid #363049;color:${color};border-radius:4px;cursor:pointer;max-width:100px" 
+        <select style="font-size:11px;padding:2px 4px;background:var(--card);border:1px solid #363049;color:var(--text);border-radius:4px;cursor:pointer;max-width:100px" 
           onchange="quickUpdateStatus(${r.id},this.value,this.dataset.current)" 
           data-current="${r.current_status}">
           ${STATUSES.map(s=>`<option value="${s}" ${s===r.current_status?'selected':''}>${s}</option>`).join('')}
@@ -1246,7 +1246,7 @@ document.addEventListener('scroll', e => {
 
   // restore saved width
   const savedW = localStorage.getItem('sidebarWidth');
-  if (savedW) { const w = parseInt(savedW); if (w >= 120 && w <= 500) sidebar.style.width = w + 'px'; }
+  if (savedW) { const w = parseInt(savedW); if (w >= 140 && w <= 600) sidebar.style.width = w + 'px'; }
 
   handle.addEventListener('mousedown', e => {
     sbResize = { startX: e.clientX, startW: sidebar.offsetWidth };
@@ -1258,7 +1258,7 @@ document.addEventListener('scroll', e => {
   document.addEventListener('mousemove', e => {
     if (!sbResize) return;
     const diff = e.clientX - sbResize.startX;
-    const newW = Math.max(120, Math.min(500, sbResize.startW + diff));
+    const newW = Math.max(140, Math.min(600, sbResize.startW + diff));
     sidebar.style.width = newW + 'px';
     localStorage.setItem('sidebarWidth', newW);
   });
