@@ -242,7 +242,13 @@ function renderProjectRows(projects) {
       <span style="width:50px"><input type="checkbox" data-pid="${r.id}" onclick="handleCheckClick(event,${r.id})" onchange="toggleSelect(${r.id},this.checked)"> ${r.id}</span>
       <span style="width:270px" title="${r.name}">${r.name}</span>
       <span style="width:90px">${cat}</span>
-      <span style="width:100px"><span class="status-dot" style="color:${color}">●</span><b style="color:${color}">${r.current_status}</b></span>
+      <span style="width:100px">
+        <select style="font-size:11px;padding:2px 4px;background:transparent;border:1px solid #2a2a4a;color:${color};border-radius:4px;cursor:pointer;max-width:100px" 
+          onchange="quickUpdateStatus(${r.id},this.value,this.dataset.current)" 
+          data-current="${r.current_status}">
+          ${STATUSES.map(s=>`<option value="${s}" ${s===r.current_status?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </span>
       <span style="width:130px;color:var(--muted)">${(r.note||'').substring(0,18)}</span>
       <span style="width:90px;color:${editD!=='未設定'?'#9ec5fe':'var(--muted)'};cursor:pointer" onclick="showEditDateModal(${r.id},'edit_date','${r.edit_date||''}')">${editD}</span>
       <span style="width:90px;color:${revD!=='未設定'?'var(--warning)':'var(--muted)'};cursor:pointer" onclick="showEditDateModal(${r.id},'review_date','${r.review_date||''}')">${revD}</span>
@@ -376,6 +382,7 @@ async function renderMaterials() {
         <option value="">全部業務線</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
       </select>
       <button class="btn btn-success" onclick="showMatAddModal()">＋ 新增素材</button>
+      <button class="btn btn-sm btn-outline" onclick="showMatBatchAddModal()">批次新增</button>
     </div>
     <div class="table-header">
       <span style="width:50px" onclick="matToggleSort('id')">ID ${matSortArrow('id')}</span>
@@ -533,6 +540,34 @@ function showMatAddModal() {
   });
 }
 
+// ── Material Batch Add ────────────────────────────────────────
+function showMatBatchAddModal() {
+  showModal('批次新增素材', `
+    <div class="field"><label>業務線</label><select id="matBatchCat">${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}</select></div>
+    <div class="field"><label>新增數量</label><input type="number" id="matBatchCount" value="5" min="1" max="50" style="width:100px"></div>
+    <div class="field"><label>基礎名稱（可留空，自動編號）</label><input id="matBatchName" placeholder="例如：白蟻案例素材"></div>
+    <div class="field"><label>備註（全部套用）</label><textarea id="matBatchNote" rows="2" placeholder="可選"></textarea></div>
+  `, async (ov) => {
+    const catMap = {}; for(const [k,v] of Object.entries(CATEGORIES)) catMap[v]=k;
+    const category = catMap[ov.querySelector('#matBatchCat').value] || 'pest_care';
+    const count = parseInt(ov.querySelector('#matBatchCount').value) || 5;
+    const baseName = ov.querySelector('#matBatchName').value.trim() || '未命名素材';
+    const note = ov.querySelector('#matBatchNote').value.trim();
+    ov.remove();
+    toast(`正在新增 ${count} 個素材...`);
+    let success = 0, fail = 0;
+    for(let i = 1; i <= count; i++) {
+      const name = `${baseName}_${String(i).padStart(2,'0')}`;
+      try {
+        await api('/api/materials', {method:'POST',body:JSON.stringify({name,category,note})});
+        success++;
+      } catch(e) { fail++; }
+    }
+    toast(`已新增 ${success} 個素材${fail>0?`，${fail} 個失敗`:''}`);
+    renderMaterials();
+  });
+}
+
 function showMatEditModal(mid, name, category, note) {
   const currentLabel = CATEGORIES[category] || category;
   showModal('編輯素材', `
@@ -597,6 +632,13 @@ function showAddModal() {
   });
 }
 
+async function quickUpdateStatus(pid, newStatus, oldStatus) {
+  if (newStatus === oldStatus) return;
+  await api(`/api/projects/${pid}/status`, {method:'PUT',body:JSON.stringify({status:newStatus,note:''})});
+  toast(`#${pid} 狀態：${oldStatus} → ${newStatus}`);
+  renderProjects();
+}
+
 function showStatusModal(pid, current) {
   showModal('更新狀態', `
     <p style="margin-bottom:10px;font-size:13px">目前：<b style="color:${STATUS_COLORS[current]||'#fff'}">${current}</b></p>
@@ -626,7 +668,7 @@ function showEditTimeModal(pid, cur) {
   const dp = cur.substring(0,10)||'';
   const tp = cur.substring(11,19)||'00:00:00';
   showModal('編輯更新時間', `
-    <div class="field"><label>日期</label><input id="mDate" value="${dp}" placeholder="YYYY-MM-DD"></div>
+    <div class="field"><label>日期</label><input type="date" id="mDate" value="${dp}"></div>
     <div class="field"><label>時間</label><input id="mTime" value="${tp}" placeholder="HH:MM:SS"></div>
     <button class="btn btn-sm btn-gray" onclick="document.getElementById('mDate').value='${new Date().toISOString().substring(0,10)}';document.getElementById('mTime').value='${new Date().toTimeString().substring(0,8)}'">現在時間</button>
   `, async (ov) => {
@@ -637,10 +679,10 @@ function showEditTimeModal(pid, cur) {
 }
 
 function showEditDateModal(pid, field, cur) {
-  const label = field==='edit_date'?'剪輯日期':'送審日期';
+  const label = field==='edit_date'?'剪輯日期':field==='review_date'?'送審日期':'發佈日期';
   const dp = cur.substring(0,10)||'';
   showModal(`編輯${label}`, `
-    <div class="field"><label>${label}</label><input id="mDate" value="${dp}" placeholder="YYYY-MM-DD"></div>
+    <div class="field"><label>${label}</label><input type="date" id="mDate" value="${dp}"></div>
     <button class="btn btn-sm btn-gray" onclick="document.getElementById('mDate').value='${new Date().toISOString().substring(0,10)}'">今天</button>
     <button class="btn btn-sm btn-outline" onclick="document.getElementById('mDate').value=''">清除</button>
   `, async (ov) => {
