@@ -1,4 +1,4 @@
-<!-- deploy: 2026-07-09-v3.3 -->
+<!-- deploy: 2026-07-10-v4.0 taste -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -10,15 +10,17 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <style>
 :root {
-  --bg: #12121f; --card: #1a1a30; --header: #1e1e32;
-  --sidebar: #1a1a2e; --accent: #4fc3f7; --text: #ccc; --muted: #888;
-  --danger: #dc3545; --success: #198754; --primary: #0d6efd;
-  --purple: #6f42c1; --warning: #ffc107; --info: #0dcaf0;
-  --danger-hover: #b02a37; --success-hover: #157347;
+  --bg: #0f0f1a; --card: #17172a; --header: #1a1a30;
+  --sidebar: #121220; --accent: #c9946e; --text: #c4c4cc; --muted: #7a7a88;
+  --danger: #e0556a; --success: #4dab8e; --primary: #5b8cc9;
+  --purple: #8b6fbf; --warning: #d4a843; --info: #6ebccf;
+  --danger-hover: #c43b50; --success-hover: #3d9478;
   --radius: 8px; --radius-sm: 6px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;scroll-behavior:smooth}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");opacity:.4}
+.table-header span,.row span,[style*="width"]{font-variant-numeric:tabular-nums}
 .sidebar{width:200px;min-width:120px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;padding:25px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
 .sidebar-resize{width:5px;min-width:5px;cursor:col-resize;background:transparent;transition:background .15s;flex-shrink:0}
 .sidebar-resize:hover,.sidebar-resize.active{background:var(--accent)}
@@ -26,34 +28,35 @@ body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
 .sidebar .logo{padding:0 15px;margin-bottom:30px}
 .sidebar .logo h1{font-size:15px;color:var(--accent);font-weight:700}
 .sidebar .logo span{font-size:11px;color:var(--muted)}
-.sidebar .nav-title{font-size:11px;color:#666;font-weight:700;padding:0 15px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
-.sidebar .nav-btn{display:block;width:100%;text-align:left;padding:10px 15px;margin:2px 12px;border:none;background:transparent;color:#aaa;font-size:13px;border-radius:6px;cursor:pointer;transition:.15s}
-.sidebar .nav-btn:hover{background:#2d2d50;color:#ddd}
-.sidebar .nav-btn.active{background:#2d2d50;color:var(--accent)}
+.sidebar .nav-title{font-size:11px;color:#5c5652;font-weight:700;padding:0 15px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+.sidebar .nav-btn{display:block;width:100%;text-align:left;padding:10px 15px;margin:2px 12px;border:none;background:transparent;color:#9a9490;font-size:13px;border-radius:6px;cursor:pointer;transition:.15s}
+.sidebar .nav-btn:hover{background:#29233a;color:#c4beb8}
+.sidebar .nav-btn.active{background:#29233a;color:var(--accent)}
 .main{flex:1;display:flex;flex-direction:column;padding:15px 20px;height:100vh;overflow:hidden;min-width:0}
-.main-scroll{flex:1;overflow-y:auto;overflow-x:auto;min-height:0}
+.main-scroll{flex:1;overflow-y:auto;overflow-x:auto;min-height:0;scroll-behavior:smooth}
 .main-scroll::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:6px;height:6px}
-.main-scroll::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#3a3a5a;border-radius:3px}
+.main-scroll::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#363049;border-radius:3px}
 .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .toolbar h2{font-size:18px;font-weight:700;margin-right:auto}
 .btn{padding:7px 14px;border:none;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-weight:600;transition:.15s;white-space:nowrap}
-.btn:hover{opacity:.9}
+.btn:hover{opacity:.9;transform:translateY(-1px)}
+.btn:active{transform:scale(.97) translateY(0)}
 .btn-sm{padding:5px 10px;font-size:11px}
 .btn-primary{background:var(--primary);color:#fff}
 .btn-success{background:var(--success);color:#fff}
 .btn-danger{background:var(--danger);color:#fff}
 .btn-purple{background:var(--purple);color:#fff}
-.btn-gray{background:#495057;color:#fff}
-.btn-accent{background:var(--accent);color:#000}
-.btn-outline{background:transparent;border:1px solid #444;color:#aaa}
-input,select,textarea{background:#1a1a30;border:1px solid #2a2a4a;border-radius:var(--radius-sm);color:var(--text);padding:7px 10px;font-size:12px;outline:none}
+.btn-gray{background:#4a424a;color:#fff}
+.btn-accent{background:var(--accent);color:#16130d}
+.btn-outline{background:transparent;border:1px solid #3e3840;color:#9a9490}
+input,select,textarea{background:#1a1a30;border:1px solid #282233;border-radius:var(--radius-sm);color:var(--text);padding:7px 10px;font-size:12px;outline:none}
 input:focus,select:focus,button:focus-visible{ border-color:var(--accent);outline:2px solid var(--accent);outline-offset:1px}
 .btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-select{min-width:120px;background:var(--card);color:var(--text);border:1px solid #3a3a5a;border-radius:4px;padding:4px 8px;font-size:12px;cursor:pointer}
-select option{background:#1e1e3a;color:#ccc}
-.table-header{display:flex;background:var(--header);border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:0;font-size:12px;font-weight:700;color:#aaa;overflow:hidden}
+select{min-width:120px;background:var(--card);color:var(--text);border:1px solid #363049;border-radius:4px;padding:4px 8px;font-size:12px;cursor:pointer}
+select option{background:#1e1e36;color:#c4c4cc}
+.table-header{display:flex;background:var(--header);border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:0;font-size:12px;font-weight:700;color:#9a9490;overflow:hidden}
 .table-header span{ padding:10px 4px;cursor:pointer;user-select:none}
-.table-header span:hover{background:#2a2a4a}
+.table-header span:hover{background:#282233}
 .table-header span{position:relative;padding:8px 8px 8px 6px}
 .resize-handle{position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:5}
 .resize-handle:hover,.resize-handle.active{background:var(--accent);opacity:.6}
@@ -61,10 +64,10 @@ select option{background:#1e1e3a;color:#ccc}
 body.col-resizing{cursor:col-resize!important;user-select:none!important}
 body.col-resizing .table-header span{cursor:col-resize!important}
 .row{display:flex;align-items:center;background:var(--card);border-radius:var(--radius-sm);margin:2px 0;padding:6px 0;font-size:12px;transition:.1s}
-.row:hover{background:#222240}
+.row:hover{background:#221e2a}
 .row span,.row .cell{padding:5px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .status-dot{font-size:10px;margin-right:3px}
-.card{background:var(--card);border-radius:var(--radius);padding:15px;border:1px solid #2a2a4a}
+.card{background:var(--card);border-radius:var(--radius);padding:15px;border:1px solid #282233}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
 .status-card{display:flex;align-items:center;gap:8px;padding:12px 15px;background:var(--card);border-radius:var(--radius)}
 .status-card .count{font-size:22px;font-weight:700;margin-left:auto}
@@ -85,9 +88,9 @@ canvas{max-width:100%}
 .check-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0}
 .empty{text-align:center;color:var(--muted);padding:40px;font-size:14px}
 .bar-outer{flex:1;background:var(--bg);border-radius:5px;height:18px;overflow:hidden;min-width:100px}
-.bar-inner{height:100%;background:#20c997;border-radius:5px;transition:width .3s}
+.bar-inner{height:100%;background:#4dab8e;border-radius:5px;transition:width .3s}
 .tab-bar{display:flex;gap:4px;margin-bottom:10px}
-.report-box{background:var(--card);border:1px solid #2a2a4a;border-radius:var(--radius);padding:20px;font-family:monospace;font-size:13px;white-space:pre-wrap;line-height:1.6;flex:1;overflow-y:auto;min-height:0}
+.report-box{background:var(--card);border:1px solid #282233;border-radius:var(--radius);padding:20px;font-family:monospace;font-size:13px;white-space:pre-wrap;line-height:1.6;flex:1;overflow-y:auto;min-height:0}
 .status-tag{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
 input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px}
 .progress-row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}
@@ -127,7 +130,7 @@ input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px}
 const API_BASE = 'https://wood0807.pythonanywhere.com';  // Render backend URL
 
 const STATUSES = ["素材歸檔","已停止","剪輯中","MKT審核中","MKT退回","老闆審核中","老闆退回","審核通過","文案撰寫中","準備排程","已排程","已發布"];
-const STATUS_COLORS = {"素材歸檔":"#6c757d","已停止":"#e83e8c","剪輯中":"#fd7e14","MKT審核中":"#0d6efd","MKT退回":"#dc3545","老闆審核中":"#6f42c1","老闆退回":"#b02a37","審核通過":"#198754","文案撰寫中":"#20c997","準備排程":"#ffc107","已排程":"#0dcaf0","已發布":"#146c43"};
+const STATUS_COLORS = {"素材歸檔":"#7a7a88","已停止":"#c46a8a","剪輯中":"#d4956b","MKT審核中":"#5b8cc9","MKT退回":"#e0556a","老闆審核中":"#8b6fbf","老闆退回":"#c43b50","審核通過":"#3d9478","文案撰寫中":"#4dab8e","準備排程":"#d4a843","已排程":"#6ebccf","已發布":"#2d7a5f"};
 
 let CATEGORIES = {};
 let ALL_CATEGORY_LABELS = [];
@@ -259,7 +262,7 @@ function renderProjectRows(projects) {
       <span style="width:270px" title="${r.name}">${r.name}</span>
       <span style="width:90px">${cat}</span>
       <span style="width:100px">
-        <select style="font-size:11px;padding:2px 4px;background:var(--card);border:1px solid #3a3a5a;color:${color};border-radius:4px;cursor:pointer;max-width:100px" 
+        <select style="font-size:11px;padding:2px 4px;background:var(--card);border:1px solid #363049;color:${color};border-radius:4px;cursor:pointer;max-width:100px" 
           onchange="quickUpdateStatus(${r.id},this.value,this.dataset.current)" 
           data-current="${r.current_status}">
           ${STATUSES.map(s=>`<option value="${s}" ${s===r.current_status?'selected':''}>${s}</option>`).join('')}
@@ -874,9 +877,9 @@ async function renderDashboard() {
   const d = await res.json();
 
   const overview = [
-    {title:'專案總數', val:d.total, color:'#4fc3f7'},
-    {title:'活躍專案', val:d.active, color:'#fd7e14'},
-    {title:'業務線', val:d.category_count, color:'#20c997'},
+    {title:'專案總數', val:d.total, color:'#c9946e'},
+    {title:'活躍專案', val:d.active, color:'#d4956b'},
+    {title:'業務線', val:d.category_count, color:'#4dab8e'},
     {title:'垃圾桶', val:d.trash, color:'#dc3545'},
   ];
 
@@ -942,16 +945,16 @@ async function loadStats() {
   document.getElementById('statsLabel').textContent = d.label;
 
   let html = `<div class="card-grid" style="margin-bottom:15px">
-    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">新建影片</div><div style="font-size:26px;font-weight:700;color:#4fc3f7">${d.created.length}</div></div>
-    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">有進度</div><div style="font-size:26px;font-weight:700;color:#fd7e14">${d.active.length}</div></div>
-    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">已發布</div><div style="font-size:26px;font-weight:700;color:#20c997">${d.published.length}</div></div>
+    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">新建影片</div><div style="font-size:26px;font-weight:700;color:#c9946e">${d.created.length}</div></div>
+    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">有進度</div><div style="font-size:26px;font-weight:700;color:#d4956b">${d.active.length}</div></div>
+    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">已發布</div><div style="font-size:26px;font-weight:700;color:#4dab8e">${d.published.length}</div></div>
   </div>`;
 
   if(Object.keys(d.status_counts).length) {
     html += '<h3 style="margin-bottom:8px;font-size:14px">狀態分布</h3><div class="check-row">';
     const sorted = Object.entries(d.status_counts).sort((a,b)=>b[1]-a[1]);
     for(const [st,cnt] of sorted) {
-      html += `<span class="badge" style="background:${STATUS_COLORS[st]||'#555'}22;color:${STATUS_COLORS[st]||'#ccc'};border:1px solid ${STATUS_COLORS[st]||'#555'}">${st} ×${cnt}</span>`;
+      html += `<span class="badge" style="background:${STATUS_COLORS[st]||'#554c44'}22;color:${STATUS_COLORS[st]||'#c4c4cc'};border:1px solid ${STATUS_COLORS[st]||'#554c44'}">${st} ×${cnt}</span>`;
     }
     html += '</div>';
   }
@@ -966,7 +969,7 @@ async function loadStats() {
     for(const k of allCats) {
       const cc=d.cat_created[k]||0, ca=d.cat_active[k]||0, cp=d.cat_published[k]||0;
       if(!cc&&!ca&&!cp) continue;
-      html += `<tr><td style="padding:5px">${CATEGORIES[k]}</td><td style="padding:5px;text-align:center;color:${cc?'#4fc3f7':'var(--muted)'}">${cc}</td><td style="padding:5px;text-align:center;color:${ca?'#fd7e14':'var(--muted)'}">${ca}</td><td style="padding:5px;text-align:center;color:${cp?'#20c997':'var(--muted)'}">${cp}</td></tr>`;
+      html += `<tr><td style="padding:5px">${CATEGORIES[k]}</td><td style="padding:5px;text-align:center;color:${cc?'#c9946e':'var(--muted)'}">${cc}</td><td style="padding:5px;text-align:center;color:${ca?'#d4956b':'var(--muted)'}">${ca}</td><td style="padding:5px;text-align:center;color:${cp?'#4dab8e':'var(--muted)'}">${cp}</td></tr>`;
     }
     html += '</table></div>';
   } else {
@@ -995,7 +998,7 @@ function renderCharts(d) {
   // Status data
   const stLabels = Object.keys(d.status_counts);
   const stValues = Object.values(d.status_counts);
-  const stColors = stLabels.map(s => STATUS_COLORS[s]||'#aaa');
+  const stColors = stLabels.map(s => STATUS_COLORS[s]||'#9a9490');
 
   const hasCatData = catValues.length && catValues.some(v=>v>0);
   const hasStData = stValues.length && stValues.some(v=>v>0);
@@ -1011,30 +1014,30 @@ function renderCharts(d) {
     ${hasTrend ? '<div class="chart-wrap"><canvas id="lineChart"></canvas></div>' : ''}
   `;
 
-  Chart.defaults.color = '#ccc';
-  Chart.defaults.borderColor = '#2a2a4a';
+  Chart.defaults.color = '#c4c4cc';
+  Chart.defaults.borderColor = '#282233';
 
   if(hasCatData) {
     new Chart(document.getElementById('pieChart'), {
-      type:'pie', data:{labels:catLabels,datasets:[{data:catValues,backgroundColor:['#4fc3f7','#fd7e14','#20c997','#ffc107','#0dcaf0','#dc3545','#6f42c1','#e83e8c','#6c757d','#146c43','#0d6efd','#b02a37','#198754','#20c997','#ffc107','#0dcaf0']}]},
-      options:{plugins:{legend:{position:'bottom',labels:{font:{size:10},color:'#ccc'}, onClick:function(){return false}}}}
+      type:'pie', data:{labels:catLabels,datasets:[{data:catValues,backgroundColor:['#c9946e','#d4956b','#4dab8e','#d4a843','#6ebccf','#e0556a','#8b6fbf','#c46a8a','#7a7a88','#4dab8e','#5b8cc9','#c43b50','#3d9478','#6ebccf','#d4a843','#8b6fbf']}]},
+      options:{plugins:{legend:{position:'bottom',labels:{font:{size:10},color:'#c4c4cc'}, onClick:function(){return false}}}}
     });
   }
 
   if(hasStData) {
     new Chart(document.getElementById('barChart'), {
       type:'bar', data:{labels:stLabels,datasets:[{data:stValues,backgroundColor:stColors}]},
-      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#2a2a4a'},ticks:{color:'#888'}},y:{grid:{display:false},ticks:{color:'#888'}}}}
+      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#282233'},ticks:{color:'#7a7a88'}},y:{grid:{display:false},ticks:{color:'#7a7a88'}}}}
     });
   }
 
   if(hasTrend) {
     new Chart(document.getElementById('lineChart'), {
       type:'line', data:{labels:d.trend.months,datasets:[
-        {label:'建立專案',data:d.trend.created,borderColor:'#4fc3f7',backgroundColor:'#4fc3f733',tension:.3},
-        {label:'已發布',data:d.trend.published,borderColor:'#20c997',backgroundColor:'#20c99733',tension:.3}
+        {label:'建立專案',data:d.trend.created,borderColor:'#c9946e',backgroundColor:'#c9946e33',tension:.3},
+        {label:'已發布',data:d.trend.published,borderColor:'#4dab8e',backgroundColor:'#4dab8e33',tension:.3}
       ]},
-      options:{plugins:{legend:{labels:{color:'#ccc'}}},scales:{x:{grid:{color:'#2a2a4a'},ticks:{color:'#888'}},y:{grid:{color:'#2a2a4a'},ticks:{color:'#888'}}}}
+      options:{plugins:{legend:{labels:{color:'#c4c4cc'}}},scales:{x:{grid:{color:'#282233'},ticks:{color:'#7a7a88'}},y:{grid:{color:'#282233'},ticks:{color:'#7a7a88'}}}}
     });
   }
 }
