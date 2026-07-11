@@ -1,0 +1,996 @@
+<!-- deploy: 2026-07-10-v4.0 taste -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UltraClean Tracker - 唯讀模式</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0f0f1a; --card: #17172a; --header: #1a1a30;
+  --sidebar: #121220; --accent: #c9946e; --text: #c4c4cc; --muted: #7a7a88;
+  --danger: #e0556a; --success: #4dab8e; --primary: #5b8cc9;
+  --purple: #8b6fbf; --warning: #d4a843; --info: #6ebccf;
+  --danger-hover: #c43b50; --success-hover: #3d9478;
+  --radius: 8px; --radius-sm: 6px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;scroll-behavior:smooth}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");opacity:.4}
+.table-header span,.row span,[style*="width"]{font-variant-numeric:tabular-nums}
+.sidebar{width:240px;min-width:140px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;padding:25px 0;position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden}
+.sidebar-resize{width:5px;min-width:5px;cursor:col-resize;background:transparent;transition:background .15s;flex-shrink:0}
+.sidebar-resize:hover,.sidebar-resize.active{background:var(--accent)}
+body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
+.sidebar .logo{padding:0 15px;margin-bottom:30px}
+.sidebar .logo h1{font-size:15px;color:var(--accent);font-weight:700}
+.sidebar .logo span{font-size:11px;color:var(--muted)}
+.sidebar .nav-title{font-size:11px;color:#5c5652;font-weight:700;padding:0 15px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+.sidebar .nav-btn{display:block;width:100%;text-align:left;padding:10px 15px;margin:2px 12px;border:none;background:transparent;color:#9a9490;font-size:13px;border-radius:6px;cursor:pointer;transition:.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar .nav-btn:hover{background:#29233a;color:#c4beb8}
+.sidebar .nav-btn.active{background:#29233a;color:var(--accent)}
+.main{flex:1;display:flex;flex-direction:column;padding:15px 20px;height:100vh;overflow:hidden;min-width:0}
+.main-scroll{flex:1;overflow-y:auto;overflow-x:auto;min-height:0;scroll-behavior:smooth}
+.main-scroll::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:6px;height:6px}
+.main-scroll::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#363049;border-radius:3px}
+.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar h2{font-size:18px;font-weight:700;margin-right:auto}
+.btn{padding:7px 14px;border:none;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-weight:600;transition:.15s;white-space:nowrap}
+.btn:hover{opacity:.9;transform:translateY(-1px)}
+.btn:active{transform:scale(.97) translateY(0)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-gray{background:#4a424a;color:#fff}
+.btn-accent{background:var(--accent);color:#16130d}
+.btn-outline{background:transparent;border:1px solid #3e3840;color:#9a9490}
+input,select,textarea{background:#1a1a30;border:1px solid #282233;border-radius:var(--radius-sm);color:var(--text);padding:7px 10px;font-size:12px;outline:none}
+input:focus,select:focus,button:focus-visible{ border-color:var(--accent);outline:2px solid var(--accent);outline-offset:1px}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+select{min-width:120px;background:var(--card);color:var(--text);border:1px solid #363049;border-radius:4px;padding:4px 8px;font-size:12px;cursor:pointer;color-scheme:dark}
+select option{background:#1e1e36;color:#c4c4cc}
+.table-header{display:flex;background:var(--header);border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:0;font-size:12px;font-weight:700;color:#9a9490;overflow:hidden}
+.table-header span{ padding:10px 4px;cursor:pointer;user-select:none}
+.table-header span:hover{background:#282233}
+.table-header span{position:relative;padding:8px 8px 8px 6px}
+.resize-handle{position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:5}
+.resize-handle:hover,.resize-handle.active{background:var(--accent);opacity:.6}
+.table-header span:last-child .resize-handle{display:none}
+body.col-resizing{cursor:col-resize!important;user-select:none!important}
+body.col-resizing .table-header span{cursor:col-resize!important}
+.row{display:flex;align-items:center;background:var(--card);border-radius:var(--radius-sm);margin:2px 0;padding:6px 0;font-size:12px;transition:.1s}
+.row:hover{background:#221e2a}
+.row span,.row .cell{padding:5px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status-dot{font-size:10px;margin-right:3px}
+.card{background:var(--card);border-radius:var(--radius);padding:15px;border:1px solid #282233}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.status-card{display:flex;align-items:center;gap:8px;padding:12px 15px;background:var(--card);border-radius:var(--radius)}
+.status-card .count{font-size:22px;font-weight:700;margin-left:auto}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
+.paging{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);margin-top:8px}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:var(--card);border-radius:var(--radius);padding:25px;width:90%;max-width:480px;max-height:85vh;overflow-y:auto}
+.modal h3{margin-bottom:15px;font-size:16px}
+.modal .field{margin-bottom:12px}
+.modal .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.modal .field input,.modal .field select,.modal .field textarea{width:100%}
+.modal .btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:15px}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--success);color:#fff;padding:8px 20px;border-radius:20px;font-size:12px;z-index:200;animation:fadein .3s}
+@keyframes fadein{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.scroll{overflow-y:auto;flex:1;min-height:0}
+.chart-wrap{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:15px}
+canvas{max-width:100%}
+.check-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0}
+.empty{text-align:center;color:var(--muted);padding:40px;font-size:14px}
+.bar-outer{flex:1;background:var(--bg);border-radius:5px;height:18px;overflow:hidden;min-width:100px}
+.bar-inner{height:100%;background:#4dab8e;border-radius:5px;transition:width .3s}
+.tab-bar{display:flex;gap:4px;margin-bottom:10px}
+.report-box{background:var(--card);border:1px solid #282233;border-radius:var(--radius);padding:20px;font-family:monospace;font-size:13px;white-space:pre-wrap;line-height:1.6;flex:1;overflow-y:auto;min-height:0}
+.status-tag{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px}
+.progress-row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}
+.progress-row .lbl{width:120px;min-width:120px}
+@media(max-width:768px){
+  body{flex-direction:column}
+  .sidebar{width:100%;min-width:auto;height:auto;position:static;flex-direction:row;flex-wrap:wrap;padding:10px;gap:4px}
+  .sidebar .logo,.sidebar .nav-title{display:none}
+  .sidebar .nav-btn{width:auto;margin:2px;padding:6px 12px;font-size:11px}
+  .main{padding:10px}
+  .table-header span,.row span{font-size:10px}
+  .card-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .sidebar-resize{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="logo"><h1>Ultra Cleaning</h1><span>影片工作流 v3.0</span></div>
+  <div class="nav-title">功能選單</div>
+  <div style="padding:4px 15px;margin-bottom:10px;font-size:10px;color:#c9946e;background:#1a1512;border-left:2px solid #c9946e">唯讀模式</div>
+  <button class="nav-btn active" data-page="projects">專案管理</button>
+  <button class="nav-btn" data-page="materials">素材庫存</button>
+  <button class="nav-btn" data-page="daily">日報</button>
+  <button class="nav-btn" data-page="weekly">週報</button>
+  <button class="nav-btn" data-page="dashboard">狀態總覽</button>
+  <button class="nav-btn" data-page="stats">報表中心</button>
+  
+</nav>
+<div class="sidebar-resize" id="sidebarResize"></div>
+<!-- Main -->
+<div class="main" id="main"></div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────
+const API_BASE = 'https://wood0807.pythonanywhere.com';  // Render backend URL
+
+const STATUSES = ["素材歸檔","已停止","剪輯中","MKT審核中","MKT退回","老闆審核中","老闆退回","審核通過","文案撰寫中","準備排程","已排程","已發布"];
+const STATUS_COLORS = {"素材歸檔":"#7a7a88","已停止":"#c46a8a","剪輯中":"#d4956b","MKT審核中":"#5b8cc9","MKT退回":"#e0556a","老闆審核中":"#8b6fbf","老闆退回":"#c43b50","審核通過":"#3d9478","文案撰寫中":"#4dab8e","準備排程":"#d4a843","已排程":"#6ebccf","已發布":"#2d7a5f"};
+
+let CATEGORIES = {};
+let ALL_CATEGORY_LABELS = [];
+
+async function loadConfig() {
+  try {
+    const r = await fetch(`${API_BASE}/api/config`);
+    const d = await r.json();
+    CATEGORIES = d.categories || {};
+    ALL_CATEGORY_LABELS = d.category_labels || [];
+  } catch(e) { /* use defaults */ }
+}
+loadConfig();
+
+// ── Navigation ────────────────────────────────────────────────
+document.querySelectorAll('.nav-btn').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    loadPage(b.dataset.page);
+  };
+});
+
+// ── Toast ─────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
+}
+
+// ── API helpers ───────────────────────────────────────────────
+async function api(url, opts={}) {
+  const res = await fetch(`${API_BASE}${url}`, {
+    headers: {'Content-Type':'application/json'},
+    ...opts
+  });
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error||'Request failed'); }
+  return res;
+}
+
+// ── Page loader ───────────────────────────────────────────────
+async function loadPage(page) {
+  const main = document.getElementById('main');
+  main.innerHTML = '<div class="empty">載入中...</div>';
+  try {
+    switch(page) {
+      case 'projects': await renderProjects(); break;
+      case 'materials': await renderMaterials(); break;
+      case 'daily': await renderDaily(); break;
+      case 'weekly': await renderWeekly(); break;
+      case 'dashboard': await renderDashboard(); break;
+      case 'stats': await renderStats(); break;
+      case 'trash': await renderTrash(); break;
+    }
+  } catch(e) { main.innerHTML = `<div class="empty" style="color:var(--danger)">錯誤：${e.message}</div>`; }
+}
+
+// ── Projects Page ─────────────────────────────────────────────
+let projState = {sortCol:'updated_at',sortAsc:false,page:0,status:'',category:'',search:'',selected:new Set(),total:0};
+
+async function renderProjects() {
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="toolbar"><h2>專案管理</h2>
+      <input id="projSearch" placeholder="搜尋名稱..." style="width:180px" oninput="projState.search=this.value;projState.page=0;renderProjects()">
+      <select id="projStatusFilter" onchange="projState.status=this.value;projState.page=0;renderProjects()">
+        <option value="">全部狀態</option>${STATUSES.map(s=>`<option>${s}</option>`).join('')}
+      </select>
+      <select id="projCatFilter" onchange="projState.category=this.value;projState.page=0;renderProjects()">
+        <option value="">全部業務線</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
+      </select>
+      
+      
+      
+    </div>
+    <div class="table-header">
+      <span style="width:50px" onclick="toggleSort('id')">ID ${sortArrow('id')}</span>
+      <span style="width:270px" onclick="toggleSort('name')">影片名稱 ${sortArrow('name')}</span>
+      <span style="width:90px" onclick="toggleSort('category')">業務線 ${sortArrow('category')}</span>
+      <span style="width:100px" onclick="toggleSort('current_status')">狀態 ${sortArrow('current_status')}</span>
+      <span style="width:130px">備註</span>
+      <span style="width:90px" onclick="toggleSort('edit_date')">剪輯日期 ${sortArrow('edit_date')}</span>
+      <span style="width:90px" onclick="toggleSort('review_date')">送審日期 ${sortArrow('review_date')}</span>
+      <span style="width:90px" onclick="toggleSort('publish_date')">發佈日期 ${sortArrow('publish_date')}</span>
+      <span style="width:120px" onclick="toggleSort('updated_at')">更新時間 ${sortArrow('updated_at')}</span>
+      <span style="width:160px"></span>
+    </div>
+    <div class="main-scroll"><div class="scroll" id="projList"></div></div>
+    <div id="projBatch" class="check-row" style="display:none"></div>
+    <div id="projPaging" class="paging"></div>
+  `;
+  projState.selected.clear();
+  await loadProjects();
+}
+
+function sortArrow(col) { return projState.sortCol===col ? (projState.sortAsc?' ▲':' ▼') : ''; }
+function toggleSort(col) {
+  if(projState.sortCol===col) projState.sortAsc=!projState.sortAsc; else {projState.sortCol=col;projState.sortAsc=true;}
+  projState.page=0; renderProjects();
+}
+
+async function loadProjects() {
+  const p = projState;
+  const params = new URLSearchParams({
+    sort_col:p.sortCol, sort_asc:p.sortAsc, page:p.page, limit:200,
+    status:p.status, category:p.category, search:p.search
+  });
+  const res = await api(`/api/projects?${params}`);
+  const data = await res.json();
+  p.total = data.total;
+  renderProjectRows(data.projects);
+  renderPaging(data.total, data.projects.length);
+}
+
+function renderProjectRows(projects) {
+  const list = document.getElementById('projList');
+  if(!projects.length) { list.innerHTML='<div class="empty">尚無專案</div>'; return; }
+  list.innerHTML = projects.map((r,i) => {
+    const cat = CATEGORIES[r.category] || r.category;
+    const color = STATUS_COLORS[r.current_status]||'#fff';
+    const updated = (r.updated_at||'').substring(0,10);
+    const editD = (r.edit_date||'').substring(0,10)||'未設定';
+    const revD = (r.review_date||'').substring(0,10)||'未設定';
+    const pubD = (r.publish_date||'').substring(0,10)||'未設定';
+        return `<div class="row" data-id="${r.id}">
+      <span style="width:50px">${r.id}</span>
+      <span style="width:290px" title="${r.name}">${r.name}</span>
+      <span style="width:100px">${cat}</span>
+      <span style="width:110px">${r.current_status}</span>
+      <span style="width:150px;color:var(--muted)">${(r.note||'').substring(0,20)}</span>
+      <span style="width:100px">${editD}</span>
+      <span style="width:100px">${revD}</span>
+      <span style="width:100px">${pubD}</span>
+      <span style="width:130px;color:var(--muted)">${updated}</span>
+      <span style="width:80px">
+        <button class="btn btn-sm btn-purple" onclick="showDetailModal(${r.id})">詳情</button>
+      </span>
+    </div>`;
+  }).join('');
+}
+
+function rangeSelect(from, to) {
+  const cbs = document.querySelectorAll('#projList input[type="checkbox"]');
+  const pids = [...cbs].map(cb => parseInt(cb.dataset.pid));
+  const fromIdx = pids.indexOf(from);
+  const toIdx = pids.indexOf(to);
+  if(fromIdx === -1 || toIdx === -1) return;
+  const [lo, hi] = fromIdx < toIdx ? [fromIdx, toIdx] : [toIdx, fromIdx];
+  for(let i = lo; i <= hi; i++) {
+    const cb = cbs[i];
+    cb.checked = true;
+    projState.selected.add(pids[i]);
+  }
+  lastClickedPid = to;
+}
+
+function toggleAll(checked) {
+  document.querySelectorAll('#projList input[type="checkbox"]').forEach(cb => {
+    cb.checked = checked;
+    const pid = parseInt(cb.dataset.pid);
+    if(checked) projState.selected.add(pid); else projState.selected.delete(pid);
+  });
+}
+
+function getSelectedIds() { return [...projState.selected]; }
+
+async function batchUpdateStatus() {
+  const ids = getSelectedIds(); if(!ids.length) return toast('未選取任何專案');
+  const st = document.getElementById('batchStatus').value;
+  await api('/api/projects/batch/status', {method:'POST',body:JSON.stringify({ids,status:st})});
+  toast(`已將 ${ids.length} 個專案狀態更改為「${st}」`);
+  projState.selected.clear(); renderProjects();
+}
+
+async function batchUpdateDate(field) {
+  const ids = getSelectedIds(); if(!ids.length) return toast('未選取任何專案');
+  const elId = field==='edit_date'?'batchEditDate':field==='review_date'?'batchReviewDate':field==='publish_date'?'batchPublishDate':'batchUpdateDate';
+  const dateVal = document.getElementById(elId).value.trim();
+  await api(`/api/projects/batch/date/${field}`, {method:'POST',body:JSON.stringify({ids,date:dateVal||null})});
+  toast(`已更新 ${ids.length} 個專案的日期`);
+  projState.selected.clear(); renderProjects();
+}
+
+async function batchDelete() {
+  const ids = getSelectedIds(); if(!ids.length) return toast('未選取任何專案');
+  if(!confirm(`確定要將 ${ids.length} 個專案移至垃圾桶？`)) return;
+  await api('/api/projects/batch/delete', {method:'POST',body:JSON.stringify({ids})});
+  toast(`已將 ${ids.length} 個專案移至垃圾桶`);
+  projState.selected.clear(); renderProjects();
+}
+
+function renderPaging(total, current) {
+  const totalPages = Math.max(1, Math.ceil(total/200));
+  const page = projState.page + 1;
+  let html = `顯示 ${current} / 共 ${total} 筆　第 ${page}/${totalPages} 頁 `;
+  if(page>1) html += `<button class="btn btn-sm btn-gray" onclick="projState.page--;renderProjects()">上一頁</button>`;
+  if(page<totalPages) html += `<button class="btn btn-sm btn-gray" onclick="projState.page++;renderProjects()">下一頁</button>`;
+  document.getElementById('projPaging').innerHTML = html;
+}
+
+// ── Materials Page ─────────────────────────────────────────────
+let matState = {sortCol:'id',sortAsc:true,page:0,category:'',search:'',selected:new Set(),total:0};
+const MAT_PAGE_SIZE = 50;
+
+async function renderMaterials() {
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="toolbar"><h2>素材庫存</h2>
+      <input id="matSearch" placeholder="搜尋名稱..." style="width:180px" oninput="matState.search=this.value;matState.page=0;renderMaterials()">
+      <select id="matCatFilter" onchange="matState.category=this.value;matState.page=0;renderMaterials()">
+        <option value="">全部業務線</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
+      </select>
+      
+      <button class="btn btn-sm btn-outline" onclick="showMatBatchAddModal()">批次新增</button>
+    </div>
+    <div class="table-header">
+      <span style="width:50px" onclick="matToggleSort('id')">ID ${matSortArrow('id')}</span>
+      <span style="width:280px" onclick="matToggleSort('name')">名稱 ${matSortArrow('name')}</span>
+      <span style="width:120px" onclick="matToggleSort('category')">業務線 ${matSortArrow('category')}</span>
+      <span style="width:180px">備註</span>
+      <span style="width:140px" onclick="matToggleSort('created_at')">建立日期 ${matSortArrow('created_at')}</span>
+      <span style="width:140px" onclick="matToggleSort('updated_at')">更新時間 ${matSortArrow('updated_at')}</span>
+      <span style="width:220px"></span>
+    </div>
+    <div class="main-scroll"><div class="scroll" id="matList"></div></div>
+    <div id="matBatch" class="check-row" style="display:none"></div>
+    <div id="matPaging" class="paging"></div>
+  `;
+  matState.selected.clear();
+  matLastClickedId = null;
+  await loadMaterials();
+}
+
+function matSortArrow(col) { return matState.sortCol===col ? (matState.sortAsc?' ▲':' ▼') : ''; }
+function matToggleSort(col) {
+  if(matState.sortCol===col) matState.sortAsc=!matState.sortAsc; else {matState.sortCol=col;matState.sortAsc=true;}
+  matState.page=0; renderMaterials();
+}
+
+async function loadMaterials() {
+  const s = matState;
+  const params = new URLSearchParams({
+    sort_col:s.sortCol, sort_asc:s.sortAsc, page:s.page, limit:MAT_PAGE_SIZE,
+    category:s.category, search:s.search
+  });
+  const res = await api(`/api/materials?${params}`);
+  const data = await res.json();
+  s.total = data.total;
+  renderMaterialRows(data.materials);
+  matRenderPaging(data.total, data.materials.length);
+  matRenderBatchOps(data.materials);
+}
+
+function renderMaterialRows(materials) {
+  const list = document.getElementById('matList');
+  if(!materials.length) { list.innerHTML='<div class="empty">尚無素材</div>'; return; }
+  list.innerHTML = materials.map(m => {
+    const cat = CATEGORIES[m.category] || m.category;
+    const created = (m.created_at||'').substring(0,10);
+    const updated = (m.updated_at||'').substring(0,10);
+    const notePreview = (m.note||'').substring(0,24);
+    return `<div class="row" data-mid="${m.id}">
+      <span style="width:50px"><input type="checkbox" data-mid="${m.id}" onclick="matHandleCheckClick(event,${m.id})" onchange="matToggleSelect(${m.id},this.checked)"> ${m.id}</span>
+      <span style="width:280px" title="${m.name}">${m.name}</span>
+      <span style="width:120px">${cat}</span>
+      <span style="width:180px;color:var(--muted)" title="${(m.note||'').replace(/"/g,'&quot;')}">${notePreview}</span>
+      <span style="width:140px;color:var(--muted)">${created}</span>
+      <span style="width:140px;color:var(--muted)">${updated}</span>
+      <span style="width:220px;display:flex;gap:3px">
+        <button class="btn btn-sm btn-gray" onclick="showMatEditModal(${m.id},'${(m.name||'').replace(/'/g,"\\'")}','${(m.category||'').replace(/'/g,"\\'")}','${(m.note||'').replace(/'/g,"\\'").replace(/\n/g,'\\n')}')">編輯</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteMaterial(${m.id})">刪除</button>
+        <button class="btn btn-sm btn-accent" onclick="startEditMaterial(${m.id})">開始剪輯</button>
+      </span>
+    </div>`;
+  }).join('');
+}
+
+function matRangeSelect(from, to) {
+  const cbs = document.querySelectorAll('#matList input[type="checkbox"]');
+  const mids = [...cbs].map(cb => parseInt(cb.dataset.mid));
+  const fromIdx = mids.indexOf(from);
+  const toIdx = mids.indexOf(to);
+  if(fromIdx === -1 || toIdx === -1) return;
+  const [lo, hi] = fromIdx < toIdx ? [fromIdx, toIdx] : [toIdx, fromIdx];
+  for(let i = lo; i <= hi; i++) {
+    const cb = cbs[i];
+    cb.checked = true;
+    matState.selected.add(mids[i]);
+  }
+  matLastClickedId = to;
+  matUpdateBatchUI();
+}
+
+function matRenderBatchOps(materials) {
+  const el = document.getElementById('matBatch');
+  if(!materials.length){ el.style.display='none'; return; }
+  el.style.display='flex';
+  el.innerHTML = `
+    <label><input type="checkbox" id="matSelectAll" onchange="matToggleAll(this.checked)"> 全選</label>
+    
+  `;
+}
+
+function matToggleAll(checked) {
+  document.querySelectorAll('#matList input[type="checkbox"]').forEach(cb => {
+    cb.checked = checked;
+    const mid = parseInt(cb.dataset.mid);
+    if(checked) matState.selected.add(mid); else matState.selected.delete(mid);
+  });
+}
+
+function matUpdateBatchUI() {
+  const sa = document.getElementById('matSelectAll');
+  if(sa) sa.checked = matState.selected.size > 0 && matState.selected.size === document.querySelectorAll('#matList input[type="checkbox"]').length;
+}
+
+function matGetSelectedIds() { return [...matState.selected]; }
+
+function matRenderPaging(total, current) {
+  const totalPages = Math.max(1, Math.ceil(total/MAT_PAGE_SIZE));
+  const page = matState.page + 1;
+  let html = `顯示 ${current} / 共 ${total} 筆　第 ${page}/${totalPages} 頁 `;
+  if(page>1) html += `<button class="btn btn-sm btn-gray" onclick="matState.page--;renderMaterials()">上一頁</button>`;
+  if(page<totalPages) html += `<button class="btn btn-sm btn-gray" onclick="matState.page++;renderMaterials()">下一頁</button>`;
+  document.getElementById('matPaging').innerHTML = html;
+}
+
+// ── Material Modals ───────────────────────────────────────────
+
+// ── Material Batch Add ────────────────────────────────────────
+function showMatBatchAddModal() {
+  showModal('批次新增素材', `
+    <div class="field"><label>業務線</label><select id="matBatchCat">${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}</select></div>
+    <div class="field"><label>新增數量</label><input type="number" id="matBatchCount" value="5" min="1" max="50" style="width:100px"></div>
+    <div class="field"><label>基礎名稱（可留空，自動編號）</label><input id="matBatchName" placeholder="例如：白蟻案例素材"></div>
+    <div class="field"><label>備註（全部套用）</label><textarea id="matBatchNote" rows="2" placeholder="可選"></textarea></div>
+  `, async (ov) => {
+    const catMap = {}; for(const [k,v] of Object.entries(CATEGORIES)) catMap[v]=k;
+    const category = catMap[ov.querySelector('#matBatchCat').value] || 'pest_care';
+    const count = parseInt(ov.querySelector('#matBatchCount').value) || 5;
+    const baseName = ov.querySelector('#matBatchName').value.trim() || '未命名素材';
+    const note = ov.querySelector('#matBatchNote').value.trim();
+    ov.remove();
+    toast(`正在新增 ${count} 個素材...`);
+    let success = 0, fail = 0;
+    for(let i = 1; i <= count; i++) {
+      const name = `${baseName}_${String(i).padStart(2,'0')}`;
+      try {
+        await api('/api/materials', {method:'POST',body:JSON.stringify({name,category,note})});
+        success++;
+      } catch(e) { fail++; }
+    }
+    toast(`已新增 ${success} 個素材${fail>0?`，${fail} 個失敗`:''}`);
+    renderMaterials();
+  });
+}
+
+async function startEditMaterial(mid) {
+  try {
+    const res = await api(`/api/materials/${mid}/start-edit`, {method:'POST'});
+    const data = await res.json();
+    toast(`素材 #${mid} 已轉為剪輯專案「${data.project_name}」`);
+    document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active'));
+    document.querySelector('[data-page="projects"]').classList.add('active');
+    loadPage('projects');
+  } catch(e) {
+    toast(`操作失敗：${e.message}`);
+  }
+}
+
+// ── Modals ────────────────────────────────────────────────────
+function showModal(title, bodyHtml, onSave) {
+  const overlay = document.createElement('div'); overlay.className='modal-overlay';
+  overlay.innerHTML = `<div class="modal"><h3>${title}</h3>${bodyHtml}<div class="btn-row">
+    <button class="btn btn-gray" onclick="this.closest('.modal-overlay').remove()">取消</button>
+    <button class="btn btn-success" id="modalSave">確認</button>
+  </div></div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#modalSave').onclick = () => { onSave(overlay); };
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+}
+
+async function showDetailModal(pid) {
+  const res = await api(`/api/projects/${pid}/logs`);
+  const data = await res.json();
+  // Get project info from the current list
+  const el = document.querySelector(`[data-id="${pid}"]`);
+  const name = el ? el.querySelector('span:nth-child(2)').textContent : `#${pid}`;
+  let html = `<h3>${name}</h3><div style="max-height:300px;overflow-y:auto;margin-bottom:10px">`;
+  html += data.logs.map(l => {
+    const arrow = `${l.old_status||'建立'} → ${l.new_status}`;
+    return `<div style="font-size:12px;padding:3px 0;color:var(--muted)">${l.changed_at} <span style="color:var(--text)">${arrow}</span></div>`;
+  }).join('');
+  html += '</div>';
+  showModal('專案詳情 - 狀態歷程', html, ov => ov.remove());
+}
+
+// ── Import / Export ───────────────────────────────────────────
+
+// ── Daily Report ──────────────────────────────────────────────
+async function renderDaily() {
+  const main = document.getElementById('main');
+  main.innerHTML = '<div class="empty">載入中...</div>';
+  const res = await api('/api/reports/daily');
+  const d = await res.json();
+  const range = d.range_start===d.range_end ? d.range_start : `${d.range_start} ~ ${d.range_end}`;
+
+  function fmt(arr) {
+    if(!arr.length) return '  （無）\n';
+    return arr.map(r => `  • [${CATEGORIES[r.category]||r.category}] ${r.name}`).join('\n') + '\n';
+  }
+
+  const report = `Ultra Cleaning 影片剪輯日報
+
+日期：${d.date}（${d.day_name}）
+統計範圍：${range}
+
+──────────────────────────────
+今日剪輯（edit_date 為今天）
+──────────────────────────────
+${fmt(d.editing_today)}
+──────────────────────────────
+今日送審（review_date 為今天）
+──────────────────────────────
+${fmt(d.review_today)}
+──────────────────────────────
+審核中（MKT / 老闆）
+──────────────────────────────
+${fmt(d.in_review)}
+──────────────────────────────
+社群文案撰寫中
+──────────────────────────────
+${fmt(d.copywriting)}
+──────────────────────────────
+準備排程
+──────────────────────────────
+${fmt(d.ready)}
+──────────────────────────────
+已排程
+──────────────────────────────
+${fmt(d.scheduled)}
+──────────────────────────────
+已發布（${range}）
+──────────────────────────────
+${fmt(d.published)}
+──────────────────────────────
+待辦事項
+──────────────────────────────
+${fmt(d.todo)}`;
+
+  main.innerHTML = `
+    <div class="toolbar"><h2>每日日報</h2><span style="color:var(--muted)">${d.date}</span>
+      <button class="btn btn-gray" onclick="renderDaily()">重新整理</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PNG')">匯出PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','JPG')">匯出JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PDF')">匯出PDF</button>
+    </div>
+    <div class="main-scroll"><div class="report-box" id="dailyContent">${report.replace(/\n/g,'<br>')}</div></div>
+  `;
+}
+
+// ── Weekly Report ─────────────────────────────────────────────
+async function renderWeekly() {
+  const main = document.getElementById('main');
+  main.innerHTML = '<div class="empty">載入中...</div>';
+  const res = await api('/api/reports/weekly');
+  const d = await res.json();
+
+  function fmt(arr) {
+    if(!arr.length) return '  （無）\n';
+    return arr.map(r => `  • [${CATEGORIES[r.category]||r.category}] ${r.name}`).join('\n') + '\n';
+  }
+  function fmtStatus(arr) {
+    if(!arr.length) return '  （無）\n';
+    return arr.map(r => `  • [${CATEGORIES[r.category]||r.category}] ${r.name} → ${r.current_status}`).join('\n') + '\n';
+  }
+
+  const report = `Ultra Cleaning 影片剪輯週報
+
+週次：${d.monday}（一）～ ${d.sunday}（日）
+產出日期：${d.today}
+
+──────────────────────────────
+本週剪輯（edit_date 範圍：${d.editing_week.length} 部）
+──────────────────────────────
+${fmt(d.editing_week)}
+──────────────────────────────
+本週送審（review_date 範圍：${d.review_week.length} 部）
+──────────────────────────────
+${fmt(d.review_week)}
+──────────────────────────────
+本週活動（${d.active.length} 部）
+──────────────────────────────
+${fmtStatus(d.active)}
+──────────────────────────────
+本週已發布（${d.published.length} 部）
+──────────────────────────────
+${fmt(d.published)}
+──────────────────────────────
+審核中（${d.in_review.length} 部）
+──────────────────────────────
+${fmt(d.in_review)}
+──────────────────────────────
+待處理（${d.pending.length} 部）
+──────────────────────────────
+${fmt(d.pending)}`;
+
+  main.innerHTML = `
+    <div class="toolbar"><h2>每週週報</h2><span style="color:var(--muted)">${d.monday}（一）～ ${d.sunday}（日）</span>
+      <button class="btn btn-gray" onclick="renderWeekly()">重新整理</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PNG')">匯出PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','JPG')">匯出JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PDF')">匯出PDF</button>
+    </div>
+    <div class="main-scroll"><div class="report-box" id="weeklyContent">${report.replace(/\n/g,'<br>')}</div></div>
+  `;
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+async function renderDashboard() {
+  const main = document.getElementById('main');
+  main.innerHTML = '<div class="empty">載入中...</div>';
+  const res = await api('/api/dashboard');
+  const d = await res.json();
+
+  const overview = [
+    {title:'專案總數', val:d.total, color:'#c9946e'},
+    {title:'活躍專案', val:d.active, color:'#d4956b'},
+    {title:'業務線', val:d.category_count, color:'#4dab8e'},
+    {title:'垃圾桶', val:d.trash, color:'#dc3545'},
+  ];
+
+  main.innerHTML = `
+    <h2 style="margin-bottom:15px">狀態總覽</h2>
+    <div class="main-scroll">
+    <div class="card-grid" style="margin-bottom:20px">${overview.map(c=>`
+      <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">${c.title}</div><div style="font-size:28px;font-weight:700;color:${c.color}">${c.val}</div></div>
+    `).join('')}</div>
+    <h3 style="margin-bottom:10px;font-size:14px;font-weight:700">各狀態分布</h3>
+    <div class="card-grid" style="margin-bottom:20px">${d.status_stats.map(s=>`
+      <div class="status-card"><span style="color:${s.color}">●</span><span>${s.status}</span><span class="count" style="color:${s.color}">${s.count}</span></div>
+    `).join('')}</div>
+    ${d.category_stats.length ? `
+    <h3 style="margin-bottom:10px;font-size:14px;font-weight:700">業務線分布</h3>
+    <div class="scroll" style="max-height:200px">${d.category_stats.map(c=>`
+      <div class="progress-row"><span class="lbl">${c.label}</span>
+        <div class="bar-outer"><div class="bar-inner" style="width:${(c.count/Math.max(...d.category_stats.map(x=>x.count)))*100}%"></div></div>
+        <span>${c.count}</span>
+      </div>
+    `).join('')}</div>`:''}
+    </div>
+  `;
+}
+
+// ── Stats / Report Center ─────────────────────────────────────
+let statsState = {period:'monthly',idx:0};
+
+async function renderStats() {
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="toolbar"><h2>報表中心</h2></div>
+    <div class="tab-bar" id="periodTabs">
+      ${['daily','weekly','monthly','quarterly','yearly'].map(p=>`
+        <button class="btn btn-sm ${statsState.period===p?'btn-accent':'btn-outline'}" data-period="${p}" onclick="switchPeriod('${p}')">${{daily:'日報',weekly:'週報',monthly:'月數據',quarterly:'季數據',yearly:'年度數據'}[p]}</button>
+      `).join('')}
+    </div>
+    <div class="toolbar">
+      <button class="btn btn-sm btn-gray" onclick="statsState.idx--;renderStats()">◀</button>
+      <span id="statsLabel" style="font-weight:700;margin:0 15px"></span>
+      <button class="btn btn-sm btn-gray" onclick="statsState.idx++;renderStats()">▶</button>
+      <button class="btn btn-sm btn-gray" onclick="statsState.idx=0;renderStats()" style="margin-left:auto">今天</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PNG')">匯出PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','JPG')">匯出JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PDF')">匯出PDF</button>
+    </div>
+    <div class="main-scroll" id="statsContent"></div>
+  `;
+  switchPeriod(statsState.period);
+}
+
+function switchPeriod(period) {
+  statsState.period = period;
+  document.querySelectorAll('#periodTabs .btn').forEach(b => {
+    b.className = `btn btn-sm ${b.dataset.period===period?'btn-accent':'btn-outline'}`;
+  });
+  loadStats();
+}
+
+async function loadStats() {
+  const res = await api(`/api/stats?period=${statsState.period}&idx=${statsState.idx}`);
+  const d = await res.json();
+  document.getElementById('statsLabel').textContent = d.label;
+
+  let html = `<div class="card-grid" style="margin-bottom:15px">
+    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">新建影片</div><div style="font-size:26px;font-weight:700;color:#c9946e">${d.created.length}</div></div>
+    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">有進度</div><div style="font-size:26px;font-weight:700;color:#d4956b">${d.active.length}</div></div>
+    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">已發布</div><div style="font-size:26px;font-weight:700;color:#4dab8e">${d.published.length}</div></div>
+  </div>`;
+
+  if(Object.keys(d.status_counts).length) {
+    html += '<h3 style="margin-bottom:8px;font-size:14px">狀態分布</h3><div class="check-row">';
+    const sorted = Object.entries(d.status_counts).sort((a,b)=>b[1]-a[1]);
+    for(const [st,cnt] of sorted) {
+      html += `<span class="badge" style="background:${STATUS_COLORS[st]||'#554c44'}22;color:${STATUS_COLORS[st]||'#c4c4cc'};border:1px solid ${STATUS_COLORS[st]||'#554c44'}">${st} ×${cnt}</span>`;
+    }
+    html += '</div>';
+  }
+
+  // Category table
+  const allCats = Object.keys(CATEGORIES);
+  const hasData = allCats.some(k => (d.cat_created[k]||0)+(d.cat_active[k]||0)+(d.cat_published[k]||0) > 0);
+  if(hasData) {
+    html += '<h3 style="margin:15px 0 8px;font-size:14px">業務線明細</h3>';
+    html += `<div class="card" style="overflow-x:auto"><table style="width:100%;font-size:12px;border-collapse:collapse">
+      <tr style="color:var(--muted);font-weight:700"><td style="padding:5px">業務線</td><td style="padding:5px;text-align:center">新建</td><td style="padding:5px;text-align:center">有進度</td><td style="padding:5px;text-align:center">已發布</td></tr>`;
+    for(const k of allCats) {
+      const cc=d.cat_created[k]||0, ca=d.cat_active[k]||0, cp=d.cat_published[k]||0;
+      if(!cc&&!ca&&!cp) continue;
+      html += `<tr><td style="padding:5px">${CATEGORIES[k]}</td><td style="padding:5px;text-align:center;color:${cc?'#c9946e':'var(--muted)'}">${cc}</td><td style="padding:5px;text-align:center;color:${ca?'#d4956b':'var(--muted)'}">${ca}</td><td style="padding:5px;text-align:center;color:${cp?'#4dab8e':'var(--muted)'}">${cp}</td></tr>`;
+    }
+    html += '</table></div>';
+  } else {
+    html += '<div class="empty">此期間尚無影片紀錄</div>';
+  }
+
+  // Charts
+  html += '<h3 style="margin:20px 0 10px;font-size:14px">數據圖表</h3><div id="chartsArea"></div>';
+
+  document.getElementById('statsContent').innerHTML = html;
+
+  // Render charts
+  setTimeout(() => renderCharts(d), 100);
+}
+
+function renderCharts(d) {
+  const area = document.getElementById('chartsArea');
+  if(!area) return;
+
+  // Build category data
+  const catLabels = [], catValues = [];
+  for(const [k,v] of Object.entries(d.cat_created)) {
+    catLabels.push(CATEGORIES[k]||k); catValues.push(v);
+  }
+
+  // Status data
+  const stLabels = Object.keys(d.status_counts);
+  const stValues = Object.values(d.status_counts);
+  const stColors = stLabels.map(s => STATUS_COLORS[s]||'#9a9490');
+
+  const hasCatData = catValues.length && catValues.some(v=>v>0);
+  const hasStData = stValues.length && stValues.some(v=>v>0);
+  const hasTrend = d.trend.months && d.trend.months.length>0;
+
+  if(!hasCatData && !hasStData && !hasTrend) {
+    area.innerHTML = '<div class="empty">此期間尚無數據可繪製圖表</div>'; return;
+  }
+
+  area.innerHTML = `
+    ${hasCatData ? '<div class="chart-wrap" style="max-width:500px"><canvas id="pieChart"></canvas></div>' : ''}
+    ${hasStData ? '<div class="chart-wrap" style="max-width:500px"><canvas id="barChart"></canvas></div>' : ''}
+    ${hasTrend ? '<div class="chart-wrap"><canvas id="lineChart"></canvas></div>' : ''}
+  `;
+
+  Chart.defaults.color = '#c4c4cc';
+  Chart.defaults.borderColor = '#282233';
+
+  if(hasCatData) {
+    new Chart(document.getElementById('pieChart'), {
+      type:'pie', data:{labels:catLabels,datasets:[{data:catValues,backgroundColor:['#c9946e','#d4956b','#4dab8e','#d4a843','#6ebccf','#e0556a','#8b6fbf','#c46a8a','#7a7a88','#4dab8e','#5b8cc9','#c43b50','#3d9478','#6ebccf','#d4a843','#8b6fbf']}]},
+      options:{plugins:{legend:{position:'bottom',labels:{font:{size:10},color:'#c4c4cc'}, onClick:function(){return false}}}}
+    });
+  }
+
+  if(hasStData) {
+    new Chart(document.getElementById('barChart'), {
+      type:'bar', data:{labels:stLabels,datasets:[{data:stValues,backgroundColor:stColors}]},
+      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#282233'},ticks:{color:'#7a7a88'}},y:{grid:{display:false},ticks:{color:'#7a7a88'}}}}
+    });
+  }
+
+  if(hasTrend) {
+    new Chart(document.getElementById('lineChart'), {
+      type:'line', data:{labels:d.trend.months,datasets:[
+        {label:'建立專案',data:d.trend.created,borderColor:'#c9946e',backgroundColor:'#c9946e33',tension:.3},
+        {label:'已發布',data:d.trend.published,borderColor:'#4dab8e',backgroundColor:'#4dab8e33',tension:.3}
+      ]},
+      options:{plugins:{legend:{labels:{color:'#c4c4cc'}}},scales:{x:{grid:{color:'#282233'},ticks:{color:'#7a7a88'}},y:{grid:{color:'#282233'},ticks:{color:'#7a7a88'}}}}
+    });
+  }
+}
+
+// ── Trash ─────────────────────────────────────────────────────
+async function renderTrash() { document.getElementById("main").innerHTML = '<div class="empty">唯讀模式不提供垃圾桶功能</div>'; }
+
+function getTrashSelectedIds() {
+  return [...document.querySelectorAll('#trashList input[type=checkbox]:checked')].map(c=>parseInt(c.dataset.pid));
+}
+
+async 
+
+async 
+
+async function trashClearAll() {
+  if(!confirm('確定要永久刪除垃圾桶中全部專案？此操作無法復原！')) return;
+  const res = await api('/api/trash/clear', {method:'POST'});
+  const d = await res.json();
+  toast(`已清空垃圾桶（共 ${d.purged} 個專案）`); renderTrash();
+}
+
+// ── Export ────────────────────────────────────────────────────
+async function exportReport(elementId, format) {
+  const el = document.getElementById(elementId);
+  if (!el) return toast('找不到報表內容');
+
+  // For PDF: auto-paginate
+  if (format === 'PDF') {
+    // Temporarily set a fixed width for PDF
+    const origWidth = el.style.width;
+    const origOverflow = el.style.overflow;
+    const origMaxH = el.style.maxHeight;
+    el.style.width = '780px';
+    el.style.overflow = 'visible';
+    el.style.maxHeight = 'none';
+
+    const canvas = await html2canvas(el, {
+      backgroundColor: '#1a1a30',
+      scale: 2,
+      logging: false,
+    });
+
+    // Restore
+    el.style.width = origWidth;
+    el.style.overflow = origOverflow;
+    el.style.maxHeight = origMaxH;
+
+    const { jsPDF } = window.jspdf;
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgW = pageW - 10;
+    const imgH = (canvas.height * imgW) / canvas.width;
+
+    let heightLeft = imgH;
+    let position = 5;
+
+    pdf.addImage(imgData, 'JPEG', 5, position, imgW, imgH);
+    heightLeft -= pageH;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgH + 5;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 5, position, imgW, imgH);
+      heightLeft -= pageH;
+    }
+
+    pdf.save(`report-${new Date().toISOString().slice(0,10)}.pdf`);
+    toast('PDF 下載中...');
+    return;
+  }
+
+  // Image export (PNG / JPG)
+  const mime = format === 'JPG' ? 'image/jpeg' : 'image/png';
+  const ext = format === 'JPG' ? 'jpg' : 'png';
+
+  // Temporarily make element fully visible
+  const origOverflow = el.style.overflow;
+  const origMaxH = el.style.maxHeight;
+  el.style.overflow = 'visible';
+  el.style.maxHeight = 'none';
+
+  const canvas = await html2canvas(el, {
+    backgroundColor: '#1a1a30',
+    scale: 2,
+    logging: false,
+  });
+
+  // Restore
+  el.style.overflow = origOverflow;
+  el.style.maxHeight = origMaxH;
+
+  const link = document.createElement('a');
+  link.download = `report-${new Date().toISOString().slice(0,10)}.${ext}`;
+  link.href = canvas.toDataURL(mime, 0.95);
+  link.click();
+  toast(`${format} 下載中...`);
+}
+
+document.addEventListener('mousemove', e => {
+  if (!colResize) return;
+  const diff = e.clientX - colResize.startX;
+  const newW = Math.max(40, colResize.startW + diff);
+  colResize.span.style.width = newW + 'px';
+  const container = colResize.header.nextElementSibling;
+  if (container) {
+    container.querySelectorAll('.row').forEach(row => {
+      const spans = row.querySelectorAll(':scope > span');
+      if (spans[colResize.idx]) spans[colResize.idx].style.width = newW + 'px';
+    });
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  if (colResize) {
+    const h = colResize.span.querySelector('.resize-handle');
+    if (h) h.classList.remove('active');
+    document.body.classList.remove('col-resizing');
+    // persist all column widths
+    const widths = [];
+    colResize.header.querySelectorAll('span').forEach(s => widths.push(s.style.width || s.offsetWidth+'px'));
+    localStorage.setItem('colWidths', JSON.stringify(widths));
+    colResize = null;
+  }
+});
+
+// sync table-header horizontal scroll with main-scroll
+document.addEventListener('scroll', e => {
+  const t = e.target;
+  if (t.classList.contains('main-scroll')) {
+    const hdr = t.previousElementSibling;
+    if (hdr && hdr.classList.contains('table-header')) hdr.scrollLeft = t.scrollLeft;
+  }
+}, true);
+
+// ── Sidebar Resize ────────────────────────────────────────────
+(function(){
+  const sidebar = document.querySelector('.sidebar');
+  const handle = document.getElementById('sidebarResize');
+  let sbResize = null;
+
+  // restore saved width
+  const savedW = localStorage.getItem('sidebarWidth');
+  if (savedW) { const w = parseInt(savedW); if (w >= 140 && w <= 600) sidebar.style.width = w + 'px'; }
+
+  handle.addEventListener('mousedown', e => {
+    sbResize = { startX: e.clientX, startW: sidebar.offsetWidth };
+    handle.classList.add('active');
+    document.body.classList.add('sidebar-resizing');
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!sbResize) return;
+    const diff = e.clientX - sbResize.startX;
+    const newW = Math.max(140, Math.min(600, sbResize.startW + diff));
+    sidebar.style.width = newW + 'px';
+    localStorage.setItem('sidebarWidth', newW);
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (sbResize) {
+      handle.classList.remove('active');
+      document.body.classList.remove('sidebar-resizing');
+      sbResize = null;
+    }
+  });
+})();
+
+// ── Init ──────────────────────────────────────────────────────
+loadPage('projects');
+</script>
+</body>
+</html>
