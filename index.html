@@ -225,6 +225,7 @@ async function renderProjects() {
   projState.selected.clear();
   await loadProjects();
   injectResizeHandles();
+  restoreColWidths();
 }
 
 function sortArrow(col) { return projState.sortCol===col ? (projState.sortAsc?' ▲':' ▼') : ''; }
@@ -420,6 +421,7 @@ async function renderMaterials() {
   matLastClickedId = null;
   await loadMaterials();
   injectResizeHandles();
+  restoreColWidths();
 }
 
 function matSortArrow(col) { return matState.sortCol===col ? (matState.sortAsc?' ▲':' ▼') : ''; }
@@ -1195,6 +1197,23 @@ function injectResizeHandles() {
   });
 }
 
+function restoreColWidths() {
+  const saved = localStorage.getItem('colWidths');
+  if (!saved) return;
+  const widths = JSON.parse(saved);
+  document.querySelectorAll('.table-header').forEach(header => {
+    const spans = header.querySelectorAll(':scope > span');
+    widths.forEach((w, i) => { if (spans[i]) spans[i].style.width = w; });
+    const container = header.nextElementSibling;
+    if (container) {
+      container.querySelectorAll('.row').forEach(row => {
+        const rowSpans = row.querySelectorAll(':scope > span');
+        widths.forEach((w, i) => { if (rowSpans[i]) rowSpans[i].style.width = w; });
+      });
+    }
+  });
+}
+
 document.addEventListener('mousedown', e => {
   if (!e.target.classList.contains('resize-handle')) return;
   const span = e.target.parentElement;
@@ -1225,6 +1244,10 @@ document.addEventListener('mouseup', () => {
     const h = colResize.span.querySelector('.resize-handle');
     if (h) h.classList.remove('active');
     document.body.classList.remove('col-resizing');
+    // persist all column widths
+    const widths = [];
+    colResize.header.querySelectorAll('span').forEach(s => widths.push(s.style.width || s.offsetWidth+'px'));
+    localStorage.setItem('colWidths', JSON.stringify(widths));
     colResize = null;
   }
 });
