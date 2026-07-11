@@ -343,8 +343,6 @@ async function renderMaterials() {
       <select id="matCatFilter" onchange="matState.category=this.value;matState.page=0;renderMaterials()">
         <option value="">全部業務線</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
       </select>
-      
-      <button class="btn btn-sm btn-outline" onclick="showMatBatchAddModal()">批次新增</button>
     </div>
     <div class="table-header">
       <span style="width:50px" onclick="matToggleSort('id')">ID ${matSortArrow('id')}</span>
@@ -459,34 +457,6 @@ function matRenderPaging(total, current) {
 }
 
 // ── Material Modals ───────────────────────────────────────────
-
-// ── Material Batch Add ────────────────────────────────────────
-function showMatBatchAddModal() {
-  showModal('批次新增素材', `
-    <div class="field"><label>業務線</label><select id="matBatchCat">${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}</select></div>
-    <div class="field"><label>新增數量</label><input type="number" id="matBatchCount" value="5" min="1" max="50" style="width:100px"></div>
-    <div class="field"><label>基礎名稱（可留空，自動編號）</label><input id="matBatchName" placeholder="例如：白蟻案例素材"></div>
-    <div class="field"><label>備註（全部套用）</label><textarea id="matBatchNote" rows="2" placeholder="可選"></textarea></div>
-  `, async (ov) => {
-    const catMap = {}; for(const [k,v] of Object.entries(CATEGORIES)) catMap[v]=k;
-    const category = catMap[ov.querySelector('#matBatchCat').value] || 'pest_care';
-    const count = parseInt(ov.querySelector('#matBatchCount').value) || 5;
-    const baseName = ov.querySelector('#matBatchName').value.trim() || '未命名素材';
-    const note = ov.querySelector('#matBatchNote').value.trim();
-    ov.remove();
-    toast(`正在新增 ${count} 個素材...`);
-    let success = 0, fail = 0;
-    for(let i = 1; i <= count; i++) {
-      const name = `${baseName}_${String(i).padStart(2,'0')}`;
-      try {
-        await api('/api/materials', {method:'POST',body:JSON.stringify({name,category,note})});
-        success++;
-      } catch(e) { fail++; }
-    }
-    toast(`已新增 ${success} 個素材${fail>0?`，${fail} 個失敗`:''}`);
-    renderMaterials();
-  });
-}
 
 async function startEditMaterial(mid) {
   try {

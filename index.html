@@ -411,7 +411,7 @@ async function renderMaterials() {
       <span style="width:180px">備註</span>
       <span style="width:140px" onclick="matToggleSort('created_at')">建立日期 ${matSortArrow('created_at')}</span>
       <span style="width:140px" onclick="matToggleSort('updated_at')">更新時間 ${matSortArrow('updated_at')}</span>
-      <span style="width:220px"></span>
+      <span style="width:240px"></span>
     </div>
     <div class="main-scroll"><div class="scroll" id="matList"></div></div>
     <div id="matBatch" class="check-row" style="display:none"></div>
@@ -459,7 +459,7 @@ function renderMaterialRows(materials) {
       <span style="width:180px;color:var(--muted)" title="${(m.note||'').replace(/"/g,'&quot;')}">${notePreview}</span>
       <span style="width:140px;color:var(--muted)">${created}</span>
       <span style="width:140px;color:var(--muted)">${updated}</span>
-      <span style="width:220px;display:flex;gap:3px">
+      <span style="width:240px;display:flex;gap:3px">
         <button class="btn btn-sm btn-gray" onclick="showMatEditModal(${m.id},'${(m.name||'').replace(/'/g,"\\'")}','${(m.category||'').replace(/'/g,"\\'")}','${(m.note||'').replace(/'/g,"\\'").replace(/\n/g,'\\n')}')">編輯</button>
         <button class="btn btn-sm btn-danger" onclick="deleteMaterial(${m.id})">刪除</button>
         <button class="btn btn-sm btn-accent" onclick="startEditMaterial(${m.id})">開始剪輯</button>
@@ -1198,7 +1198,9 @@ function injectResizeHandles() {
 }
 
 function restoreColWidths() {
-  const saved = localStorage.getItem('colWidths');
+  const h2text = document.querySelector('#main h2')?.textContent || '';
+  const pageKey = h2text.includes('素材') ? 'colWidths_materials' : 'colWidths_projects';
+  const saved = localStorage.getItem(pageKey);
   if (!saved) return;
   const widths = JSON.parse(saved);
   document.querySelectorAll('.table-header').forEach(header => {
@@ -1244,10 +1246,11 @@ document.addEventListener('mouseup', () => {
     const h = colResize.span.querySelector('.resize-handle');
     if (h) h.classList.remove('active');
     document.body.classList.remove('col-resizing');
-    // persist all column widths
+    // persist all column widths (per-page key)
+    const pageKey = 'colWidths_' + (colResize.header.closest('#main')?.querySelector('h2')?.textContent?.includes('素材') ? 'materials' : 'projects');
     const widths = [];
     colResize.header.querySelectorAll('span').forEach(s => widths.push(s.style.width || s.offsetWidth+'px'));
-    localStorage.setItem('colWidths', JSON.stringify(widths));
+    localStorage.setItem(pageKey, JSON.stringify(widths));
     colResize = null;
   }
 });
