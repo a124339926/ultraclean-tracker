@@ -188,7 +188,7 @@ async function loadPage(page) {
 }
 
 // ── Projects Page ─────────────────────────────────────────────
-let projState = {sortCol:'updated_at',sortAsc:false,page:0,status:'',category:'',search:'',selected:new Set(),total:0};
+let projState = {sortCol:'id',sortAsc:false,page:0,status:'',category:'',search:'',selected:new Set(),total:0};
 let lastClickedPid = null;
 
 async function renderProjects() {
