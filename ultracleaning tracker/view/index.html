@@ -391,17 +391,13 @@ function renderMaterialRows(materials) {
     const updated = (m.updated_at||'').substring(0,10);
     const notePreview = (m.note||'').substring(0,24);
     return `<div class="row" data-mid="${m.id}">
-      <span style="width:50px"><input type="checkbox" data-mid="${m.id}" onclick="matHandleCheckClick(event,${m.id})" onchange="matToggleSelect(${m.id},this.checked)"> ${m.id}</span>
+      <span style="width:50px">${m.id}</span>
       <span style="width:280px" title="${m.name}">${m.name}</span>
       <span style="width:120px">${cat}</span>
       <span style="width:180px;color:var(--muted)" title="${(m.note||'').replace(/"/g,'&quot;')}">${notePreview}</span>
       <span style="width:140px;color:var(--muted)">${created}</span>
       <span style="width:140px;color:var(--muted)">${updated}</span>
-      <span style="width:220px;display:flex;gap:3px">
-        <button class="btn btn-sm btn-gray" onclick="showMatEditModal(${m.id},'${(m.name||'').replace(/'/g,"\\'")}','${(m.category||'').replace(/'/g,"\\'")}','${(m.note||'').replace(/'/g,"\\'").replace(/\n/g,'\\n')}')">編輯</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteMaterial(${m.id})">刪除</button>
-        <button class="btn btn-sm btn-accent" onclick="startEditMaterial(${m.id})">開始剪輯</button>
-      </span>
+      <span style="width:220px;display:flex;gap:3px"></span>
     </div>`;
   }).join('');
 }
