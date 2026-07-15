@@ -1,133 +1,442 @@
-<!-- deploy: 2026-07-10-v4.0 taste -->
+<!-- deploy: 2026-07-16-v5.0 taste-redesign -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UltraClean Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <style>
+/* ══════════════════════════════════════════════════════════════
+   UltraClean Tracker v5.0 — Design System
+   Dark dashboard · Warm copper accent · Glass depth · Swiss typography
+   ══════════════════════════════════════════════════════════════ */
 :root {
-  --bg: #0f0f1a; --card: #17172a; --header: #1a1a30;
-  --sidebar: #121220; --accent: #c9946e; --text: #c4c4cc; --muted: #7a7a88;
-  --danger: #e0556a; --success: #4dab8e; --primary: #5b8cc9;
-  --purple: #8b6fbf; --warning: #d4a843; --info: #6ebccf;
-  --danger-hover: #c43b50; --success-hover: #3d9478;
-  --radius: 8px; --radius-sm: 6px;
+  --bg: #080812;
+  --bg-elevated: #0e0e1a;
+  --card: #11111f;
+  --card-hover: #16162a;
+  --card-border: rgba(255,255,255,0.04);
+  --sidebar: #0a0a14;
+  --sidebar-hover: #151528;
+  --sidebar-active: rgba(201,148,110,0.10);
+  --accent: #c9946e;
+  --accent-glow: rgba(201,148,110,0.15);
+  --text: #e4e4ec;
+  --text-secondary: #9a9aaa;
+  --muted: #5e5e72;
+  --danger: #e0556a;
+  --danger-bg: rgba(224,85,106,0.10);
+  --success: #4dab8e;
+  --success-bg: rgba(77,171,142,0.10);
+  --primary: #5b8cc9;
+  --primary-bg: rgba(91,140,201,0.10);
+  --purple: #8b6fbf;
+  --warning: #d4a843;
+  --info: #6ebccf;
+  --danger-hover: #c43b50;
+  --success-hover: #3d9478;
+  --radius: 10px;
+  --radius-sm: 7px;
+  --radius-xs: 5px;
+  --radius-lg: 14px;
+  --font: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", sans-serif;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px var(--card-border);
+  --shadow-modal: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms cubic-bezier(0.4,0,0.2,1);
 }
+
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;scroll-behavior:smooth}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");opacity:.4}
-.table-header span,.row span,[style*="width"]{font-variant-numeric:tabular-nums}
-.sidebar{width:240px;min-width:140px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;padding:25px 0;position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden}
-.sidebar-resize{width:5px;min-width:5px;cursor:col-resize;background:transparent;transition:background .15s;flex-shrink:0}
-.sidebar-resize:hover,.sidebar-resize.active{background:var(--accent)}
+
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  min-height:100vh;
+  scroll-behavior:smooth;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  letter-spacing:-0.01em;
+}
+
+/* Subtle noise texture overlay */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:9999;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
+  opacity:.5
+}
+
+/* ═══════════════ SIDEBAR ═══════════════ */
+.sidebar{
+  width:240px;min-width:140px;flex-shrink:0;
+  background:var(--sidebar);
+  display:flex;flex-direction:column;
+  padding:24px 0 16px;
+  position:sticky;top:0;height:100vh;
+  overflow-y:auto;overflow-x:hidden;
+  border-right:1px solid rgba(255,255,255,0.04);
+}
+.sidebar-resize{
+  width:4px;min-width:4px;cursor:col-resize;
+  background:transparent;transition:background var(--transition-base);
+  flex-shrink:0;position:relative;z-index:2;
+}
+.sidebar-resize::after{
+  content:'';position:absolute;inset:0 -3px; /* wider hit area */
+}
+.sidebar-resize:hover,.sidebar-resize.active{background:var(--accent);opacity:.8}
 body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
-.sidebar .logo{padding:0 15px;margin-bottom:30px}
-.sidebar .logo h1{font-size:15px;color:var(--accent);font-weight:700}
-.sidebar .logo span{font-size:11px;color:var(--muted)}
-.sidebar .nav-title{font-size:11px;color:#5c5652;font-weight:700;padding:0 15px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
-.sidebar .nav-btn{display:block;width:100%;text-align:left;padding:10px 15px;margin:2px 12px;border:none;background:transparent;color:#9a9490;font-size:13px;border-radius:6px;cursor:pointer;transition:.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sidebar .nav-btn:hover{background:#29233a;color:#c4beb8}
-.sidebar .nav-btn.active{background:#29233a;color:var(--accent)}
-.main{flex:1;display:flex;flex-direction:column;padding:15px 20px;height:100vh;overflow:hidden;min-width:0}
-.main-scroll{flex:1;overflow-y:auto;overflow-x:auto;min-height:0;scroll-behavior:smooth}
-.main-scroll::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:6px;height:6px}
-.main-scroll::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{background:#363049;border-radius:3px}
-.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.toolbar h2{font-size:18px;font-weight:700;margin-right:auto}
-.btn{padding:7px 14px;border:none;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-weight:600;transition:.15s;white-space:nowrap}
-.btn:hover{opacity:.9;transform:translateY(-1px)}
+
+.sidebar .logo{padding:0 18px;margin-bottom:28px}
+.sidebar .logo h1{font-size:15px;color:var(--accent);font-weight:700;letter-spacing:-0.02em}
+.sidebar .logo span{font-size:10.5px;color:var(--muted);font-weight:500;display:block;margin-top:2px}
+
+.sidebar .nav-title{
+  font-size:10px;color:var(--muted);font-weight:600;
+  padding:0 18px;margin-bottom:6px;
+  text-transform:uppercase;letter-spacing:0.08em;
+}
+.sidebar .nav-btn{
+  display:flex;align-items:center;gap:10px;
+  width:calc(100% - 12px);
+  text-align:left;padding:9px 14px;margin:1px 6px;
+  border:none;background:transparent;color:var(--text-secondary);
+  font-size:12.5px;font-family:var(--font);font-weight:500;
+  border-radius:var(--radius-sm);
+  cursor:pointer;transition:all var(--transition-fast);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  letter-spacing:-0.01em;
+}
+.sidebar .nav-btn .nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0;line-height:1}
+.sidebar .nav-btn:hover{background:var(--sidebar-hover);color:var(--text)}
+.sidebar .nav-btn.active{background:var(--sidebar-active);color:var(--accent);font-weight:600}
+
+/* ═══════════════ MAIN AREA ═══════════════ */
+.main{
+  flex:1;display:flex;flex-direction:column;
+  padding:0;height:100vh;overflow:hidden;min-width:0;
+}
+.main-content{padding:20px 24px;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.main-scroll{
+  flex:1;overflow-y:auto;overflow-x:auto;
+  min-height:0;scroll-behavior:smooth;
+  border-radius:var(--radius);
+}
+.main-scroll::-webkit-scrollbar,
+.scroll::-webkit-scrollbar{width:5px;height:5px}
+.main-scroll::-webkit-scrollbar-track,
+.scroll::-webkit-scrollbar-track{background:transparent}
+.main-scroll::-webkit-scrollbar-thumb,
+.scroll::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,0.06);border-radius:3px;
+}
+.main-scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.10)}
+
+/* ═══════════════ TOOLBAR ═══════════════ */
+.toolbar{
+  display:flex;align-items:center;gap:8px;
+  flex-wrap:wrap;margin-bottom:14px;
+  padding-bottom:0;
+}
+.toolbar h2{
+  font-size:17px;font-weight:700;
+  margin-right:auto;color:var(--text);
+  letter-spacing:-0.02em;
+}
+
+/* ═══════════════ BUTTONS ═══════════════ */
+.btn{
+  padding:7px 14px;border:none;border-radius:var(--radius-xs);
+  font-size:12px;cursor:pointer;font-weight:600;
+  font-family:var(--font);letter-spacing:-0.01em;
+  transition:all var(--transition-fast);
+  white-space:nowrap;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
 .btn:active{transform:scale(.97) translateY(0)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .btn-sm{padding:5px 10px;font-size:11px}
+
 .btn-primary{background:var(--primary);color:#fff}
 .btn-success{background:var(--success);color:#fff}
 .btn-danger{background:var(--danger);color:#fff}
 .btn-purple{background:var(--purple);color:#fff}
-.btn-gray{background:#4a424a;color:#fff}
-.btn-accent{background:var(--accent);color:#16130d}
-.btn-outline{background:transparent;border:1px solid #3e3840;color:#9a9490}
-input,select,textarea{background:#1a1a30;border:1px solid #282233;border-radius:var(--radius-sm);color:var(--text);padding:7px 10px;font-size:12px;outline:none}
-input:focus,select:focus,button:focus-visible{ border-color:var(--accent);outline:2px solid var(--accent);outline-offset:1px}
-.btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-select{min-width:120px;background:var(--card);color:var(--text);border:1px solid #363049;border-radius:4px;padding:4px 8px;font-size:12px;cursor:pointer;color-scheme:dark}
-select option{background:#1e1e36;color:#c4c4cc}
-.table-header{display:flex;background:var(--header);border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:0;font-size:12px;font-weight:700;color:#9a9490;overflow:hidden}
-.table-header span{ padding:10px 4px;cursor:pointer;user-select:none}
-.table-header span:hover{background:#282233}
-.table-header span{position:relative;padding:8px 8px 8px 6px}
-.resize-handle{position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:5}
-.resize-handle:hover,.resize-handle.active{background:var(--accent);opacity:.6}
+.btn-gray{background:rgba(255,255,255,0.08);color:var(--text-secondary)}
+.btn-gray:hover{background:rgba(255,255,255,0.12);color:var(--text)}
+.btn-accent{background:var(--accent);color:#16120d;font-weight:700}
+.btn-accent:hover{filter:brightness(1.08)}
+.btn-outline{
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.08);
+  color:var(--text-secondary);
+}
+.btn-outline:hover{background:rgba(255,255,255,0.04);color:var(--text);border-color:rgba(255,255,255,0.14)}
+
+/* ═══════════════ INPUTS ═══════════════ */
+input,select,textarea{
+  background:var(--bg-elevated);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:var(--radius-xs);
+  color:var(--text);padding:7px 10px;
+  font-size:12px;font-family:var(--font);
+  outline:none;transition:border-color var(--transition-fast);
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 2px var(--accent-glow);
+}
+select{
+  min-width:120px;cursor:pointer;color-scheme:dark;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a9aaa'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  padding-right:28px;
+}
+select option{background:#1a1a2e;color:var(--text)}
+
+/* ═══════════════ TABLE HEADER ═══════════════ */
+.table-header{
+  display:flex;background:var(--card);
+  border-radius:var(--radius-sm) var(--radius-sm) 0 0;
+  padding:0;font-size:11.5px;font-weight:600;
+  color:var(--muted);overflow:hidden;
+  border:1px solid var(--card-border);
+  border-bottom:none;
+}
+.table-header span{padding:10px 6px;cursor:pointer;user-select:none;letter-spacing:-0.01em;position:relative}
+.table-header span:hover{background:rgba(255,255,255,0.02);color:var(--text-secondary)}
+.table-header span .sort-arrow{color:var(--accent);font-size:9px;margin-left:2px}
+.resize-handle{
+  position:absolute;right:0;top:0;bottom:0;
+  width:5px;cursor:col-resize;z-index:5;transition:background var(--transition-fast);
+}
+.resize-handle:hover,.resize-handle.active{background:var(--accent);opacity:.5}
 .table-header span:last-child .resize-handle{display:none}
 body.col-resizing{cursor:col-resize!important;user-select:none!important}
 body.col-resizing .table-header span{cursor:col-resize!important}
-.row{display:flex;align-items:center;background:var(--card);border-radius:var(--radius-sm);margin:2px 0;padding:6px 0;font-size:12px;transition:.1s}
-.row:hover{background:#221e2a}
-.row span,.row .cell{padding:5px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.status-dot{font-size:10px;margin-right:3px}
-.card{background:var(--card);border-radius:var(--radius);padding:15px;border:1px solid #282233}
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.status-card{display:flex;align-items:center;gap:8px;padding:12px 15px;background:var(--card);border-radius:var(--radius)}
-.status-card .count{font-size:22px;font-weight:700;margin-left:auto}
-.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
-.paging{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);margin-top:8px}
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:100}
-.modal{background:var(--card);border-radius:var(--radius);padding:25px;width:90%;max-width:480px;max-height:85vh;overflow-y:auto}
-.modal h3{margin-bottom:15px;font-size:16px}
-.modal .field{margin-bottom:12px}
-.modal .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+
+/* ═══════════════ DATA ROWS ═══════════════ */
+.row{
+  display:flex;align-items:center;
+  background:var(--card);
+  border-radius:0;margin:0;padding:7px 0;
+  font-size:12px;transition:all var(--transition-fast);
+  border-bottom:1px solid rgba(255,255,255,0.02);
+}
+.row:last-child{border-bottom:none}
+.row:hover{background:var(--card-hover)}
+.row span,.row .cell{
+  padding:5px 6px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;line-height:1.4;
+}
+.row input[type="checkbox"]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+
+/* ═══════════════ CARDS ═══════════════ */
+.card{
+  background:var(--card);border-radius:var(--radius);
+  padding:18px 20px;
+  border:1px solid var(--card-border);
+  box-shadow:var(--shadow-card);
+  transition:all var(--transition-base);
+}
+.card:hover{border-color:rgba(255,255,255,0.08)}
+
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:12px;
+}
+
+.status-card{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 16px;
+  background:var(--card);
+  border-radius:var(--radius-sm);
+  border:1px solid var(--card-border);
+  transition:all var(--transition-fast);
+}
+.status-card:hover{background:var(--card-hover)}
+.status-card .status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-card .count{font-size:20px;font-weight:700;margin-left:auto;font-variant-numeric:tabular-nums}
+
+/* ═══════════════ BADGES & TAGS ═══════════════ */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:var(--radius-xs);
+  font-size:11px;font-weight:600;
+}
+
+.status-tag{
+  padding:3px 10px;border-radius:var(--radius-xs);
+  font-size:11px;font-weight:600;
+  display:inline-flex;align-items:center;gap:5px;
+  letter-spacing:-0.01em;
+}
+.status-tag .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* ═══════════════ PAGING ═══════════════ */
+.paging{
+  display:flex;align-items:center;gap:8px;
+  font-size:11.5px;color:var(--muted);
+  margin-top:10px;padding:4px 0;
+}
+
+/* ═══════════════ MODAL ═══════════════ */
+.modal-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:100;animation:fadeIn var(--transition-fast);
+}
+.modal{
+  background:var(--card);border-radius:var(--radius-lg);
+  padding:26px 28px;width:90%;max-width:500px;
+  max-height:85vh;overflow-y:auto;
+  border:1px solid rgba(255,255,255,0.06);
+  box-shadow:var(--shadow-modal);
+  animation:slideUp var(--transition-slow);
+}
+.modal h3{margin-bottom:16px;font-size:16px;font-weight:700;letter-spacing:-0.015em}
+.modal .field{margin-bottom:14px}
+.modal .field label{display:block;font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.04em}
 .modal .field input,.modal .field select,.modal .field textarea{width:100%}
-.modal .btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:15px}
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--success);color:#fff;padding:8px 20px;border-radius:20px;font-size:12px;z-index:200;animation:fadein .3s}
-@keyframes fadein{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.scroll{overflow-y:auto;flex:1;min-height:0}
-.chart-wrap{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:15px}
+.modal .btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+
+/* ═══════════════ TOAST ═══════════════ */
+.toast{
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
+  background:var(--card);color:var(--text);
+  padding:10px 24px;border-radius:24px;
+  font-size:12px;font-weight:500;letter-spacing:-0.01em;
+  z-index:200;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+  animation:toastIn .3s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* ═══════════════ CHART WRAP ═══════════════ */
+.chart-wrap{
+  background:var(--card);border-radius:var(--radius);
+  padding:20px;margin-bottom:14px;
+  border:1px solid var(--card-border);
+}
 canvas{max-width:100%}
-.check-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0}
-.empty{text-align:center;color:var(--muted);padding:40px;font-size:14px}
-.bar-outer{flex:1;background:var(--bg);border-radius:5px;height:18px;overflow:hidden;min-width:100px}
-.bar-inner{height:100%;background:#4dab8e;border-radius:5px;transition:width .3s}
-.tab-bar{display:flex;gap:4px;margin-bottom:10px}
-.report-box{background:var(--card);border:1px solid #282233;border-radius:var(--radius);padding:20px;font-family:monospace;font-size:13px;white-space:pre-wrap;line-height:1.6;flex:1;overflow-y:auto;min-height:0}
-.status-tag{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
-input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px}
-.progress-row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}
-.progress-row .lbl{width:120px;min-width:120px}
+
+/* ═══════════════ UTILITY ═══════════════ */
+.check-row{
+  display:flex;align-items:center;gap:8px;
+  flex-wrap:wrap;margin:8px 0;padding:4px 0;
+}
+.empty{
+  text-align:center;color:var(--muted);
+  padding:48px 20px;font-size:13px;
+}
+.bar-outer{
+  flex:1;background:var(--bg-elevated);
+  border-radius:4px;height:16px;overflow:hidden;
+  min-width:100px;border:1px solid rgba(255,255,255,0.03);
+}
+.bar-inner{
+  height:100%;background:var(--success);
+  border-radius:4px;transition:width var(--transition-slow);
+}
+.tab-bar{display:flex;gap:4px;margin-bottom:12px}
+
+.report-box{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:22px 24px;
+  font-family:"SF Mono","Cascadia Code","JetBrains Mono",monospace;
+  font-size:12.5px;white-space:pre-wrap;line-height:1.65;
+  flex:1;overflow-y:auto;min-height:0;color:var(--text-secondary);
+}
+
+.progress-row{
+  display:flex;align-items:center;gap:10px;
+  margin:5px 0;font-size:12px;
+}
+.progress-row .lbl{width:130px;min-width:130px;font-weight:500}
+
+.scroll{overflow-y:auto;flex:1;min-height:0}
+
+/* ═══════════════ SKELETON LOADING ═══════════════ */
+.skeleton{
+  background:linear-gradient(90deg,var(--card) 25%,var(--card-hover) 50%,var(--card) 75%);
+  background-size:200% 100%;
+  animation:skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius:var(--radius-xs);
+}
+.skeleton-text{height:13px;width:100%;margin-bottom:8px}
+.skeleton-text.short{width:60%}
+.skeleton-row{height:36px;margin:3px 0;border-radius:var(--radius-sm)}
+@keyframes skeleton-pulse{
+  0%{background-position:200% 0}
+  100%{background-position:-200% 0}
+}
+
+/* ═══════════════ RESPONSIVE ═══════════════ */
 @media(max-width:768px){
   body{flex-direction:column}
-  .sidebar{width:100%;min-width:auto;height:auto;position:static;flex-direction:row;flex-wrap:wrap;padding:10px;gap:4px}
+  .sidebar{width:100%;min-width:auto;height:auto;position:static;flex-direction:row;flex-wrap:wrap;padding:10px;gap:4px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.04)}
   .sidebar .logo,.sidebar .nav-title{display:none}
-  .sidebar .nav-btn{width:auto;margin:2px;padding:6px 12px;font-size:11px}
-  .main{padding:10px}
+  .sidebar .nav-btn{width:auto;margin:2px;padding:7px 12px;font-size:11px}
+  .sidebar .nav-btn .nav-icon{display:none}
+  .main-content{padding:12px}
   .table-header span,.row span{font-size:10px}
   .card-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
   .sidebar-resize{display:none}
+}
+
+/* ═══════════════ PRINT ═══════════════ */
+@media print{
+  body{background:#fff;color:#000}
+  .sidebar{display:none}
+  .toolbar .btn{display:none}
+  .row{break-inside:avoid}
 }
 </style>
 </head>
 <body>
 
-<!-- Sidebar -->
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
 <nav class="sidebar">
-  <div class="logo"><h1>Ultra Cleaning</h1><span>影片工作流 v3.0</span></div>
+  <div class="logo"><h1>Ultra Cleaning</h1><span>影片工作流 v5.0</span></div>
   <div class="nav-title">功能選單</div>
-  <button class="nav-btn active" data-page="projects">專案管理</button>
-  <button class="nav-btn" data-page="materials">素材庫存</button>
-  <button class="nav-btn" data-page="daily">日報</button>
-  <button class="nav-btn" data-page="weekly">週報</button>
-  <button class="nav-btn" data-page="dashboard">狀態總覽</button>
-  <button class="nav-btn" data-page="stats">報表中心</button>
-  <button class="nav-btn" data-page="trash">垃圾桶</button>
+  <button class="nav-btn active" data-page="projects"><span class="nav-icon">&#9632;</span> 專案管理</button>
+  <button class="nav-btn" data-page="materials"><span class="nav-icon">&#9638;</span> 素材庫存</button>
+  <button class="nav-btn" data-page="daily"><span class="nav-icon">&#9681;</span> 日報</button>
+  <button class="nav-btn" data-page="weekly"><span class="nav-icon">&#9711;</span> 週報</button>
+  <button class="nav-btn" data-page="dashboard"><span class="nav-icon">&#9776;</span> 狀態總覽</button>
+  <button class="nav-btn" data-page="stats"><span class="nav-icon">&#9779;</span> 報表中心</button>
+  <button class="nav-btn" data-page="trash"><span class="nav-icon">&#9850;</span> 垃圾桶</button>
 </nav>
 <div class="sidebar-resize" id="sidebarResize"></div>
-<!-- Main -->
-<div class="main" id="main"></div>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="main">
+  <div class="main-content" id="main"></div>
+</div>
 
 <script>
 // ── Config ────────────────────────────────────────────────────
-const API_BASE = 'https://wood0807.pythonanywhere.com';  // Render backend URL
+const API_BASE = 'https://wood0807.pythonanywhere.com';
 
 const STATUSES = ["素材歸檔","已停止","剪輯中","MKT審核中","MKT退回","老闆審核中","老闆退回","審核通過","文案撰寫中","準備排程","已排程","已發布"];
 const STATUS_COLORS = {"素材歸檔":"#7a7a88","已停止":"#c46a8a","剪輯中":"#d4956b","MKT審核中":"#5b8cc9","MKT退回":"#e0556a","老闆審核中":"#8b6fbf","老闆退回":"#c43b50","審核通過":"#3d9478","文案撰寫中":"#4dab8e","準備排程":"#d4a843","已排程":"#6ebccf","已發布":"#2d7a5f"};
@@ -160,6 +469,14 @@ function toast(msg) {
   document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
 }
 
+// ── Skeleton loading ──────────────────────────────────────────
+function showSkeleton(rowCount) {
+  r = rowCount || 8;
+  let h = '';
+  for(let i=0;i<r;i++) h += '<div class="skeleton skeleton-row"></div>';
+  return h;
+}
+
 // ── API helpers ───────────────────────────────────────────────
 async function api(url, opts={}) {
   const res = await fetch(`${API_BASE}${url}`, {
@@ -173,7 +490,7 @@ async function api(url, opts={}) {
 // ── Page loader ───────────────────────────────────────────────
 async function loadPage(page) {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty">載入中...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   try {
     switch(page) {
       case 'projects': await renderProjects(); break;
@@ -184,7 +501,7 @@ async function loadPage(page) {
       case 'stats': await renderStats(); break;
       case 'trash': await renderTrash(); break;
     }
-  } catch(e) { main.innerHTML = `<div class="empty" style="color:var(--danger)">錯誤：${e.message}</div>`; }
+  } catch(e) { main.innerHTML = `<div class="empty" style="color:var(--danger);padding-top:80px">錯誤：${e.message}</div>`; }
 }
 
 // ── Projects Page ─────────────────────────────────────────────
@@ -202,23 +519,23 @@ async function renderProjects() {
       <select id="projCatFilter" onchange="projState.category=this.value;projState.page=0;renderProjects()">
         <option value="">全部業務線</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
       </select>
-      <button class="btn btn-success" onclick="showAddModal()">＋ 新增專案</button>
-      <button class="btn btn-purple" onclick="exportDB()">匯出資料</button>
-      <button class="btn btn-primary" onclick="showImportDialog()">匯入資料</button>
+      <button class="btn btn-accent" onclick="showAddModal()">＋ 新增專案</button>
+      <button class="btn btn-purple" onclick="exportDB()">匯出</button>
+      <button class="btn btn-primary" onclick="showImportDialog()">匯入</button>
     </div>
     <div class="table-header">
-      <span style="width:50px" onclick="toggleSort('id')">ID ${sortArrow('id')}</span>
-      <span style="width:270px" onclick="toggleSort('name')">影片名稱 ${sortArrow('name')}</span>
-      <span style="width:90px" onclick="toggleSort('category')">業務線 ${sortArrow('category')}</span>
-      <span style="width:100px" onclick="toggleSort('current_status')">狀態 ${sortArrow('current_status')}</span>
-      <span style="width:130px">備註</span>
-      <span style="width:90px" onclick="toggleSort('edit_date')">剪輯日期 ${sortArrow('edit_date')}</span>
-      <span style="width:90px" onclick="toggleSort('review_date')">送審日期 ${sortArrow('review_date')}</span>
-      <span style="width:90px" onclick="toggleSort('publish_date')">發佈日期 ${sortArrow('publish_date')}</span>
-      <span style="width:120px" onclick="toggleSort('updated_at')">更新時間 ${sortArrow('updated_at')}</span>
+      <span style="width:50px" onclick="toggleSort('id')">ID <span class="sort-arrow">${sortArrow('id')}</span></span>
+      <span style="width:280px" onclick="toggleSort('name')">影片名稱 <span class="sort-arrow">${sortArrow('name')}</span></span>
+      <span style="width:90px" onclick="toggleSort('category')">業務線 <span class="sort-arrow">${sortArrow('category')}</span></span>
+      <span style="width:105px" onclick="toggleSort('current_status')">狀態 <span class="sort-arrow">${sortArrow('current_status')}</span></span>
+      <span style="width:120px">備註</span>
+      <span style="width:90px" onclick="toggleSort('edit_date')">剪輯日期 <span class="sort-arrow">${sortArrow('edit_date')}</span></span>
+      <span style="width:90px" onclick="toggleSort('review_date')">送審日期 <span class="sort-arrow">${sortArrow('review_date')}</span></span>
+      <span style="width:90px" onclick="toggleSort('publish_date')">發佈日期 <span class="sort-arrow">${sortArrow('publish_date')}</span></span>
+      <span style="width:115px" onclick="toggleSort('updated_at')">更新時間 <span class="sort-arrow">${sortArrow('updated_at')}</span></span>
       <span style="width:160px"></span>
     </div>
-    <div class="main-scroll"><div class="scroll" id="projList"></div></div>
+    <div class="main-scroll"><div class="scroll" id="projList">${showSkeleton(10)}</div></div>
     <div id="projBatch" class="check-row" style="display:none"></div>
     <div id="projPaging" class="paging"></div>
   `;
@@ -228,7 +545,7 @@ async function renderProjects() {
   restoreColWidths();
 }
 
-function sortArrow(col) { return projState.sortCol===col ? (projState.sortAsc?' ▲':' ▼') : ''; }
+function sortArrow(col) { return projState.sortCol===col ? (projState.sortAsc?'▲':'▼') : ''; }
 function toggleSort(col) {
   if(projState.sortCol===col) projState.sortAsc=!projState.sortAsc; else {projState.sortCol=col;projState.sortAsc=true;}
   projState.page=0; renderProjects();
@@ -251,31 +568,30 @@ async function loadProjects() {
 function renderProjectRows(projects) {
   const list = document.getElementById('projList');
   if(!projects.length) { list.innerHTML='<div class="empty">尚無專案<br><br><button class="btn btn-accent" onclick="showAddModal()">＋ 新增第一個專案</button></div>'; return; }
-  list.innerHTML = projects.map((r,i) => {
+  list.innerHTML = projects.map(r => {
     const cat = CATEGORIES[r.category] || r.category;
-    const color = STATUS_COLORS[r.current_status]||'#fff';
     const updated = (r.updated_at||'').substring(0,10);
     const editD = (r.edit_date||'').substring(0,10)||'未設定';
     const revD = (r.review_date||'').substring(0,10)||'未設定';
     const pubD = (r.publish_date||'').substring(0,10)||'未設定';
     return `<div class="row" data-id="${r.id}">
       <span style="width:50px"><input type="checkbox" data-pid="${r.id}" onclick="handleCheckClick(event,${r.id})" onchange="toggleSelect(${r.id},this.checked)"> ${r.id}</span>
-      <span style="width:270px" title="${r.name}">${r.name}</span>
+      <span style="width:280px" title="${r.name}">${r.name}</span>
       <span style="width:90px">${cat}</span>
-      <span style="width:100px">
-        <select style="font-size:11px;padding:2px 4px;background:var(--card);border:1px solid #363049;color:var(--text);border-radius:4px;cursor:pointer;max-width:100px" 
+      <span style="width:105px">
+        <select style="font-size:11px;padding:3px 6px;background:var(--bg-elevated);border:1px solid rgba(255,255,255,0.06);color:var(--text);border-radius:var(--radius-xs);cursor:pointer;max-width:100px;font-family:var(--font)" 
           onchange="quickUpdateStatus(${r.id},this.value,this.dataset.current)" 
           data-current="${r.current_status}">
           ${STATUSES.map(s=>`<option value="${s}" ${s===r.current_status?'selected':''}>${s}</option>`).join('')}
         </select>
       </span>
-      <span style="width:130px;color:var(--muted)">${(r.note||'').substring(0,18)}</span>
-      <span style="width:90px;color:${editD!=='未設定'?'#9ec5fe':'var(--muted)'};cursor:pointer" onclick="showEditDateModal(${r.id},'edit_date','${r.edit_date||''}')">${editD}</span>
-      <span style="width:90px;color:${revD!=='未設定'?'var(--warning)':'var(--muted)'};cursor:pointer" onclick="showEditDateModal(${r.id},'review_date','${r.review_date||''}')">${revD}</span>
-      <span style="width:90px;color:${pubD!=='未設定'?'#20c997':'var(--muted)'};cursor:pointer" onclick="showEditDateModal(${r.id},'publish_date','${r.publish_date||''}')">${pubD}</span>
-      <span style="width:120px;color:var(--muted);cursor:pointer" onclick="showEditTimeModal(${r.id},'${r.updated_at||''}')">${updated}</span>
-      <span style="width:160px;display:flex;gap:3px">
-        <button class="btn btn-sm btn-primary" onclick="showStatusModal(${r.id},'${r.current_status}')">更新狀態</button>
+      <span style="width:120px;color:var(--muted)">${(r.note||'').substring(0,18)}</span>
+      <span style="width:90px;color:${editD!=='未設定'?'#9ec5fe':'var(--muted)'};cursor:pointer;font-weight:${editD!=='未設定'?'500':'400'}" onclick="showEditDateModal(${r.id},'edit_date','${r.edit_date||''}')">${editD}</span>
+      <span style="width:90px;color:${revD!=='未設定'?'var(--warning)':'var(--muted)'};cursor:pointer;font-weight:${revD!=='未設定'?'500':'400'}" onclick="showEditDateModal(${r.id},'review_date','${r.review_date||''}')">${revD}</span>
+      <span style="width:90px;color:${pubD!=='未設定'?'#20c997':'var(--muted)'};cursor:pointer;font-weight:${pubD!=='未設定'?'500':'400'}" onclick="showEditDateModal(${r.id},'publish_date','${r.publish_date||''}')">${pubD}</span>
+      <span style="width:115px;color:var(--muted);cursor:pointer;font-weight:400" onclick="showEditTimeModal(${r.id},'${r.updated_at||''}')">${updated}</span>
+      <span style="width:160px;display:flex;gap:4px">
+        <button class="btn btn-sm btn-primary" onclick="showStatusModal(${r.id},'${r.current_status}')">狀態</button>
         <button class="btn btn-sm btn-gray" onclick="showEditModal(${r.id},'${r.name}','${(r.note||'').replace(/'/g,"\\'")}')">編輯</button>
         <button class="btn btn-sm btn-purple" onclick="showDetailModal(${r.id})">詳情</button>
       </span>
@@ -319,21 +635,18 @@ function renderBatchOps(projects) {
   if(!projects.length){ el.style.display='none'; return; }
   el.style.display='flex';
   el.innerHTML = `
-    <label><input type="checkbox" id="selectAll" onchange="toggleAll(this.checked)"> 全選</label>
-    <span style="color:var(--muted);font-size:12px">批次更改狀態：</span>
-    <select id="batchStatus">${STATUSES.map(s=>`<option>${s}</option>`).join('')}</select>
-    <button class="btn btn-sm btn-accent" onclick="batchUpdateStatus()">確認更改</button>
-    <span style="color:var(--muted);font-size:12px;margin-left:10px">剪輯日期：</span>
-    <input id="batchEditDate" placeholder="YYYY-MM-DD" style="width:100px">
+    <label style="font-size:12px;cursor:pointer"><input type="checkbox" id="selectAll" onchange="toggleAll(this.checked)"> 全選</label>
+    <span style="color:var(--muted);font-size:11.5px;margin-left:8px">批次狀態：</span>
+    <select id="batchStatus" style="width:130px">${STATUSES.map(s=>`<option>${s}</option>`).join('')}</select>
+    <button class="btn btn-sm btn-accent" onclick="batchUpdateStatus()">套用</button>
+    <span style="color:var(--muted);font-size:11.5px;margin-left:10px">剪輯日：</span>
+    <input id="batchEditDate" placeholder="YYYY-MM-DD" style="width:105px">
     <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('edit_date')">套用</button>
-    <span style="color:var(--muted);font-size:12px;margin-left:10px">更新日期：</span>
-    <input id="batchUpdateDate" placeholder="YYYY-MM-DD" style="width:100px">
-    <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('updated_at')">套用</button>
-    <span style="color:var(--muted);font-size:12px;margin-left:10px">送審日期：</span>
-    <input id="batchReviewDate" placeholder="YYYY-MM-DD" style="width:100px">
+    <span style="color:var(--muted);font-size:11.5px;margin-left:10px">送審日：</span>
+    <input id="batchReviewDate" placeholder="YYYY-MM-DD" style="width:105px">
     <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('review_date')">套用</button>
-    <span style="color:var(--muted);font-size:12px;margin-left:10px">發佈日期：</span>
-    <input id="batchPublishDate" placeholder="YYYY-MM-DD" style="width:100px">
+    <span style="color:var(--muted);font-size:11.5px;margin-left:10px">發佈日：</span>
+    <input id="batchPublishDate" placeholder="YYYY-MM-DD" style="width:105px">
     <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('publish_date')">套用</button>
     <button class="btn btn-sm btn-danger" style="margin-left:auto" onclick="batchDelete()">刪除所選</button>
   `;
@@ -401,19 +714,19 @@ async function renderMaterials() {
       <select id="matCatFilter" onchange="matState.category=this.value;matState.page=0;renderMaterials()">
         <option value="">全部業務線</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
       </select>
-      <button class="btn btn-success" onclick="showMatAddModal()">＋ 新增素材</button>
+      <button class="btn btn-accent" onclick="showMatAddModal()">＋ 新增素材</button>
       <button class="btn btn-sm btn-outline" onclick="showMatBatchAddModal()">批次新增</button>
     </div>
     <div class="table-header">
-      <span style="width:50px" onclick="matToggleSort('id')">ID ${matSortArrow('id')}</span>
-      <span style="width:280px" onclick="matToggleSort('name')">名稱 ${matSortArrow('name')}</span>
-      <span style="width:120px" onclick="matToggleSort('category')">業務線 ${matSortArrow('category')}</span>
+      <span style="width:50px" onclick="matToggleSort('id')">ID <span class="sort-arrow">${matSortArrow('id')}</span></span>
+      <span style="width:290px" onclick="matToggleSort('name')">名稱 <span class="sort-arrow">${matSortArrow('name')}</span></span>
+      <span style="width:120px" onclick="matToggleSort('category')">業務線 <span class="sort-arrow">${matSortArrow('category')}</span></span>
       <span style="width:180px">備註</span>
-      <span style="width:140px" onclick="matToggleSort('created_at')">建立日期 ${matSortArrow('created_at')}</span>
-      <span style="width:140px" onclick="matToggleSort('updated_at')">更新時間 ${matSortArrow('updated_at')}</span>
+      <span style="width:135px" onclick="matToggleSort('created_at')">建立日期 <span class="sort-arrow">${matSortArrow('created_at')}</span></span>
+      <span style="width:135px" onclick="matToggleSort('updated_at')">更新時間 <span class="sort-arrow">${matSortArrow('updated_at')}</span></span>
       <span style="width:240px"></span>
     </div>
-    <div class="main-scroll"><div class="scroll" id="matList"></div></div>
+    <div class="main-scroll"><div class="scroll" id="matList">${showSkeleton(8)}</div></div>
     <div id="matBatch" class="check-row" style="display:none"></div>
     <div id="matPaging" class="paging"></div>
   `;
@@ -424,7 +737,7 @@ async function renderMaterials() {
   restoreColWidths();
 }
 
-function matSortArrow(col) { return matState.sortCol===col ? (matState.sortAsc?' ▲':' ▼') : ''; }
+function matSortArrow(col) { return matState.sortCol===col ? (matState.sortAsc?'▲':'▼') : ''; }
 function matToggleSort(col) {
   if(matState.sortCol===col) matState.sortAsc=!matState.sortAsc; else {matState.sortCol=col;matState.sortAsc=true;}
   matState.page=0; renderMaterials();
@@ -454,12 +767,12 @@ function renderMaterialRows(materials) {
     const notePreview = (m.note||'').substring(0,24);
     return `<div class="row" data-mid="${m.id}">
       <span style="width:50px"><input type="checkbox" data-mid="${m.id}" onclick="matHandleCheckClick(event,${m.id})" onchange="matToggleSelect(${m.id},this.checked)"> ${m.id}</span>
-      <span style="width:280px" title="${m.name}">${m.name}</span>
+      <span style="width:290px" title="${m.name}">${m.name}</span>
       <span style="width:120px">${cat}</span>
       <span style="width:180px;color:var(--muted)" title="${(m.note||'').replace(/"/g,'&quot;')}">${notePreview}</span>
-      <span style="width:140px;color:var(--muted)">${created}</span>
-      <span style="width:140px;color:var(--muted)">${updated}</span>
-      <span style="width:240px;display:flex;gap:3px">
+      <span style="width:135px;color:var(--muted)">${created}</span>
+      <span style="width:135px;color:var(--muted)">${updated}</span>
+      <span style="width:240px;display:flex;gap:4px">
         <button class="btn btn-sm btn-gray" onclick="showMatEditModal(${m.id},'${(m.name||'').replace(/'/g,"\\'")}','${(m.category||'').replace(/'/g,"\\'")}','${(m.note||'').replace(/'/g,"\\'").replace(/\n/g,'\\n')}')">編輯</button>
         <button class="btn btn-sm btn-danger" onclick="deleteMaterial(${m.id})">刪除</button>
         <button class="btn btn-sm btn-accent" onclick="startEditMaterial(${m.id})">開始剪輯</button>
@@ -504,7 +817,7 @@ function matRenderBatchOps(materials) {
   if(!materials.length){ el.style.display='none'; return; }
   el.style.display='flex';
   el.innerHTML = `
-    <label><input type="checkbox" id="matSelectAll" onchange="matToggleAll(this.checked)"> 全選</label>
+    <label style="font-size:12px;cursor:pointer"><input type="checkbox" id="matSelectAll" onchange="matToggleAll(this.checked)"> 全選</label>
     <button class="btn btn-sm btn-danger" style="margin-left:10px" onclick="matBatchDelete()">批次刪除</button>
   `;
 }
@@ -562,7 +875,6 @@ function showMatAddModal() {
   });
 }
 
-// ── Material Batch Add ────────────────────────────────────────
 function showMatBatchAddModal() {
   showModal('批次新增素材', `
     <div class="field"><label>業務線</label><select id="matBatchCat">${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}</select></div>
@@ -631,7 +943,7 @@ function showModal(title, bodyHtml, onSave) {
   const overlay = document.createElement('div'); overlay.className='modal-overlay';
   overlay.innerHTML = `<div class="modal"><h3>${title}</h3>${bodyHtml}<div class="btn-row">
     <button class="btn btn-gray" onclick="this.closest('.modal-overlay').remove()">取消</button>
-    <button class="btn btn-success" id="modalSave">確認</button>
+    <button class="btn btn-accent" id="modalSave">確認</button>
   </div></div>`;
   document.body.appendChild(overlay);
   overlay.querySelector('#modalSave').onclick = () => { onSave(overlay); };
@@ -663,7 +975,7 @@ async function quickUpdateStatus(pid, newStatus, oldStatus) {
 
 function showStatusModal(pid, current) {
   showModal('更新狀態', `
-    <p style="margin-bottom:10px;font-size:13px">目前：<b style="color:${STATUS_COLORS[current]||'#fff'}">${current}</b></p>
+    <p style="margin-bottom:12px;font-size:13px">目前：<span class="status-tag" style="background:${STATUS_COLORS[current]||'#554c44'}22;color:${STATUS_COLORS[current]||'#fff'};border:1px solid ${STATUS_COLORS[current]||'#554c44'}44">${current}</span></p>
     <div class="field"><label>新狀態</label><select id="mStatus">${STATUSES.map(s=>`<option ${s===current?'selected':''}>${s}</option>`).join('')}</select></div>
     <div class="field"><label>備註</label><input id="mNote"></div>
   `, async (ov) => {
@@ -692,7 +1004,7 @@ function showEditTimeModal(pid, cur) {
   showModal('編輯更新時間', `
     <div class="field"><label>日期</label><input type="date" id="mDate" value="${dp}"></div>
     <div class="field"><label>時間</label><input id="mTime" value="${tp}" placeholder="HH:MM:SS"></div>
-    <button class="btn btn-sm btn-gray" onclick="document.getElementById('mDate').value='${new Date().toISOString().substring(0,10)}';document.getElementById('mTime').value='${new Date().toTimeString().substring(0,8)}'">現在時間</button>
+    <button class="btn btn-sm btn-gray" onclick="document.getElementById('mDate').value='${new Date().toISOString().substring(0,10)}';document.getElementById('mTime').value='${new Date().toTimeString().substring(0,8)}'" style="margin-top:4px">現在時間</button>
   `, async (ov) => {
     const dt = `${ov.querySelector('#mDate').value.trim()} ${ov.querySelector('#mTime').value.trim()}`;
     await api(`/api/projects/${pid}`, {method:'PATCH',body:JSON.stringify({updated_at:dt})});
@@ -718,13 +1030,12 @@ function showEditDateModal(pid, field, cur) {
 async function showDetailModal(pid) {
   const res = await api(`/api/projects/${pid}/logs`);
   const data = await res.json();
-  // Get project info from the current list
   const el = document.querySelector(`[data-id="${pid}"]`);
   const name = el ? el.querySelector('span:nth-child(2)').textContent : `#${pid}`;
   let html = `<h3>${name}</h3><div style="max-height:300px;overflow-y:auto;margin-bottom:10px">`;
   html += data.logs.map(l => {
     const arrow = `${l.old_status||'建立'} → ${l.new_status}`;
-    return `<div style="font-size:12px;padding:3px 0;color:var(--muted)">${l.changed_at} <span style="color:var(--text)">${arrow}</span></div>`;
+    return `<div style="font-size:12px;padding:4px 0;color:var(--muted)">${l.changed_at} <span style="color:var(--text)">${arrow}</span></div>`;
   }).join('');
   html += '</div>';
   showModal('專案詳情 - 狀態歷程', html, ov => ov.remove());
@@ -755,7 +1066,7 @@ function exportDB() {
 // ── Daily Report ──────────────────────────────────────────────
 async function renderDaily() {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty">載入中...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   const res = await api('/api/reports/daily');
   const d = await res.json();
   const range = d.range_start===d.range_end ? d.range_start : `${d.range_start} ~ ${d.range_end}`;
@@ -804,7 +1115,7 @@ ${fmt(d.published)}
 ${fmt(d.todo)}`;
 
   main.innerHTML = `
-    <div class="toolbar"><h2>每日日報</h2><span style="color:var(--muted)">${d.date}</span>
+    <div class="toolbar"><h2>每日日報</h2><span style="color:var(--muted);font-size:12px">${d.date}</span>
       <button class="btn btn-gray" onclick="renderDaily()">重新整理</button>
       <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PNG')">匯出PNG</button>
       <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','JPG')">匯出JPG</button>
@@ -817,7 +1128,7 @@ ${fmt(d.todo)}`;
 // ── Weekly Report ─────────────────────────────────────────────
 async function renderWeekly() {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty">載入中...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   const res = await api('/api/reports/weekly');
   const d = await res.json();
 
@@ -861,7 +1172,7 @@ ${fmt(d.in_review)}
 ${fmt(d.pending)}`;
 
   main.innerHTML = `
-    <div class="toolbar"><h2>每週週報</h2><span style="color:var(--muted)">${d.monday}（一）～ ${d.sunday}（日）</span>
+    <div class="toolbar"><h2>每週週報</h2><span style="color:var(--muted);font-size:12px">${d.monday}（一）～ ${d.sunday}（日）</span>
       <button class="btn btn-gray" onclick="renderWeekly()">重新整理</button>
       <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PNG')">匯出PNG</button>
       <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','JPG')">匯出JPG</button>
@@ -874,33 +1185,41 @@ ${fmt(d.pending)}`;
 // ── Dashboard ─────────────────────────────────────────────────
 async function renderDashboard() {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty">載入中...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   const res = await api('/api/dashboard');
   const d = await res.json();
 
   const overview = [
-    {title:'專案總數', val:d.total, color:'#c9946e'},
-    {title:'活躍專案', val:d.active, color:'#d4956b'},
-    {title:'業務線', val:d.category_count, color:'#4dab8e'},
-    {title:'垃圾桶', val:d.trash, color:'#dc3545'},
+    {title:'專案總數', val:d.total, color:'var(--accent)', icon:'&#9632;'},
+    {title:'活躍專案', val:d.active, color:'#d4956b', icon:'&#9654;'},
+    {title:'業務線', val:d.category_count, color:'var(--success)', icon:'&#9638;'},
+    {title:'垃圾桶', val:d.trash, color:'var(--danger)', icon:'&#9850;'},
   ];
 
   main.innerHTML = `
-    <h2 style="margin-bottom:15px">狀態總覽</h2>
+    <h2 style="margin-bottom:18px;font-weight:700;font-size:18px">狀態總覽</h2>
     <div class="main-scroll">
-    <div class="card-grid" style="margin-bottom:20px">${overview.map(c=>`
-      <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">${c.title}</div><div style="font-size:28px;font-weight:700;color:${c.color}">${c.val}</div></div>
+    <div class="card-grid" style="margin-bottom:24px">${overview.map(c=>`
+      <div class="card" style="text-align:center;padding:22px 20px">
+        <div style="font-size:22px;margin-bottom:6px;color:${c.color}">${c.icon}</div>
+        <div style="color:var(--muted);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">${c.title}</div>
+        <div style="font-size:34px;font-weight:700;color:${c.color};letter-spacing:-0.03em;font-variant-numeric:tabular-nums">${c.val}</div>
+      </div>
     `).join('')}</div>
-    <h3 style="margin-bottom:10px;font-size:14px;font-weight:700">各狀態分布</h3>
-    <div class="card-grid" style="margin-bottom:20px">${d.status_stats.map(s=>`
-      <div class="status-card"><span style="color:${s.color}">●</span><span>${s.status}</span><span class="count" style="color:${s.color}">${s.count}</span></div>
+    <h3 style="margin-bottom:12px;font-size:13px;font-weight:700;color:var(--text-secondary)">各狀態分布</h3>
+    <div class="card-grid" style="margin-bottom:24px">${d.status_stats.map(s=>`
+      <div class="status-card">
+        <div class="status-dot" style="background:${s.color}"></div>
+        <span style="font-size:12.5px">${s.status}</span>
+        <span class="count" style="color:${s.color}">${s.count}</span>
+      </div>
     `).join('')}</div>
     ${d.category_stats.length ? `
-    <h3 style="margin-bottom:10px;font-size:14px;font-weight:700">業務線分布</h3>
-    <div class="scroll" style="max-height:200px">${d.category_stats.map(c=>`
+    <h3 style="margin-bottom:12px;font-size:13px;font-weight:700;color:var(--text-secondary)">業務線分布</h3>
+    <div class="scroll" style="max-height:220px">${d.category_stats.map(c=>`
       <div class="progress-row"><span class="lbl">${c.label}</span>
         <div class="bar-outer"><div class="bar-inner" style="width:${(c.count/Math.max(...d.category_stats.map(x=>x.count)))*100}%"></div></div>
-        <span>${c.count}</span>
+        <span style="font-weight:600;font-variant-numeric:tabular-nums">${c.count}</span>
       </div>
     `).join('')}</div>`:''}
     </div>
@@ -921,7 +1240,7 @@ async function renderStats() {
     </div>
     <div class="toolbar">
       <button class="btn btn-sm btn-gray" onclick="statsState.idx--;renderStats()">◀</button>
-      <span id="statsLabel" style="font-weight:700;margin:0 15px"></span>
+      <span id="statsLabel" style="font-weight:700;margin:0 15px;font-size:13px"></span>
       <button class="btn btn-sm btn-gray" onclick="statsState.idx++;renderStats()">▶</button>
       <button class="btn btn-sm btn-gray" onclick="statsState.idx=0;renderStats()" style="margin-left:auto">今天</button>
       <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PNG')">匯出PNG</button>
@@ -946,44 +1265,41 @@ async function loadStats() {
   const d = await res.json();
   document.getElementById('statsLabel').textContent = d.label;
 
-  let html = `<div class="card-grid" style="margin-bottom:15px">
-    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">新建影片</div><div style="font-size:26px;font-weight:700;color:#c9946e">${d.created.length}</div></div>
-    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">有進度</div><div style="font-size:26px;font-weight:700;color:#d4956b">${d.active.length}</div></div>
-    <div class="card" style="text-align:center"><div style="color:var(--muted);font-size:12px">已發布</div><div style="font-size:26px;font-weight:700;color:#4dab8e">${d.published.length}</div></div>
+  let html = `<div class="card-grid" style="margin-bottom:16px">
+    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--muted);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">新建影片</div><div style="font-size:30px;font-weight:700;color:var(--accent);margin-top:4px;font-variant-numeric:tabular-nums">${d.created.length}</div></div>
+    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--muted);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">有進度</div><div style="font-size:30px;font-weight:700;color:#d4956b;margin-top:4px;font-variant-numeric:tabular-nums">${d.active.length}</div></div>
+    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--muted);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">已發布</div><div style="font-size:30px;font-weight:700;color:var(--success);margin-top:4px;font-variant-numeric:tabular-nums">${d.published.length}</div></div>
   </div>`;
 
   if(Object.keys(d.status_counts).length) {
-    html += '<h3 style="margin-bottom:8px;font-size:14px">狀態分布</h3><div class="check-row">';
+    html += '<h3 style="margin-bottom:8px;font-size:13px;font-weight:700;color:var(--text-secondary)">狀態分布</h3><div class="check-row">';
     const sorted = Object.entries(d.status_counts).sort((a,b)=>b[1]-a[1]);
     for(const [st,cnt] of sorted) {
-      html += `<span class="badge" style="background:${STATUS_COLORS[st]||'#554c44'}22;color:${STATUS_COLORS[st]||'#c4c4cc'};border:1px solid ${STATUS_COLORS[st]||'#554c44'}">${st} ×${cnt}</span>`;
+      html += `<span class="badge" style="background:${STATUS_COLORS[st]||'#554c44'}18;color:${STATUS_COLORS[st]||'var(--text)'};border:1px solid ${STATUS_COLORS[st]||'#554c44'}33">${st} ×${cnt}</span>`;
     }
     html += '</div>';
   }
 
-  // Category table
   const allCats = Object.keys(CATEGORIES);
   const hasData = allCats.some(k => (d.cat_created[k]||0)+(d.cat_active[k]||0)+(d.cat_published[k]||0) > 0);
   if(hasData) {
-    html += '<h3 style="margin:15px 0 8px;font-size:14px">業務線明細</h3>';
-    html += `<div class="card" style="overflow-x:auto"><table style="width:100%;font-size:12px;border-collapse:collapse">
-      <tr style="color:var(--muted);font-weight:700"><td style="padding:5px">業務線</td><td style="padding:5px;text-align:center">新建</td><td style="padding:5px;text-align:center">有進度</td><td style="padding:5px;text-align:center">已發布</td></tr>`;
+    html += '<h3 style="margin:16px 0 8px;font-size:13px;font-weight:700;color:var(--text-secondary)">業務線明細</h3>';
+    html += `<div class="card" style="overflow-x:auto;padding:14px"><table style="width:100%;font-size:12px;border-collapse:collapse">
+      <tr style="color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.04em"><td style="padding:8px 12px">業務線</td><td style="padding:8px 12px;text-align:center">新建</td><td style="padding:8px 12px;text-align:center">有進度</td><td style="padding:8px 12px;text-align:center">已發布</td></tr>`;
     for(const k of allCats) {
       const cc=d.cat_created[k]||0, ca=d.cat_active[k]||0, cp=d.cat_published[k]||0;
       if(!cc&&!ca&&!cp) continue;
-      html += `<tr><td style="padding:5px">${CATEGORIES[k]}</td><td style="padding:5px;text-align:center;color:${cc?'#c9946e':'var(--muted)'}">${cc}</td><td style="padding:5px;text-align:center;color:${ca?'#d4956b':'var(--muted)'}">${ca}</td><td style="padding:5px;text-align:center;color:${cp?'#4dab8e':'var(--muted)'}">${cp}</td></tr>`;
+      html += `<tr><td style="padding:7px 12px;font-weight:500">${CATEGORIES[k]}</td><td style="padding:7px 12px;text-align:center;color:${cc?'var(--accent)':'var(--muted)'};font-weight:${cc?'600':'400'};font-variant-numeric:tabular-nums">${cc}</td><td style="padding:7px 12px;text-align:center;color:${ca?'#d4956b':'var(--muted)'};font-weight:${ca?'600':'400'};font-variant-numeric:tabular-nums">${ca}</td><td style="padding:7px 12px;text-align:center;color:${cp?'var(--success)':'var(--muted)'};font-weight:${cp?'600':'400'};font-variant-numeric:tabular-nums">${cp}</td></tr>`;
     }
     html += '</table></div>';
   } else {
     html += '<div class="empty">此期間尚無影片紀錄</div>';
   }
 
-  // Charts
-  html += '<h3 style="margin:20px 0 10px;font-size:14px">數據圖表</h3><div id="chartsArea"></div>';
+  html += '<h3 style="margin:20px 0 10px;font-size:13px;font-weight:700;color:var(--text-secondary)">數據圖表</h3><div id="chartsArea"></div>';
 
   document.getElementById('statsContent').innerHTML = html;
 
-  // Render charts
   setTimeout(() => renderCharts(d), 100);
 }
 
@@ -991,13 +1307,11 @@ function renderCharts(d) {
   const area = document.getElementById('chartsArea');
   if(!area) return;
 
-  // Build category data
   const catLabels = [], catValues = [];
   for(const [k,v] of Object.entries(d.cat_created)) {
     catLabels.push(CATEGORIES[k]||k); catValues.push(v);
   }
 
-  // Status data
   const stLabels = Object.keys(d.status_counts);
   const stValues = Object.values(d.status_counts);
   const stColors = stLabels.map(s => STATUS_COLORS[s]||'#9a9490');
@@ -1011,35 +1325,35 @@ function renderCharts(d) {
   }
 
   area.innerHTML = `
-    ${hasCatData ? '<div class="chart-wrap" style="max-width:500px"><canvas id="pieChart"></canvas></div>' : ''}
+    ${hasCatData ? '<div class="chart-wrap" style="max-width:480px"><canvas id="pieChart"></canvas></div>' : ''}
     ${hasStData ? '<div class="chart-wrap" style="max-width:500px"><canvas id="barChart"></canvas></div>' : ''}
     ${hasTrend ? '<div class="chart-wrap"><canvas id="lineChart"></canvas></div>' : ''}
   `;
 
-  Chart.defaults.color = '#c4c4cc';
-  Chart.defaults.borderColor = '#282233';
+  Chart.defaults.color = '#9a9aaa';
+  Chart.defaults.borderColor = 'rgba(255,255,255,0.04)';
 
   if(hasCatData) {
     new Chart(document.getElementById('pieChart'), {
-      type:'pie', data:{labels:catLabels,datasets:[{data:catValues,backgroundColor:['#c9946e','#d4956b','#4dab8e','#d4a843','#6ebccf','#e0556a','#8b6fbf','#c46a8a','#7a7a88','#4dab8e','#5b8cc9','#c43b50','#3d9478','#6ebccf','#d4a843','#8b6fbf']}]},
-      options:{plugins:{legend:{position:'bottom',labels:{font:{size:10},color:'#c4c4cc'}, onClick:function(){return false}}}}
+      type:'pie', data:{labels:catLabels,datasets:[{data:catValues,backgroundColor:['#c9946e','#d4956b','#4dab8e','#d4a843','#6ebccf','#e0556a','#8b6fbf','#c46a8a','#7a7a88','#5b8cc9','#3d9478','#c43b50']}]},
+      options:{plugins:{legend:{position:'bottom',labels:{font:{size:10,family:"'Plus Jakarta Sans',sans-serif"},color:'#9a9aaa',padding:12},onClick:function(){return false}}}}
     });
   }
 
   if(hasStData) {
     new Chart(document.getElementById('barChart'), {
-      type:'bar', data:{labels:stLabels,datasets:[{data:stValues,backgroundColor:stColors}]},
-      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#282233'},ticks:{color:'#7a7a88'}},y:{grid:{display:false},ticks:{color:'#7a7a88'}}}}
+      type:'bar', data:{labels:stLabels,datasets:[{data:stValues,backgroundColor:stColors,borderRadius:4}]},
+      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5e5e72',font:{size:10}}},y:{grid:{display:false},ticks:{color:'#9a9aaa',font:{size:10}}}}}
     });
   }
 
   if(hasTrend) {
     new Chart(document.getElementById('lineChart'), {
       type:'line', data:{labels:d.trend.months,datasets:[
-        {label:'建立專案',data:d.trend.created,borderColor:'#c9946e',backgroundColor:'#c9946e33',tension:.3},
-        {label:'已發布',data:d.trend.published,borderColor:'#4dab8e',backgroundColor:'#4dab8e33',tension:.3}
+        {label:'建立專案',data:d.trend.created,borderColor:'#c9946e',backgroundColor:'rgba(201,148,110,0.08)',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#c9946e'},
+        {label:'已發布',data:d.trend.published,borderColor:'#4dab8e',backgroundColor:'rgba(77,171,142,0.08)',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#4dab8e'}
       ]},
-      options:{plugins:{legend:{labels:{color:'#c4c4cc'}}},scales:{x:{grid:{color:'#282233'},ticks:{color:'#7a7a88'}},y:{grid:{color:'#282233'},ticks:{color:'#7a7a88'}}}}
+      options:{plugins:{legend:{labels:{color:'#9a9aaa',font:{size:11},padding:16,usePointStyle:true}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5e5e72',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5e5e72',font:{size:10}}}}}
     });
   }
 }
@@ -1047,14 +1361,14 @@ function renderCharts(d) {
 // ── Trash ─────────────────────────────────────────────────────
 async function renderTrash() {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty">載入中...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   const res = await api('/api/trash');
   const d = await res.json();
 
   main.innerHTML = `
-    <div class="toolbar"><h2 style="color:var(--danger)">垃圾桶</h2><span style="color:var(--muted);font-size:12px">已刪除的專案，可恢復或永久刪除</span></div>
+    <div class="toolbar"><h2 style="color:var(--danger)">垃圾桶</h2><span style="color:var(--muted);font-size:11.5px">已刪除的專案，可恢復或永久刪除</span></div>
     <div class="table-header">
-      <span style="width:50px">ID</span><span style="width:320px">影片名稱</span><span style="width:100px">業務線</span><span style="width:140px">刪除時間</span><span style="width:110px">原狀態</span>
+      <span style="width:50px">ID</span><span style="width:330px">影片名稱</span><span style="width:100px">業務線</span><span style="width:140px">刪除時間</span><span style="width:110px">原狀態</span>
     </div>
     <div class="main-scroll"><div class="scroll" id="trashList">${d.projects.length ? d.projects.map(r => {
       const cat = CATEGORIES[r.category]||r.category;
@@ -1062,16 +1376,16 @@ async function renderTrash() {
       const dt = (r.updated_at||'').substring(0,16);
       return `<div class="row">
         <span style="width:50px"><input type="checkbox" data-pid="${r.id}"> ${r.id}</span>
-        <span style="width:320px">${r.name}</span>
+        <span style="width:330px">${r.name}</span>
         <span style="width:100px">${cat}</span>
         <span style="width:140px;color:var(--muted)">${dt}</span>
         <span style="width:110px"><span style="color:${color}">●</span> ${r.current_status}</span>
       </div>`;
     }).join('') : '<div class="empty">垃圾桶為空</div>'}</div></div>
     <div class="check-row">
-      <label><input type="checkbox" id="trashSelectAll" onchange="document.querySelectorAll('#trashList input[type=checkbox]').forEach(c=>c.checked=this.checked)"> 全選</label>
+      <label style="font-size:12px;cursor:pointer"><input type="checkbox" id="trashSelectAll" onchange="document.querySelectorAll('#trashList input[type=checkbox]').forEach(c=>c.checked=this.checked)"> 全選</label>
       <button class="btn btn-sm btn-accent" onclick="trashRestore()">恢復所選</button>
-      <button class="btn btn-sm btn-danger" onclick="trashPurge()">永久刪除所選</button>
+      <button class="btn btn-sm btn-danger" onclick="trashPurge()">永久刪除</button>
       <button class="btn btn-sm btn-gray" style="margin-left:auto" onclick="trashClearAll()">全部清空</button>
     </div>
   `;
@@ -1108,9 +1422,7 @@ async function exportReport(elementId, format) {
   const el = document.getElementById(elementId);
   if (!el) return toast('找不到報表內容');
 
-  // For PDF: auto-paginate
   if (format === 'PDF') {
-    // Temporarily set a fixed width for PDF
     const origWidth = el.style.width;
     const origOverflow = el.style.overflow;
     const origMaxH = el.style.maxHeight;
@@ -1119,12 +1431,11 @@ async function exportReport(elementId, format) {
     el.style.maxHeight = 'none';
 
     const canvas = await html2canvas(el, {
-      backgroundColor: '#1a1a30',
+      backgroundColor: '#080812',
       scale: 2,
       logging: false,
     });
 
-    // Restore
     el.style.width = origWidth;
     el.style.overflow = origOverflow;
     el.style.maxHeight = origMaxH;
@@ -1155,23 +1466,20 @@ async function exportReport(elementId, format) {
     return;
   }
 
-  // Image export (PNG / JPG)
   const mime = format === 'JPG' ? 'image/jpeg' : 'image/png';
   const ext = format === 'JPG' ? 'jpg' : 'png';
 
-  // Temporarily make element fully visible
   const origOverflow = el.style.overflow;
   const origMaxH = el.style.maxHeight;
   el.style.overflow = 'visible';
   el.style.maxHeight = 'none';
 
   const canvas = await html2canvas(el, {
-    backgroundColor: '#1a1a30',
+    backgroundColor: '#080812',
     scale: 2,
     logging: false,
   });
 
-  // Restore
   el.style.overflow = origOverflow;
   el.style.maxHeight = origMaxH;
 
@@ -1246,7 +1554,6 @@ document.addEventListener('mouseup', () => {
     const h = colResize.span.querySelector('.resize-handle');
     if (h) h.classList.remove('active');
     document.body.classList.remove('col-resizing');
-    // persist all column widths (per-page key)
     const pageKey = 'colWidths_' + (colResize.header.closest('#main')?.querySelector('h2')?.textContent?.includes('素材') ? 'materials' : 'projects');
     const widths = [];
     colResize.header.querySelectorAll('span').forEach(s => widths.push(s.style.width || s.offsetWidth+'px'));
@@ -1255,7 +1562,7 @@ document.addEventListener('mouseup', () => {
   }
 });
 
-// sync table-header horizontal scroll with main-scroll
+// sync table-header horizontal scroll
 document.addEventListener('scroll', e => {
   const t = e.target;
   if (t.classList.contains('main-scroll')) {
@@ -1270,7 +1577,6 @@ document.addEventListener('scroll', e => {
   const handle = document.getElementById('sidebarResize');
   let sbResize = null;
 
-  // restore saved width
   const savedW = localStorage.getItem('sidebarWidth');
   if (savedW) { const w = parseInt(savedW); if (w >= 140 && w <= 600) sidebar.style.width = w + 'px'; }
 
