@@ -104,7 +104,7 @@ body{
   content:'';position:absolute;inset:0 -3px;
 }
 .sidebar-resize:hover,.sidebar-resize.active{background:var(--accent);opacity:.7}
-body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
+body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}body.sidebar-resizing #main{pointer-events:none}body.sidebar-resizing .sidebar .nav-btn{pointer-events:none}
 
 .sidebar .logo{padding:0 16px;margin-bottom:24px}
 .sidebar .logo h1{font-size:14.5px;color:var(--accent);font-weight:700;letter-spacing:-0.025em}
@@ -607,16 +607,15 @@ function renderProjectRows(projects) {
     const editD = (r.edit_date||'').substring(0,10)||'未設定';
     const revD = (r.review_date||'').substring(0,10)||'未設定';
     const pubD = (r.publish_date||'').substring(0,10)||'未設定';
+    const sc = STATUS_COLORS[r.current_status]||'#554c44';
     return `<div class="row" data-id="${r.id}">
       <span style="width:50px"><input type="checkbox" data-pid="${r.id}" onclick="handleCheckClick(event,${r.id})" onchange="toggleSelect(${r.id},this.checked)"> ${r.id}</span>
       <span style="width:280px" title="${r.name}">${r.name}</span>
       <span style="width:90px">${cat}</span>
       <span style="width:105px">
-        <select style="font-size:11px;padding:3px 6px;background:var(--bg-input);border:1px solid rgba(255,255,255,0.05);color:var(--text);border-radius:var(--radius-xs);cursor:pointer;max-width:100px;font-family:var(--font)" 
-          onchange="quickUpdateStatus(${r.id},this.value,this.dataset.current)" 
-          data-current="${r.current_status}">
-          ${STATUSES.map(s=>`<option value="${s}" ${s===r.current_status?'selected':''}>${s}</option>`).join('')}
-        </select>
+        <span class="status-tag" style="background:${sc}18;color:${sc};border:1px solid ${sc}33;cursor:pointer" onclick="showStatusModal(${r.id},'${r.current_status}')" title="點擊變更狀態">
+          <span class="dot" style="background:${sc}"></span>${r.current_status}
+        </span>
       </span>
       <span style="width:120px;color:var(--text-muted)">${(r.note||'').substring(0,18)}</span>
       <span style="width:90px;color:${editD!=='未設定'?'#9ec5fe':'var(--text-muted)'};cursor:pointer;font-weight:${editD!=='未設定'?'500':'400'}" onclick="showEditDateModal(${r.id},'edit_date','${r.edit_date||''}')">${editD}</span>
@@ -673,13 +672,13 @@ function renderBatchOps(projects) {
     <select id="batchStatus" style="width:130px">${STATUSES.map(s=>`<option>${s}</option>`).join('')}</select>
     <button class="btn btn-sm btn-accent" onclick="batchUpdateStatus()">套用</button>
     <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">剪輯：</span>
-    <input id="batchEditDate" placeholder="YYYY-MM-DD" style="width:105px">
+    <input type="date" id="batchEditDate" style="width:120px">
     <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('edit_date')">套用</button>
     <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">送審：</span>
-    <input id="batchReviewDate" placeholder="YYYY-MM-DD" style="width:105px">
+    <input type="date" id="batchReviewDate" style="width:120px">
     <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('review_date')">套用</button>
     <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">發佈：</span>
-    <input id="batchPublishDate" placeholder="YYYY-MM-DD" style="width:105px">
+    <input type="date" id="batchPublishDate" style="width:120px">
     <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('publish_date')">套用</button>
     <button class="btn btn-sm btn-danger" style="margin-left:auto" onclick="batchDelete()"><i class="ph ph-trash"></i> 刪除選取</button>
   `;
@@ -1621,9 +1620,15 @@ document.addEventListener('scroll', e => {
   const sidebar = document.querySelector('.sidebar');
   const handle = document.getElementById('sidebarResize');
   let sbResize = null;
+  let lastSave = 0;
 
   const savedW = localStorage.getItem('sidebarWidth_v6');
   if (savedW) { const w = parseInt(savedW); if (w >= 140 && w <= 600) sidebar.style.width = w + 'px'; }
+  // 雙重保險：setTimeout(0) 在 loadPage('projects') 的 DOM 操作之後再次設置寬度
+  setTimeout(() => {
+    const sw = localStorage.getItem('sidebarWidth_v6');
+    if (sw) { const w = parseInt(sw); if (w >= 140 && w <= 600) sidebar.style.width = w + 'px'; }
+  }, 0);
 
   handle.addEventListener('mousedown', e => {
     sbResize = { startX: e.clientX, startW: sidebar.offsetWidth, newW: sidebar.offsetWidth };
@@ -1638,6 +1643,12 @@ document.addEventListener('scroll', e => {
     const diff = e.clientX - sbResize.startX;
     sbResize.newW = Math.max(140, Math.min(600, sbResize.startW + diff));
     sidebar.style.width = sbResize.newW + 'px';
+    // 拖曳過程中每 200ms 保存一次，防止中途崩潰丟失寬度
+    const now = Date.now();
+    if (now - lastSave >= 200) {
+      localStorage.setItem('sidebarWidth_v6', sbResize.newW);
+      lastSave = now;
+    }
   });
 
   document.addEventListener('mouseup', e => {
@@ -1646,8 +1657,6 @@ document.addEventListener('scroll', e => {
       handle.classList.remove('active');
       document.body.classList.remove('sidebar-resizing');
       sbResize = null;
-      e.preventDefault();
-      e.stopPropagation();
     }
   });
 })();
