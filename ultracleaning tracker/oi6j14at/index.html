@@ -294,6 +294,21 @@ body.col-resizing .table-header span{cursor:col-resize!important}
 }
 .status-tag .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;box-shadow:0 0 5px currentColor}
 
+/* ── Status Dropdown ── */
+.status-dropdown {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 6px 8px;
+  font-size: 11px;
+  outline: none;
+  cursor: pointer;
+  min-width: 140px;
+}
+.status-dropdown:focus { border-color: var(--accent); }
+.status-dropdown option { background: var(--bg-card); color: var(--text-primary); }
+
 /* ═══════════════ PAGING ═══════════════ */
 .paging{
   display:flex;align-items:center;gap:8px;
@@ -576,6 +591,7 @@ async function renderProjects() {
   await loadProjects();
   injectResizeHandles();
   restoreColWidths();
+  applySidebarWidth();
 }
 
 function sortArrow(col) { return projState.sortCol===col ? (projState.sortAsc?'&#9650;':'&#9660;') : ''; }
@@ -613,7 +629,7 @@ function renderProjectRows(projects) {
       <span style="width:280px" title="${r.name}">${r.name}</span>
       <span style="width:90px">${cat}</span>
       <span style="width:105px">
-        <span class="status-tag" style="background:${sc}18;color:${sc};border:1px solid ${sc}33;cursor:pointer" onclick="showStatusModal(${r.id},'${r.current_status}')" title="點擊變更狀態">
+        <span class="status-tag" style="background:${sc}18;color:${sc};border:1px solid ${sc}33;cursor:pointer" onclick="toggleStatusDropdown(event,${r.id},'${r.current_status}')" title="點擊變更狀態">
           <span class="dot" style="background:${sc}"></span>${r.current_status}
         </span>
       </span>
@@ -623,7 +639,6 @@ function renderProjectRows(projects) {
       <span style="width:90px;color:${pubD!=='未設定'?'#20c997':'var(--text-muted)'};cursor:pointer;font-weight:${pubD!=='未設定'?'500':'400'}" onclick="showEditDateModal(${r.id},'publish_date','${r.publish_date||''}')">${pubD}</span>
       <span style="width:115px;color:var(--text-muted);cursor:pointer;font-weight:400" onclick="showEditTimeModal(${r.id},'${r.updated_at||''}')">${updated}</span>
       <span style="width:160px;display:flex;gap:4px">
-        <button class="btn btn-sm btn-primary" onclick="showStatusModal(${r.id},'${r.current_status}')">變更</button>
         <button class="btn btn-sm btn-gray" onclick="showEditModal(${r.id},'${r.name}','${(r.note||'').replace(/'/g,"\\'")}')">編輯</button>
         <button class="btn btn-sm btn-purple" onclick="showDetailModal(${r.id})">詳情</button>
       </span>
@@ -1005,6 +1020,43 @@ async function quickUpdateStatus(pid, newStatus, oldStatus) {
   renderProjects();
 }
 
+let _statusDropdownEl = null;
+
+function closeStatusDropdown() {
+  if (_statusDropdownEl) { _statusDropdownEl.remove(); _statusDropdownEl = null; }
+}
+
+document.addEventListener('click', e => {
+  if (_statusDropdownEl && !_statusDropdownEl.contains(e.target)) {
+    closeStatusDropdown();
+  }
+});
+
+function toggleStatusDropdown(event, pid, currentStatus) {
+  event.stopPropagation();
+  if (_statusDropdownEl) { closeStatusDropdown(); }
+  const tag = event.currentTarget;
+  const select = document.createElement('select');
+  select.className = 'status-dropdown';
+  select.innerHTML = STATUSES.map(s => `<option value="${s}" ${s === currentStatus ? 'selected' : ''}>${s}</option>`).join('');
+  select.onchange = async function() {
+    const newStatus = this.value;
+    if (newStatus === currentStatus) { closeStatusDropdown(); return; }
+    await api(`/api/projects/${pid}/status`, {method:'PUT',body:JSON.stringify({status:newStatus,note:''})});
+    toast(`#${pid}：${currentStatus} → ${newStatus}`);
+    closeStatusDropdown();
+    renderProjects();
+  };
+  const rect = tag.getBoundingClientRect();
+  select.style.position = 'fixed';
+  select.style.top = (rect.bottom + 4) + 'px';
+  select.style.left = rect.left + 'px';
+  select.style.zIndex = '99999';
+  document.body.appendChild(select);
+  _statusDropdownEl = select;
+  select.focus();
+}
+
 function showStatusModal(pid, current) {
   showModal('變更狀態', `
     <p style="margin-bottom:12px;font-size:13px">目前狀態：<span class="status-tag" style="background:${STATUS_COLORS[current]||'#554c44'}22;color:${STATUS_COLORS[current]||'#fff'};border:1px solid ${STATUS_COLORS[current]||'#554c44'}44">${current}</span></p>
@@ -1018,14 +1070,27 @@ function showStatusModal(pid, current) {
   });
 }
 
-function showEditModal(pid, name, note) {
+function showEditModal(pid, name, note, editDate, reviewDate, publishDate) {
+  const ed = (editDate||'').substring(0,10);
+  const rd = (reviewDate||'').substring(0,10);
+  const pd = (publishDate||'').substring(0,10);
   showModal('編輯專案', `
     <div class="field"><label>影片名稱</label><input id="mName" value="${name.replace(/"/g,'&quot;')}"></div>
     <div class="field"><label>備註</label><input id="mNote" value="${note.replace(/"/g,'&quot;')}"></div>
+    <div class="field"><label>剪輯日期</label><input type="date" id="mEditDate" value="${ed}"></div>
+    <div class="field"><label>送審日期</label><input type="date" id="mReviewDate" value="${rd}"></div>
+    <div class="field"><label>發佈日期</label><input type="date" id="mPublishDate" value="${pd}"></div>
   `, async (ov) => {
     const nm = ov.querySelector('#mName').value.trim();
     if(!nm) return;
-    await api(`/api/projects/${pid}`, {method:'PUT',body:JSON.stringify({name:nm,note:ov.querySelector('#mNote').value.trim()})});
+    const body = {name:nm,note:ov.querySelector('#mNote').value.trim()};
+    const ed2 = ov.querySelector('#mEditDate').value.trim();
+    const rd2 = ov.querySelector('#mReviewDate').value.trim();
+    const pd2 = ov.querySelector('#mPublishDate').value.trim();
+    body.edit_date = ed2 || null;
+    body.review_date = rd2 || null;
+    body.publish_date = pd2 || null;
+    await api(`/api/projects/${pid}`, {method:'PUT',body:JSON.stringify(body)});
     ov.remove(); toast(`已更新：${nm}`); renderProjects();
   });
 }
@@ -1616,19 +1681,23 @@ document.addEventListener('scroll', e => {
 }, true);
 
 // ── Sidebar Resize ────────────────────────────────────────────
+function applySidebarWidth() {
+  const savedW = localStorage.getItem('sidebarWidth_v6');
+  if (savedW) {
+    const w = parseInt(savedW);
+    if (w >= 140 && w <= 600) {
+      document.querySelector('.sidebar').style.width = w + 'px';
+    }
+  }
+}
+
 (function(){
   const sidebar = document.querySelector('.sidebar');
   const handle = document.getElementById('sidebarResize');
   let sbResize = null;
   let lastSave = 0;
 
-  const savedW = localStorage.getItem('sidebarWidth_v6');
-  if (savedW) { const w = parseInt(savedW); if (w >= 140 && w <= 600) sidebar.style.width = w + 'px'; }
-  // 雙重保險：setTimeout(0) 在 loadPage('projects') 的 DOM 操作之後再次設置寬度
-  setTimeout(() => {
-    const sw = localStorage.getItem('sidebarWidth_v6');
-    if (sw) { const w = parseInt(sw); if (w >= 140 && w <= 600) sidebar.style.width = w + 'px'; }
-  }, 0);
+  applySidebarWidth();
 
   handle.addEventListener('mousedown', e => {
     sbResize = { startX: e.clientX, startW: sidebar.offsetWidth, newW: sidebar.offsetWidth };
@@ -1643,7 +1712,6 @@ document.addEventListener('scroll', e => {
     const diff = e.clientX - sbResize.startX;
     sbResize.newW = Math.max(140, Math.min(600, sbResize.startW + diff));
     sidebar.style.width = sbResize.newW + 'px';
-    // 拖曳過程中每 200ms 保存一次，防止中途崩潰丟失寬度
     const now = Date.now();
     if (now - lastSave >= 200) {
       localStorage.setItem('sidebarWidth_v6', sbResize.newW);
