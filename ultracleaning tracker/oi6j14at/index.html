@@ -636,10 +636,10 @@ function renderProjectRows(projects) {
         </span>
       </span>
       <span style="width:120px;color:var(--text-muted)">${(r.note||'').substring(0,18)}</span>
-      <span style="width:90px;color:${editD!=='未設定'?'#9ec5fe':'var(--text-muted)'};cursor:pointer;font-weight:${editD!=='未設定'?'500':'400'}" onclick="showEditDateModal(${r.id},'edit_date','${r.edit_date||''}')">${editD}</span>
-      <span style="width:90px;color:${revD!=='未設定'?'var(--warning)':'var(--text-muted)'};cursor:pointer;font-weight:${revD!=='未設定'?'500':'400'}" onclick="showEditDateModal(${r.id},'review_date','${r.review_date||''}')">${revD}</span>
-      <span style="width:90px;color:${pubD!=='未設定'?'#20c997':'var(--text-muted)'};cursor:pointer;font-weight:${pubD!=='未設定'?'500':'400'}" onclick="showEditDateModal(${r.id},'publish_date','${r.publish_date||''}')">${pubD}</span>
-      <span style="width:115px;color:var(--text-muted);cursor:pointer;font-weight:400" onclick="showEditTimeModal(${r.id},'${r.updated_at||''}')">${updated}</span>
+      <span style="width:90px;color:${editD!=='未設定'?'#9ec5fe':'var(--text-muted)'};cursor:pointer;font-weight:${editD!=='未設定'?'500':'400'}" onclick="editDateInline(${r.id},'edit_date','${r.edit_date||''}')">${editD}</span>
+      <span style="width:90px;color:${revD!=='未設定'?'var(--warning)':'var(--text-muted)'};cursor:pointer;font-weight:${revD!=='未設定'?'500':'400'}" onclick="editDateInline(${r.id},'review_date','${r.review_date||''}')">${revD}</span>
+      <span style="width:90px;color:${pubD!=='未設定'?'#20c997':'var(--text-muted)'};cursor:pointer;font-weight:${pubD!=='未設定'?'500':'400'}" onclick="editDateInline(${r.id},'publish_date','${r.publish_date||''}')">${pubD}</span>
+      <span style="width:115px;color:var(--text-muted);cursor:pointer;font-weight:400" onclick="editDateInline(${r.id},'updated_at','${r.updated_at||''}')">${updated}</span>
       <span style="width:160px;display:flex;gap:4px">
         <button class="btn btn-sm btn-gray" onclick="showEditModal(${r.id},'${r.name}','${(r.note||'').replace(/'/g,"\\'")}')">編輯</button>
         <button class="btn btn-sm btn-purple" onclick="showDetailModal(${r.id})">詳情</button>
