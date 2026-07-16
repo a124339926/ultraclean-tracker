@@ -1,64 +1,83 @@
-<!-- deploy: 2026-07-16-v5.0 taste-redesign -->
+<!-- deploy: 2026-07-16-v6.0 taste-redesign viewer -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UltraClean Tracker - 唯讀模式</title>
+<title>UltraClean Tracker — 唯讀模式</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <style>
 /* ══════════════════════════════════════════════════════════════
-   UltraClean Tracker v5.0 — Viewer Design System
-   Dark dashboard · Warm copper accent · Glass depth · Swiss typography
+   UltraClean Tracker v6.0 — Design System
+   Warm Depth · Copper Accent · Layered Glass · Phosphor Icons
    ══════════════════════════════════════════════════════════════ */
 :root {
-  --bg: #080812;
-  --bg-elevated: #0e0e1a;
-  --card: #11111f;
-  --card-hover: #16162a;
-  --card-border: rgba(255,255,255,0.04);
-  --sidebar: #0a0a14;
-  --sidebar-hover: #151528;
-  --sidebar-active: rgba(201,148,110,0.10);
+  --bg-deep: #060609;
+  --bg-base: #0a0a12;
+  --bg-raised: #0f0f18;
+  --bg-card: #12121e;
+  --bg-card-hover: #181828;
+  --bg-input: #0e0e1a;
+  --border-subtle: rgba(255,255,255,0.04);
+  --border-card: rgba(255,255,255,0.05);
+  --border-hover: rgba(255,255,255,0.09);
+  --sidebar: #08080f;
+  --sidebar-hover: #131322;
+  --sidebar-active: rgba(201,148,110,0.12);
+
   --accent: #c9946e;
-  --accent-glow: rgba(201,148,110,0.15);
-  --text: #e4e4ec;
-  --text-secondary: #9a9aaa;
-  --muted: #5e5e72;
+  --accent-soft: rgba(201,148,110,0.18);
+  --accent-glow: rgba(201,148,110,0.10);
+
+  --text: #e8e8f0;
+  --text-primary: #edeaf2;
+  --text-secondary: #9494a8;
+  --text-muted: #5c5c72;
+  --text-dim: #434358;
+
   --danger: #e0556a;
-  --danger-bg: rgba(224,85,106,0.10);
+  --danger-soft: rgba(224,85,106,0.12);
   --success: #4dab8e;
-  --success-bg: rgba(77,171,142,0.10);
+  --success-soft: rgba(77,171,142,0.12);
   --primary: #5b8cc9;
-  --primary-bg: rgba(91,140,201,0.10);
+  --primary-soft: rgba(91,140,201,0.12);
   --purple: #8b6fbf;
   --warning: #d4a843;
   --info: #6ebccf;
-  --danger-hover: #c43b50;
-  --success-hover: #3d9478;
-  --radius: 10px;
-  --radius-sm: 7px;
+
   --radius-xs: 5px;
-  --radius-lg: 14px;
+  --radius-sm: 8px;
+  --radius: 11px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
   --font: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", sans-serif;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px var(--card-border);
-  --shadow-modal: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
-  --transition-fast: 120ms ease;
-  --transition-base: 200ms ease;
-  --transition-slow: 300ms cubic-bezier(0.4,0,0.2,1);
+  --font-mono: "SF Mono", "Cascadia Code", "JetBrains Mono", ui-monospace, monospace;
+
+  --shadow-xs: 0 1px 2px rgba(2,2,10,0.5);
+  --shadow-sm: 0 1px 4px rgba(2,2,12,0.6);
+  --shadow-card: 0 2px 8px rgba(2,2,14,0.5), 0 0 0 1px var(--border-card);
+  --shadow-card-hover: 0 4px 16px rgba(2,2,16,0.6), 0 0 0 1px var(--border-hover);
+  --shadow-modal: 0 12px 40px rgba(2,2,14,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+  --shadow-button: 0 2px 8px rgba(2,2,12,0.4);
+
+  --transition-fast: 130ms cubic-bezier(0.4,0,0.2,1);
+  --transition-base: 200ms cubic-bezier(0.4,0,0.2,1);
+  --transition-slow: 320ms cubic-bezier(0.4,0,0.2,1);
+  --transition-spring: 350ms cubic-bezier(0.34,1.56,0.64,1);
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
   font-family:var(--font);
-  background:var(--bg);
+  background:var(--bg-base);
   color:var(--text);
   display:flex;
   min-height:100vh;
@@ -68,14 +87,15 @@ body{
   letter-spacing:-0.01em;
 }
 
+/* Grain texture */
 body::before{
   content:'';
   position:fixed;
   inset:0;
   pointer-events:none;
   z-index:9999;
-  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
-  opacity:.5
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  opacity:.45
 }
 
 /* ═══════════════ SIDEBAR ═══════════════ */
@@ -83,10 +103,10 @@ body::before{
   width:240px;min-width:140px;flex-shrink:0;
   background:var(--sidebar);
   display:flex;flex-direction:column;
-  padding:24px 0 16px;
+  padding:20px 0 14px;
   position:sticky;top:0;height:100vh;
   overflow-y:auto;overflow-x:hidden;
-  border-right:1px solid rgba(255,255,255,0.04);
+  border-right:1px solid rgba(255,255,255,0.03);
 }
 .sidebar-resize{
   width:4px;min-width:4px;cursor:col-resize;
@@ -96,35 +116,31 @@ body::before{
 .sidebar-resize::after{
   content:'';position:absolute;inset:0 -3px;
 }
-.sidebar-resize:hover,.sidebar-resize.active{background:var(--accent);opacity:.8}
+.sidebar-resize:hover,.sidebar-resize.active{background:var(--accent);opacity:.7}
 body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
 
-.sidebar .logo{padding:0 18px;margin-bottom:22px}
-.sidebar .logo h1{font-size:15px;color:var(--accent);font-weight:700;letter-spacing:-0.02em}
-.sidebar .logo span{font-size:10.5px;color:var(--muted);font-weight:500;display:block;margin-top:2px}
-
-.sidebar .readonly-badge{
-  margin:0 18px 10px;
-  font-size:10px;
-  color:var(--accent);
-  font-weight:600;
-  padding:5px 10px;
-  background:var(--sidebar-active);
+.sidebar .logo{padding:0 16px;margin-bottom:20px}
+.sidebar .logo h1{font-size:14.5px;color:var(--accent);font-weight:700;letter-spacing:-0.025em}
+.sidebar .logo span{font-size:10px;color:var(--text-muted);font-weight:500;display:block;margin-top:2px;letter-spacing:0.01em}
+.sidebar .logo .viewer-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  margin-top:8px;padding:3px 9px;
+  font-size:9.5px;font-weight:600;color:var(--info);
+  background:rgba(110,188,207,0.10);
+  border:1px solid rgba(110,188,207,0.18);
   border-radius:var(--radius-xs);
-  text-transform:uppercase;
-  letter-spacing:0.08em;
-  border-left:2px solid var(--accent);
+  letter-spacing:0.04em;
 }
 
 .sidebar .nav-title{
-  font-size:10px;color:var(--muted);font-weight:600;
-  padding:0 18px;margin-bottom:6px;
-  text-transform:uppercase;letter-spacing:0.08em;
+  font-size:9.5px;color:var(--text-dim);font-weight:600;
+  padding:0 16px;margin-bottom:4px;margin-top:4px;
+  text-transform:uppercase;letter-spacing:0.1em;
 }
 .sidebar .nav-btn{
-  display:flex;align-items:center;gap:10px;
-  width:calc(100% - 12px);
-  text-align:left;padding:9px 14px;margin:1px 6px;
+  display:flex;align-items:center;gap:9px;
+  width:calc(100% - 16px);
+  text-align:left;padding:8px 12px;margin:1px 8px;
   border:none;background:transparent;color:var(--text-secondary);
   font-size:12.5px;font-family:var(--font);font-weight:500;
   border-radius:var(--radius-sm);
@@ -132,7 +148,7 @@ body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   letter-spacing:-0.01em;
 }
-.sidebar .nav-btn .nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0;line-height:1}
+.sidebar .nav-btn .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center}
 .sidebar .nav-btn:hover{background:var(--sidebar-hover);color:var(--text)}
 .sidebar .nav-btn.active{background:var(--sidebar-active);color:var(--accent);font-weight:600}
 
@@ -141,7 +157,7 @@ body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
   flex:1;display:flex;flex-direction:column;
   padding:0;height:100vh;overflow:hidden;min-width:0;
 }
-.main-content{padding:20px 24px;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.main-content{padding:22px 28px;flex:1;display:flex;flex-direction:column;overflow:hidden}
 .main-scroll{
   flex:1;overflow-y:auto;overflow-x:auto;
   min-height:0;scroll-behavior:smooth;
@@ -153,20 +169,19 @@ body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
 .scroll::-webkit-scrollbar-track{background:transparent}
 .main-scroll::-webkit-scrollbar-thumb,
 .scroll::-webkit-scrollbar-thumb{
-  background:rgba(255,255,255,0.06);border-radius:3px;
+  background:rgba(255,255,255,0.04);border-radius:3px;
 }
-.main-scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.10)}
+.main-scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.08)}
 
 /* ═══════════════ TOOLBAR ═══════════════ */
 .toolbar{
-  display:flex;align-items:center;gap:8px;
-  flex-wrap:wrap;margin-bottom:14px;
-  padding-bottom:0;
+  display:flex;align-items:center;gap:7px;
+  flex-wrap:wrap;margin-bottom:16px;
 }
 .toolbar h2{
-  font-size:17px;font-weight:700;
-  margin-right:auto;color:var(--text);
-  letter-spacing:-0.02em;
+  font-size:18px;font-weight:700;
+  margin-right:auto;color:var(--text-primary);
+  letter-spacing:-0.025em;
 }
 
 /* ═══════════════ BUTTONS ═══════════════ */
@@ -177,62 +192,61 @@ body.sidebar-resizing{cursor:col-resize!important;user-select:none!important}
   transition:all var(--transition-fast);
   white-space:nowrap;
   display:inline-flex;align-items:center;gap:5px;
+  position:relative;
 }
-.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.btn:hover{filter:brightness(1.12);transform:translateY(-1px);box-shadow:var(--shadow-button)}
 .btn:active{transform:scale(.97) translateY(0)}
-.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.btn-sm{padding:5px 10px;font-size:11px}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:var(--radius-xs)}
+.btn-sm{padding:5px 10px;font-size:11px;border-radius:4px}
 
 .btn-primary{background:var(--primary);color:#fff}
 .btn-success{background:var(--success);color:#fff}
 .btn-danger{background:var(--danger);color:#fff}
 .btn-purple{background:var(--purple);color:#fff}
-.btn-gray{background:rgba(255,255,255,0.08);color:var(--text-secondary)}
-.btn-gray:hover{background:rgba(255,255,255,0.12);color:var(--text)}
-.btn-accent{background:var(--accent);color:#16120d;font-weight:700}
-.btn-accent:hover{filter:brightness(1.08)}
+.btn-gray{background:rgba(255,255,255,0.06);color:var(--text-secondary)}
+.btn-gray:hover{background:rgba(255,255,255,0.10);color:var(--text)}
+.btn-accent{background:var(--accent);color:#14100c;font-weight:700;box-shadow:0 2px 12px rgba(201,148,110,0.18)}
+.btn-accent:hover{filter:brightness(1.06);box-shadow:0 4px 16px rgba(201,148,110,0.25)}
 .btn-outline{
   background:transparent;
-  border:1px solid rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.07);
   color:var(--text-secondary);
 }
-.btn-outline:hover{background:rgba(255,255,255,0.04);color:var(--text);border-color:rgba(255,255,255,0.14)}
+.btn-outline:hover{background:rgba(255,255,255,0.03);color:var(--text);border-color:rgba(255,255,255,0.12)}
 
 /* ═══════════════ INPUTS ═══════════════ */
 input,select,textarea{
-  background:var(--bg-elevated);
+  background:var(--bg-input);
   border:1px solid rgba(255,255,255,0.06);
   border-radius:var(--radius-xs);
   color:var(--text);padding:7px 10px;
   font-size:12px;font-family:var(--font);
-  outline:none;transition:border-color var(--transition-fast);
+  outline:none;transition:border-color var(--transition-fast),box-shadow var(--transition-fast);
 }
 input:focus,select:focus,textarea:focus{
   border-color:var(--accent);
-  box-shadow:0 0 0 2px var(--accent-glow);
+  box-shadow:0 0 0 3px var(--accent-glow);
 }
 select{
   min-width:120px;cursor:pointer;color-scheme:dark;
   appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a9aaa'/%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239494a8'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 10px center;
   padding-right:28px;
 }
-select option{background:#1a1a2e;color:var(--text)}
+select option{background:var(--bg-raised);color:var(--text)}
 
 /* ═══════════════ TABLE HEADER ═══════════════ */
 .table-header{
-  display:flex;background:var(--card);
+  display:flex;background:var(--bg-card);
   border-radius:var(--radius-sm) var(--radius-sm) 0 0;
-  padding:0;font-size:11.5px;font-weight:600;
-  color:var(--muted);overflow:hidden;
-  border:1px solid var(--card-border);
+  padding:0;font-size:11px;font-weight:600;
+  color:var(--text-dim);overflow:hidden;
+  border:1px solid var(--border-card);
   border-bottom:none;
+  letter-spacing:0.02em;
 }
-.table-header span{
-  padding:10px 6px;cursor:pointer;user-select:none;
-  letter-spacing:-0.01em;position:relative
-}
+.table-header span{padding:9px 5px;cursor:pointer;user-select:none;position:relative}
 .table-header span:hover{background:rgba(255,255,255,0.02);color:var(--text-secondary)}
 .table-header span .sort-arrow{color:var(--accent);font-size:9px;margin-left:2px}
 .resize-handle{
@@ -247,105 +261,111 @@ body.col-resizing .table-header span{cursor:col-resize!important}
 /* ═══════════════ DATA ROWS ═══════════════ */
 .row{
   display:flex;align-items:center;
-  background:var(--card);
-  border-radius:0;margin:0;padding:7px 0;
+  background:var(--bg-card);
+  border-radius:0;margin:0;padding:6px 0;
   font-size:12px;transition:all var(--transition-fast);
-  border-bottom:1px solid rgba(255,255,255,0.02);
+  border-bottom:1px solid rgba(255,255,255,0.018);
 }
 .row:last-child{border-bottom:none}
-.row:hover{background:var(--card-hover)}
+.row:hover{background:var(--bg-card-hover)}
+.row:nth-child(even){background:rgba(255,255,255,0.008)}
+.row:nth-child(even):hover{background:var(--bg-card-hover)}
 .row span,.row .cell{
-  padding:5px 6px;overflow:hidden;text-overflow:ellipsis;
+  padding:5px 5px;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap;line-height:1.4;
 }
 
 /* ═══════════════ CARDS ═══════════════ */
 .card{
-  background:var(--card);border-radius:var(--radius);
-  padding:18px 20px;
-  border:1px solid var(--card-border);
+  background:var(--bg-card);border-radius:var(--radius);
+  padding:20px 22px;
+  border:1px solid var(--border-card);
   box-shadow:var(--shadow-card);
   transition:all var(--transition-base);
 }
-.card:hover{border-color:rgba(255,255,255,0.08)}
+.card:hover{border-color:rgba(255,255,255,0.07);box-shadow:var(--shadow-card-hover)}
 
 .card-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
   gap:12px;
 }
 
 .status-card{
   display:flex;align-items:center;gap:10px;
-  padding:13px 16px;
-  background:var(--card);
+  padding:12px 14px;
+  background:var(--bg-card);
   border-radius:var(--radius-sm);
-  border:1px solid var(--card-border);
+  border:1px solid var(--border-card);
   transition:all var(--transition-fast);
 }
-.status-card:hover{background:var(--card-hover)}
-.status-card .count{font-size:20px;font-weight:700;margin-left:auto;font-variant-numeric:tabular-nums}
+.status-card:hover{background:var(--bg-card-hover);border-color:var(--border-hover)}
+.status-card .status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor}
+.status-card .count{font-size:19px;font-weight:700;margin-left:auto;font-variant-numeric:tabular-nums;letter-spacing:-0.02em}
 
 /* ═══════════════ BADGES & TAGS ═══════════════ */
 .badge{
   display:inline-flex;align-items:center;gap:4px;
   padding:3px 10px;border-radius:var(--radius-xs);
-  font-size:11px;font-weight:600;
+  font-size:10.5px;font-weight:600;letter-spacing:-0.01em;
 }
-
 .status-tag{
   padding:3px 10px;border-radius:var(--radius-xs);
-  font-size:11px;font-weight:600;
+  font-size:10.5px;font-weight:600;
   display:inline-flex;align-items:center;gap:5px;
   letter-spacing:-0.01em;
 }
-.status-tag .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.status-tag .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;box-shadow:0 0 5px currentColor}
 
 /* ═══════════════ PAGING ═══════════════ */
 .paging{
   display:flex;align-items:center;gap:8px;
-  font-size:11.5px;color:var(--muted);
+  font-size:11.5px;color:var(--text-muted);
   margin-top:10px;padding:4px 0;
 }
 
 /* ═══════════════ MODAL ═══════════════ */
 .modal-overlay{
   position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,.65);
-  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  background:rgba(4,4,12,.72);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
   display:flex;align-items:center;justify-content:center;
   z-index:100;animation:fadeIn var(--transition-fast);
 }
 .modal{
-  background:var(--card);border-radius:var(--radius-lg);
-  padding:26px 28px;width:90%;max-width:500px;
+  background:var(--bg-card);border-radius:var(--radius-lg);
+  padding:28px 30px;width:92%;max-width:500px;
   max-height:85vh;overflow-y:auto;
-  border:1px solid rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.05);
   box-shadow:var(--shadow-modal);
   animation:slideUp var(--transition-slow);
 }
-.modal h3{margin-bottom:16px;font-size:16px;font-weight:700;letter-spacing:-0.015em}
+.modal h3{margin-bottom:18px;font-size:16px;font-weight:700;letter-spacing:-0.02em;color:var(--text-primary)}
+.modal .field{margin-bottom:15px}
+.modal .field label{display:block;font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:5px;letter-spacing:0.03em}
+.modal .field input,.modal .field select,.modal .field textarea{width:100%}
+.modal .btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
 
 /* ═══════════════ TOAST ═══════════════ */
 .toast{
-  position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
-  background:var(--card);color:var(--text);
+  position:fixed;bottom:36px;left:50%;transform:translateX(-50%);
+  background:var(--bg-card);color:var(--text-primary);
   padding:10px 24px;border-radius:24px;
   font-size:12px;font-weight:500;letter-spacing:-0.01em;
   z-index:200;
-  border:1px solid rgba(255,255,255,0.08);
-  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+  border:1px solid rgba(255,255,255,0.06);
+  box-shadow:0 6px 24px rgba(2,2,14,0.6);
   animation:toastIn .3s cubic-bezier(0.4,0,0.2,1);
 }
-@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideUp{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 
 /* ═══════════════ CHART WRAP ═══════════════ */
 .chart-wrap{
-  background:var(--card);border-radius:var(--radius);
-  padding:20px;margin-bottom:14px;
-  border:1px solid var(--card-border);
+  background:var(--bg-card);border-radius:var(--radius);
+  padding:22px;margin-bottom:14px;
+  border:1px solid var(--border-card);
 }
 canvas{max-width:100%}
 
@@ -355,25 +375,25 @@ canvas{max-width:100%}
   flex-wrap:wrap;margin:8px 0;padding:4px 0;
 }
 .empty{
-  text-align:center;color:var(--muted);
-  padding:48px 20px;font-size:13px;
+  text-align:center;color:var(--text-muted);
+  padding:56px 20px;font-size:13px;
 }
 .bar-outer{
-  flex:1;background:var(--bg-elevated);
+  flex:1;background:var(--bg-raised);
   border-radius:4px;height:16px;overflow:hidden;
-  min-width:100px;border:1px solid rgba(255,255,255,0.03);
+  min-width:100px;border:1px solid rgba(255,255,255,0.025);
 }
 .bar-inner{
   height:100%;background:var(--success);
   border-radius:4px;transition:width var(--transition-slow);
 }
-.tab-bar{display:flex;gap:4px;margin-bottom:12px}
+.tab-bar{display:flex;gap:4px;margin-bottom:14px}
 
 .report-box{
-  background:var(--card);border:1px solid var(--card-border);
-  border-radius:var(--radius);padding:22px 24px;
-  font-family:"SF Mono","Cascadia Code","JetBrains Mono",monospace;
-  font-size:12.5px;white-space:pre-wrap;line-height:1.65;
+  background:var(--bg-card);border:1px solid var(--border-card);
+  border-radius:var(--radius);padding:24px 28px;
+  font-family:var(--font-mono);
+  font-size:12.5px;white-space:pre-wrap;line-height:1.7;
   flex:1;overflow-y:auto;min-height:0;color:var(--text-secondary);
 }
 
@@ -385,19 +405,62 @@ canvas{max-width:100%}
 
 .scroll{overflow-y:auto;flex:1;min-height:0}
 
+/* ═══════════════ SKELETON LOADING ═══════════════ */
+.skeleton{
+  background:linear-gradient(90deg,var(--bg-card) 25%,var(--bg-card-hover) 50%,var(--bg-card) 75%);
+  background-size:200% 100%;
+  animation:skeleton-pulse 1.4s ease-in-out infinite;
+  border-radius:var(--radius-xs);
+}
+.skeleton-text{height:13px;width:100%;margin-bottom:8px}
+.skeleton-text.short{width:60%}
+.skeleton-row{height:38px;margin:2px 0;border-radius:var(--radius-sm)}
+@keyframes skeleton-pulse{
+  0%{background-position:200% 0}
+  100%{background-position:-200% 0}
+}
+
+/* ═══════════════ HERO KPI CARDS (dashboard) ═══════════════ */
+.dash-overview{
+  display:grid;
+  grid-template-columns:1.4fr 1fr 1fr .8fr;
+  gap:12px;margin-bottom:24px;
+}
+.dash-overview .dash-card{
+  background:var(--bg-card);
+  border:1px solid var(--border-card);
+  border-radius:var(--radius);
+  padding:20px 22px;
+  transition:all var(--transition-base);
+  position:relative;overflow:hidden;
+}
+.dash-overview .dash-card:hover{border-color:rgba(255,255,255,0.07);transform:translateY(-2px);box-shadow:var(--shadow-card-hover)}
+.dash-overview .dash-card:first-child{border-left:3px solid var(--accent)}
+.dash-overview .dash-card .dash-icon{font-size:22px;margin-bottom:8px;opacity:.85}
+.dash-overview .dash-card .dash-label{font-size:10.5px;color:var(--text-dim);font-weight:600;letter-spacing:0.05em;margin-bottom:6px}
+.dash-overview .dash-card .dash-val{font-size:36px;font-weight:700;letter-spacing:-0.035em;font-variant-numeric:tabular-nums}
+
+@media(max-width:900px){
+  .dash-overview{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:500px){
+  .dash-overview{grid-template-columns:1fr}
+}
+
 /* ═══════════════ RESPONSIVE ═══════════════ */
 @media(max-width:768px){
   body{flex-direction:column}
-  .sidebar{width:100%;min-width:auto;height:auto;position:static;flex-direction:row;flex-wrap:wrap;padding:10px;gap:4px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.04)}
-  .sidebar .logo,.sidebar .nav-title,.sidebar .readonly-badge{display:none}
-  .sidebar .nav-btn{width:auto;margin:2px;padding:7px 12px;font-size:11px}
-  .sidebar .nav-btn .nav-icon{display:none}
-  .main-content{padding:12px}
+  .sidebar{width:100%;min-width:auto;height:auto;position:static;flex-direction:row;flex-wrap:wrap;padding:8px;gap:2px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.03)}
+  .sidebar .logo,.sidebar .nav-title{display:none}
+  .sidebar .nav-btn{width:auto;margin:1px;padding:6px 10px;font-size:11px}
+  .sidebar .nav-btn .nav-icon{font-size:14px}
+  .main-content{padding:14px}
   .table-header span,.row span{font-size:10px}
-  .card-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .card-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
   .sidebar-resize{display:none}
 }
 
+/* ═══════════════ PRINT ═══════════════ */
 @media print{
   body{background:#fff;color:#000}
   .sidebar{display:none}
@@ -410,15 +473,18 @@ canvas{max-width:100%}
 
 <!-- ═══════════════ SIDEBAR ═══════════════ -->
 <nav class="sidebar">
-  <div class="logo"><h1>Ultra Cleaning</h1><span>影片工作流 v5.0</span></div>
-  <div class="readonly-badge">唯讀模式</div>
-  <div class="nav-title">功能選單</div>
-  <button class="nav-btn active" data-page="projects"><span class="nav-icon">&#9632;</span> 專案管理</button>
-  <button class="nav-btn" data-page="materials"><span class="nav-icon">&#9638;</span> 素材庫存</button>
-  <button class="nav-btn" data-page="daily"><span class="nav-icon">&#9681;</span> 日報</button>
-  <button class="nav-btn" data-page="weekly"><span class="nav-icon">&#9711;</span> 週報</button>
-  <button class="nav-btn" data-page="dashboard"><span class="nav-icon">&#9776;</span> 狀態總覽</button>
-  <button class="nav-btn" data-page="stats"><span class="nav-icon">&#9779;</span> 報表中心</button>
+  <div class="logo">
+    <h1>Ultra Cleaning</h1>
+    <span>Video Workflow v6.0</span>
+    <span class="viewer-badge"><i class="ph ph-eye"></i> 唯讀模式</span>
+  </div>
+  <div class="nav-title">導覽</div>
+  <button class="nav-btn active" data-page="projects"><span class="nav-icon"><i class="ph ph-film-slate"></i></span> 專案管理</button>
+  <button class="nav-btn" data-page="materials"><span class="nav-icon"><i class="ph ph-files"></i></span> 素材庫存</button>
+  <button class="nav-btn" data-page="daily"><span class="nav-icon"><i class="ph ph-calendar-blank"></i></span> 日報</button>
+  <button class="nav-btn" data-page="weekly"><span class="nav-icon"><i class="ph ph-calendar"></i></span> 週報</button>
+  <button class="nav-btn" data-page="dashboard"><span class="nav-icon"><i class="ph ph-chart-pie"></i></span> 狀態總覽</button>
+  <button class="nav-btn" data-page="stats"><span class="nav-icon"><i class="ph ph-chart-bar"></i></span> 報表中心</button>
 </nav>
 <div class="sidebar-resize" id="sidebarResize"></div>
 
@@ -462,6 +528,14 @@ function toast(msg) {
   document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
 }
 
+// ── Skeleton loading ──────────────────────────────────────────
+function showSkeleton(rowCount) {
+  r = rowCount || 8;
+  let h = '';
+  for(let i=0;i<r;i++) h += '<div class="skeleton skeleton-row"></div>';
+  return h;
+}
+
 // ── API helpers ───────────────────────────────────────────────
 async function api(url, opts={}) {
   const res = await fetch(`${API_BASE}${url}`, {
@@ -475,7 +549,7 @@ async function api(url, opts={}) {
 // ── Page loader ───────────────────────────────────────────────
 async function loadPage(page) {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty">載入中...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   try {
     switch(page) {
       case 'projects': await renderProjects(); break;
@@ -485,11 +559,11 @@ async function loadPage(page) {
       case 'dashboard': await renderDashboard(); break;
       case 'stats': await renderStats(); break;
     }
-  } catch(e) { main.innerHTML = `<div class="empty" style="color:var(--danger)">錯誤：${e.message}</div>`; }
+  } catch(e) { main.innerHTML = `<div class="empty" style="color:var(--danger);padding-top:80px">錯誤：${e.message}</div>`; }
 }
 
-// ── Projects Page ─────────────────────────────────────────────
-let projState = {sortCol:'updated_at',sortAsc:false,page:0,status:'',category:'',search:'',selected:new Set(),total:0};
+// ── Projects Page (唯讀) ──────────────────────────────────────
+let projState = {sortCol:'id',sortAsc:false,page:0,status:'',category:'',search:'',total:0};
 
 async function renderProjects() {
   const main = document.getElementById('main');
@@ -497,35 +571,33 @@ async function renderProjects() {
     <div class="toolbar"><h2>專案管理</h2>
       <input id="projSearch" placeholder="搜尋名稱..." style="width:180px" oninput="projState.search=this.value;projState.page=0;renderProjects()">
       <select id="projStatusFilter" onchange="projState.status=this.value;projState.page=0;renderProjects()">
-        <option value="">全部狀態</option>${STATUSES.map(s=>`<option>${s}</option>`).join('')}
+        <option value="">所有狀態</option>${STATUSES.map(s=>`<option>${s}</option>`).join('')}
       </select>
       <select id="projCatFilter" onchange="projState.category=this.value;projState.page=0;renderProjects()">
-        <option value="">全部業務線</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
+        <option value="">所有分類</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
       </select>
-      <span class="badge" style="background:var(--accent-glow);color:var(--accent);font-size:10px;margin-left:auto;border:1px solid rgba(201,148,110,0.25)">唯讀</span>
     </div>
     <div class="table-header">
       <span style="width:50px" onclick="toggleSort('id')">ID <span class="sort-arrow">${sortArrow('id')}</span></span>
-      <span style="width:270px" onclick="toggleSort('name')">影片名稱 <span class="sort-arrow">${sortArrow('name')}</span></span>
-      <span style="width:90px" onclick="toggleSort('category')">業務線 <span class="sort-arrow">${sortArrow('category')}</span></span>
-      <span style="width:100px" onclick="toggleSort('current_status')">狀態 <span class="sort-arrow">${sortArrow('current_status')}</span></span>
-      <span style="width:130px">備註</span>
-      <span style="width:90px" onclick="toggleSort('edit_date')">剪輯日期 <span class="sort-arrow">${sortArrow('edit_date')}</span></span>
-      <span style="width:90px" onclick="toggleSort('review_date')">送審日期 <span class="sort-arrow">${sortArrow('review_date')}</span></span>
-      <span style="width:90px" onclick="toggleSort('publish_date')">發佈日期 <span class="sort-arrow">${sortArrow('publish_date')}</span></span>
-      <span style="width:120px" onclick="toggleSort('updated_at')">更新時間 <span class="sort-arrow">${sortArrow('updated_at')}</span></span>
-      <span style="width:80px"></span>
+      <span style="width:300px" onclick="toggleSort('name')">名稱 <span class="sort-arrow">${sortArrow('name')}</span></span>
+      <span style="width:90px" onclick="toggleSort('category')">分類 <span class="sort-arrow">${sortArrow('category')}</span></span>
+      <span style="width:120px" onclick="toggleSort('current_status')">狀態 <span class="sort-arrow">${sortArrow('current_status')}</span></span>
+      <span style="width:140px">備註</span>
+      <span style="width:90px" onclick="toggleSort('edit_date')">剪輯日 <span class="sort-arrow">${sortArrow('edit_date')}</span></span>
+      <span style="width:90px" onclick="toggleSort('review_date')">送審日 <span class="sort-arrow">${sortArrow('review_date')}</span></span>
+      <span style="width:90px" onclick="toggleSort('publish_date')">發布日 <span class="sort-arrow">${sortArrow('publish_date')}</span></span>
+      <span style="width:115px" onclick="toggleSort('updated_at')">更新時間 <span class="sort-arrow">${sortArrow('updated_at')}</span></span>
+      <span style="width:70px"></span>
     </div>
-    <div class="main-scroll"><div class="scroll" id="projList"></div></div>
+    <div class="main-scroll"><div class="scroll" id="projList">${showSkeleton(10)}</div></div>
     <div id="projPaging" class="paging"></div>
   `;
-  projState.selected.clear();
   await loadProjects();
   injectResizeHandles();
   restoreColWidths();
 }
 
-function sortArrow(col) { return projState.sortCol===col ? (projState.sortAsc?'▲':'▼') : ''; }
+function sortArrow(col) { return projState.sortCol===col ? (projState.sortAsc?'&#9650;':'&#9660;') : ''; }
 function toggleSort(col) {
   if(projState.sortCol===col) projState.sortAsc=!projState.sortAsc; else {projState.sortCol=col;projState.sortAsc=true;}
   projState.page=0; renderProjects();
@@ -549,26 +621,26 @@ function renderProjectRows(projects) {
   if(!projects.length) { list.innerHTML='<div class="empty">尚無專案</div>'; return; }
   list.innerHTML = projects.map(r => {
     const cat = CATEGORIES[r.category] || r.category;
-    const color = STATUS_COLORS[r.current_status]||'#fff';
     const updated = (r.updated_at||'').substring(0,10);
     const editD = (r.edit_date||'').substring(0,10)||'未設定';
     const revD = (r.review_date||'').substring(0,10)||'未設定';
     const pubD = (r.publish_date||'').substring(0,10)||'未設定';
+    const sc = STATUS_COLORS[r.current_status]||'#554c44';
     return `<div class="row" data-id="${r.id}">
-      <span style="width:50px">${r.id}</span>
-      <span style="width:270px" title="${r.name}">${r.name}</span>
+      <span style="width:50px;color:var(--text-muted)">${r.id}</span>
+      <span style="width:300px" title="${r.name}">${r.name}</span>
       <span style="width:90px">${cat}</span>
-      <span style="width:100px">
-        <span class="status-tag" style="background:${color}18;color:${color};border:1px solid ${color}33">
-          <span class="dot" style="background:${color}"></span>${r.current_status}
+      <span style="width:120px">
+        <span class="status-tag" style="background:${sc}18;color:${sc};border:1px solid ${sc}33">
+          <span class="dot" style="background:${sc}"></span>${r.current_status}
         </span>
       </span>
-      <span style="width:130px;color:var(--muted)">${(r.note||'').substring(0,20)}</span>
-      <span style="width:90px;color:${editD!=='未設定'?'#9ec5fe':'var(--muted)'}">${editD}</span>
-      <span style="width:90px;color:${revD!=='未設定'?'var(--warning)':'var(--muted)'}">${revD}</span>
-      <span style="width:90px;color:${pubD!=='未設定'?'#20c997':'var(--muted)'}">${pubD}</span>
-      <span style="width:120px;color:var(--muted)">${updated}</span>
-      <span style="width:80px">
+      <span style="width:140px;color:var(--text-muted)">${(r.note||'').substring(0,22)}</span>
+      <span style="width:90px;color:${editD!=='未設定'?'#9ec5fe':'var(--text-muted)'}">${editD}</span>
+      <span style="width:90px;color:${revD!=='未設定'?'var(--warning)':'var(--text-muted)'}">${revD}</span>
+      <span style="width:90px;color:${pubD!=='未設定'?'#20c997':'var(--text-muted)'}">${pubD}</span>
+      <span style="width:115px;color:var(--text-muted)">${updated}</span>
+      <span style="width:70px">
         <button class="btn btn-sm btn-purple" onclick="showDetailModal(${r.id})">詳情</button>
       </span>
     </div>`;
@@ -578,15 +650,14 @@ function renderProjectRows(projects) {
 function renderPaging(total, current) {
   const totalPages = Math.max(1, Math.ceil(total/200));
   const page = projState.page + 1;
-  let html = `顯示 ${current} / 共 ${total} 筆　第 ${page}/${totalPages} 頁 `;
+  let html = `顯示 ${current} / ${total} &emsp; 第 ${page}/${totalPages} 頁 `;
   if(page>1) html += `<button class="btn btn-sm btn-gray" onclick="projState.page--;renderProjects()">上一頁</button>`;
   if(page<totalPages) html += `<button class="btn btn-sm btn-gray" onclick="projState.page++;renderProjects()">下一頁</button>`;
   document.getElementById('projPaging').innerHTML = html;
 }
 
-// ── Materials Page ─────────────────────────────────────────────
-let matState = {sortCol:'id',sortAsc:true,page:0,category:'',search:'',selected:new Set(),total:0};
-let matLastClickedId = null;
+// ── Materials Page (唯讀) ─────────────────────────────────────
+let matState = {sortCol:'id',sortAsc:false,page:0,category:'',search:'',total:0};
 const MAT_PAGE_SIZE = 50;
 
 async function renderMaterials() {
@@ -595,29 +666,26 @@ async function renderMaterials() {
     <div class="toolbar"><h2>素材庫存</h2>
       <input id="matSearch" placeholder="搜尋名稱..." style="width:180px" oninput="matState.search=this.value;matState.page=0;renderMaterials()">
       <select id="matCatFilter" onchange="matState.category=this.value;matState.page=0;renderMaterials()">
-        <option value="">全部業務線</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
+        <option value="">所有分類</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
       </select>
     </div>
     <div class="table-header">
       <span style="width:50px" onclick="matToggleSort('id')">ID <span class="sort-arrow">${matSortArrow('id')}</span></span>
-      <span style="width:280px" onclick="matToggleSort('name')">名稱 <span class="sort-arrow">${matSortArrow('name')}</span></span>
-      <span style="width:120px" onclick="matToggleSort('category')">業務線 <span class="sort-arrow">${matSortArrow('category')}</span></span>
-      <span style="width:180px">備註</span>
-      <span style="width:140px" onclick="matToggleSort('created_at')">建立日期 <span class="sort-arrow">${matSortArrow('created_at')}</span></span>
-      <span style="width:140px" onclick="matToggleSort('updated_at')">更新時間 <span class="sort-arrow">${matSortArrow('updated_at')}</span></span>
-      <span style="width:220px"></span>
+      <span style="width:320px" onclick="matToggleSort('name')">名稱 <span class="sort-arrow">${matSortArrow('name')}</span></span>
+      <span style="width:120px" onclick="matToggleSort('category')">分類 <span class="sort-arrow">${matSortArrow('category')}</span></span>
+      <span style="width:220px">備註</span>
+      <span style="width:135px" onclick="matToggleSort('created_at')">建立時間 <span class="sort-arrow">${matSortArrow('created_at')}</span></span>
+      <span style="width:135px" onclick="matToggleSort('updated_at')">更新時間 <span class="sort-arrow">${matSortArrow('updated_at')}</span></span>
     </div>
-    <div class="main-scroll"><div class="scroll" id="matList"></div></div>
+    <div class="main-scroll"><div class="scroll" id="matList">${showSkeleton(8)}</div></div>
     <div id="matPaging" class="paging"></div>
   `;
-  matState.selected.clear();
-  matLastClickedId = null;
   await loadMaterials();
   injectResizeHandles();
   restoreColWidths();
 }
 
-function matSortArrow(col) { return matState.sortCol===col ? (matState.sortAsc?'▲':'▼') : ''; }
+function matSortArrow(col) { return matState.sortCol===col ? (matState.sortAsc?'&#9650;':'&#9660;') : ''; }
 function matToggleSort(col) {
   if(matState.sortCol===col) matState.sortAsc=!matState.sortAsc; else {matState.sortCol=col;matState.sortAsc=true;}
   matState.page=0; renderMaterials();
@@ -643,15 +711,14 @@ function renderMaterialRows(materials) {
     const cat = CATEGORIES[m.category] || m.category;
     const created = (m.created_at||'').substring(0,10);
     const updated = (m.updated_at||'').substring(0,10);
-    const notePreview = (m.note||'').substring(0,24);
+    const notePreview = (m.note||'').substring(0,28);
     return `<div class="row" data-mid="${m.id}">
-      <span style="width:50px">${m.id}</span>
-      <span style="width:280px" title="${m.name}">${m.name}</span>
+      <span style="width:50px;color:var(--text-muted)">${m.id}</span>
+      <span style="width:320px" title="${m.name}">${m.name}</span>
       <span style="width:120px">${cat}</span>
-      <span style="width:180px;color:var(--muted)" title="${(m.note||'').replace(/"/g,'&quot;')}">${notePreview}</span>
-      <span style="width:140px;color:var(--muted)">${created}</span>
-      <span style="width:140px;color:var(--muted)">${updated}</span>
-      <span style="width:220px"></span>
+      <span style="width:220px;color:var(--text-muted)" title="${(m.note||'').replace(/"/g,'&quot;')}">${notePreview}</span>
+      <span style="width:135px;color:var(--text-muted)">${created}</span>
+      <span style="width:135px;color:var(--text-muted)">${updated}</span>
     </div>`;
   }).join('');
 }
@@ -659,13 +726,13 @@ function renderMaterialRows(materials) {
 function matRenderPaging(total, current) {
   const totalPages = Math.max(1, Math.ceil(total/MAT_PAGE_SIZE));
   const page = matState.page + 1;
-  let html = `顯示 ${current} / 共 ${total} 筆　第 ${page}/${totalPages} 頁 `;
+  let html = `顯示 ${current} / ${total} &emsp; 第 ${page}/${totalPages} 頁 `;
   if(page>1) html += `<button class="btn btn-sm btn-gray" onclick="matState.page--;renderMaterials()">上一頁</button>`;
   if(page<totalPages) html += `<button class="btn btn-sm btn-gray" onclick="matState.page++;renderMaterials()">下一頁</button>`;
   document.getElementById('matPaging').innerHTML = html;
 }
 
-// ── Modals ────────────────────────────────────────────────────
+// ── Modal (Detail only) ───────────────────────────────────────
 function showModal(title, bodyHtml, onSave) {
   const overlay = document.createElement('div'); overlay.className='modal-overlay';
   overlay.innerHTML = `<div class="modal"><h3>${title}</h3>${bodyHtml}<div class="btn-row">
@@ -673,7 +740,7 @@ function showModal(title, bodyHtml, onSave) {
     ${onSave ? '<button class="btn btn-accent" id="modalSave">確認</button>' : ''}
   </div></div>`;
   document.body.appendChild(overlay);
-  if (onSave) overlay.querySelector('#modalSave').onclick = () => { onSave(overlay); };
+  if(onSave) overlay.querySelector('#modalSave').onclick = () => { onSave(overlay); };
   overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
 }
 
@@ -684,8 +751,8 @@ async function showDetailModal(pid) {
   const name = el ? el.querySelector('span:nth-child(2)').textContent : `#${pid}`;
   let html = `<h3>${name}</h3><div style="max-height:300px;overflow-y:auto;margin-bottom:10px">`;
   html += data.logs.map(l => {
-    const arrow = `${l.old_status||'建立'} → ${l.new_status}`;
-    return `<div style="font-size:12px;padding:4px 0;color:var(--muted)">${l.changed_at} <span style="color:var(--text)">${arrow}</span></div>`;
+    const arrow = `${l.old_status||'建立'} &#8594; ${l.new_status}`;
+    return `<div style="font-size:12px;padding:4px 0;color:var(--text-muted)">${l.changed_at} <span style="color:var(--text)">${arrow}</span></div>`;
   }).join('');
   html += '</div>';
   showModal('專案詳情 - 狀態歷程', html, null);
@@ -694,60 +761,60 @@ async function showDetailModal(pid) {
 // ── Daily Report ──────────────────────────────────────────────
 async function renderDaily() {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty">載入中...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   const res = await api('/api/reports/daily');
   const d = await res.json();
   const range = d.range_start===d.range_end ? d.range_start : `${d.range_start} ~ ${d.range_end}`;
 
   function fmt(arr) {
-    if(!arr.length) return '  （無）\n';
-    return arr.map(r => `  • [${CATEGORIES[r.category]||r.category}] ${r.name}`).join('\n') + '\n';
+    if(!arr.length) return '  (無)\n';
+    return arr.map(r => `  \u2022 [${CATEGORIES[r.category]||r.category}] ${r.name}`).join('\n') + '\n';
   }
 
   const report = `Ultra Cleaning 影片剪輯日報
 
 日期：${d.date}（${d.day_name}）
-統計範圍：${range}
+區間：${range}
 
-──────────────────────────────
-今日剪輯（edit_date 為今天）
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+今日剪輯（edit_date = 今天）
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.editing_today)}
-──────────────────────────────
-今日送審（review_date 為今天）
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+今日送審（review_date = 今天）
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.review_today)}
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 審核中（MKT / 老闆）
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.in_review)}
-──────────────────────────────
-社群文案撰寫中
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+文案撰寫中
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.copywriting)}
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 準備排程
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.ready)}
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 已排程
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.scheduled)}
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 已發布（${range}）
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.published)}
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 待辦事項
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.todo)}`;
 
   main.innerHTML = `
-    <div class="toolbar"><h2>每日日報</h2><span style="color:var(--muted);font-size:12px">${d.date}</span>
-      <button class="btn btn-gray" onclick="renderDaily()">重新整理</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PNG')">匯出PNG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','JPG')">匯出JPG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PDF')">匯出PDF</button>
+    <div class="toolbar"><h2>日報</h2><span style="color:var(--text-muted);font-size:12px">${d.date}</span>
+      <button class="btn btn-gray" onclick="renderDaily()"><i class="ph ph-arrow-clockwise"></i> 重新整理</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PNG')">匯出 PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','JPG')">匯出 JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PDF')">匯出 PDF</button>
     </div>
     <div class="main-scroll"><div class="report-box" id="dailyContent">${report.replace(/\n/g,'<br>')}</div></div>
   `;
@@ -756,55 +823,55 @@ ${fmt(d.todo)}`;
 // ── Weekly Report ─────────────────────────────────────────────
 async function renderWeekly() {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty">載入中...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   const res = await api('/api/reports/weekly');
   const d = await res.json();
 
   function fmt(arr) {
-    if(!arr.length) return '  （無）\n';
-    return arr.map(r => `  • [${CATEGORIES[r.category]||r.category}] ${r.name}`).join('\n') + '\n';
+    if(!arr.length) return '  (無)\n';
+    return arr.map(r => `  \u2022 [${CATEGORIES[r.category]||r.category}] ${r.name}`).join('\n') + '\n';
   }
   function fmtStatus(arr) {
-    if(!arr.length) return '  （無）\n';
-    return arr.map(r => `  • [${CATEGORIES[r.category]||r.category}] ${r.name} → ${r.current_status}`).join('\n') + '\n';
+    if(!arr.length) return '  (無)\n';
+    return arr.map(r => `  \u2022 [${CATEGORIES[r.category]||r.category}] ${r.name} \u2192 ${r.current_status}`).join('\n') + '\n';
   }
 
   const report = `Ultra Cleaning 影片剪輯週報
 
-週次：${d.monday}（一）～ ${d.sunday}（日）
-產出日期：${d.today}
+週次：${d.monday}（一）~ ${d.sunday}（日）
+產生日期：${d.today}
 
-──────────────────────────────
-本週剪輯（edit_date 範圍：${d.editing_week.length} 部）
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+本週剪輯（${d.editing_week.length} 部影片）
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.editing_week)}
-──────────────────────────────
-本週送審（review_date 範圍：${d.review_week.length} 部）
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+本週送審（${d.review_week.length} 部影片）
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.review_week)}
-──────────────────────────────
-本週活動（${d.active.length} 部）
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+進行中專案（${d.active.length}）
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmtStatus(d.active)}
-──────────────────────────────
-本週已發布（${d.published.length} 部）
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+本週已發布（${d.published.length}）
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.published)}
-──────────────────────────────
-審核中（${d.in_review.length} 部）
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+審核中（${d.in_review.length}）
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.in_review)}
-──────────────────────────────
-待處理（${d.pending.length} 部）
-──────────────────────────────
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+待處理（${d.pending.length}）
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.pending)}`;
 
   main.innerHTML = `
-    <div class="toolbar"><h2>每週週報</h2><span style="color:var(--muted);font-size:12px">${d.monday}（一）～ ${d.sunday}（日）</span>
-      <button class="btn btn-gray" onclick="renderWeekly()">重新整理</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PNG')">匯出PNG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','JPG')">匯出JPG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PDF')">匯出PDF</button>
+    <div class="toolbar"><h2>週報</h2><span style="color:var(--text-muted);font-size:12px">${d.monday}（一）~ ${d.sunday}（日）</span>
+      <button class="btn btn-gray" onclick="renderWeekly()"><i class="ph ph-arrow-clockwise"></i> 重新整理</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PNG')">匯出 PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','JPG')">匯出 JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PDF')">匯出 PDF</button>
     </div>
     <div class="main-scroll"><div class="report-box" id="weeklyContent">${report.replace(/\n/g,'<br>')}</div></div>
   `;
@@ -813,37 +880,45 @@ ${fmt(d.pending)}`;
 // ── Dashboard ─────────────────────────────────────────────────
 async function renderDashboard() {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty">載入中...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   const res = await api('/api/dashboard');
   const d = await res.json();
 
-  const overview = [
-    {title:'專案總數', val:d.total, color:'var(--accent)', icon:'&#9632;'},
-    {title:'活躍專案', val:d.active, color:'#d4956b', icon:'&#9654;'},
-    {title:'業務線', val:d.category_count, color:'var(--success)', icon:'&#9638;'},
-    {title:'垃圾桶', val:d.trash, color:'var(--danger)', icon:'&#9850;'},
-  ];
-
   main.innerHTML = `
-    <h2 style="margin-bottom:18px;font-weight:700;font-size:18px">狀態總覽</h2>
+    <h2 style="margin-bottom:20px;font-weight:700;font-size:19px;letter-spacing:-0.025em">狀態總覽</h2>
     <div class="main-scroll">
-    <div class="card-grid" style="margin-bottom:24px">${overview.map(c=>`
-      <div class="card" style="text-align:center;padding:22px 20px">
-        <div style="font-size:22px;margin-bottom:6px;color:${c.color}">${c.icon}</div>
-        <div style="color:var(--muted);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">${c.title}</div>
-        <div style="font-size:34px;font-weight:700;color:${c.color};letter-spacing:-0.03em;font-variant-numeric:tabular-nums">${c.val}</div>
+    <div class="dash-overview">
+      <div class="dash-card">
+        <div class="dash-icon" style="color:var(--accent)"><i class="ph ph-film-slate"></i></div>
+        <div class="dash-label">總專案數</div>
+        <div class="dash-val" style="color:var(--accent)">${d.total}</div>
       </div>
-    `).join('')}</div>
-    <h3 style="margin-bottom:12px;font-size:13px;font-weight:700;color:var(--text-secondary)">各狀態分布</h3>
+      <div class="dash-card">
+        <div class="dash-icon" style="color:#d4956b"><i class="ph ph-play"></i></div>
+        <div class="dash-label">進行中</div>
+        <div class="dash-val" style="color:#d4956b">${d.active}</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon" style="color:var(--success)"><i class="ph ph-squares-four"></i></div>
+        <div class="dash-label">分類數</div>
+        <div class="dash-val" style="color:var(--success)">${d.category_count}</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon" style="color:var(--danger)"><i class="ph ph-trash"></i></div>
+        <div class="dash-label">垃圾桶</div>
+        <div class="dash-val" style="color:var(--danger)">${d.trash}</div>
+      </div>
+    </div>
+    <h3 style="margin-bottom:12px;font-size:13px;font-weight:700;color:var(--text-secondary)">狀態分佈</h3>
     <div class="card-grid" style="margin-bottom:24px">${d.status_stats.map(s=>`
       <div class="status-card">
-        <div class="status-dot" style="width:8px;height:8px;border-radius:50%;background:${s.color};flex-shrink:0"></div>
+        <div class="status-dot" style="background:${s.color}"></div>
         <span style="font-size:12.5px">${s.status}</span>
         <span class="count" style="color:${s.color}">${s.count}</span>
       </div>
     `).join('')}</div>
     ${d.category_stats.length ? `
-    <h3 style="margin-bottom:12px;font-size:13px;font-weight:700;color:var(--text-secondary)">業務線分布</h3>
+    <h3 style="margin-bottom:12px;font-size:13px;font-weight:700;color:var(--text-secondary)">分類佔比</h3>
     <div class="scroll" style="max-height:220px">${d.category_stats.map(c=>`
       <div class="progress-row"><span class="lbl">${c.label}</span>
         <div class="bar-outer"><div class="bar-inner" style="width:${(c.count/Math.max(...d.category_stats.map(x=>x.count)))*100}%"></div></div>
@@ -863,17 +938,17 @@ async function renderStats() {
     <div class="toolbar"><h2>報表中心</h2></div>
     <div class="tab-bar" id="periodTabs">
       ${['daily','weekly','monthly','quarterly','yearly'].map(p=>`
-        <button class="btn btn-sm ${statsState.period===p?'btn-accent':'btn-outline'}" data-period="${p}" onclick="switchPeriod('${p}')">${{daily:'日報',weekly:'週報',monthly:'月數據',quarterly:'季數據',yearly:'年度數據'}[p]}</button>
+        <button class="btn btn-sm ${statsState.period===p?'btn-accent':'btn-outline'}" data-period="${p}" onclick="switchPeriod('${p}')">${{daily:'日',weekly:'週',monthly:'月',quarterly:'季',yearly:'年'}[p]}</button>
       `).join('')}
     </div>
     <div class="toolbar">
-      <button class="btn btn-sm btn-gray" onclick="statsState.idx--;renderStats()">◀</button>
+      <button class="btn btn-sm btn-gray" onclick="statsState.idx--;renderStats()"><i class="ph ph-caret-left"></i></button>
       <span id="statsLabel" style="font-weight:700;margin:0 15px;font-size:13px"></span>
-      <button class="btn btn-sm btn-gray" onclick="statsState.idx++;renderStats()">▶</button>
+      <button class="btn btn-sm btn-gray" onclick="statsState.idx++;renderStats()"><i class="ph ph-caret-right"></i></button>
       <button class="btn btn-sm btn-gray" onclick="statsState.idx=0;renderStats()" style="margin-left:auto">今天</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PNG')">匯出PNG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','JPG')">匯出JPG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PDF')">匯出PDF</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PNG')">匯出 PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','JPG')">匯出 JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PDF')">匯出 PDF</button>
     </div>
     <div class="main-scroll" id="statsContent"></div>
   `;
@@ -894,16 +969,16 @@ async function loadStats() {
   document.getElementById('statsLabel').textContent = d.label;
 
   let html = `<div class="card-grid" style="margin-bottom:16px">
-    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--muted);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">新建影片</div><div style="font-size:30px;font-weight:700;color:var(--accent);margin-top:4px;font-variant-numeric:tabular-nums">${d.created.length}</div></div>
-    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--muted);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">有進度</div><div style="font-size:30px;font-weight:700;color:#d4956b;margin-top:4px;font-variant-numeric:tabular-nums">${d.active.length}</div></div>
-    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--muted);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">已發布</div><div style="font-size:30px;font-weight:700;color:var(--success);margin-top:4px;font-variant-numeric:tabular-nums">${d.published.length}</div></div>
+    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--text-muted);font-size:11px;font-weight:600;letter-spacing:0.04em">新建影片</div><div style="font-size:32px;font-weight:700;color:var(--accent);margin-top:4px;font-variant-numeric:tabular-nums">${d.created.length}</div></div>
+    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--text-muted);font-size:11px;font-weight:600;letter-spacing:0.04em">進行中</div><div style="font-size:32px;font-weight:700;color:#d4956b;margin-top:4px;font-variant-numeric:tabular-nums">${d.active.length}</div></div>
+    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--text-muted);font-size:11px;font-weight:600;letter-spacing:0.04em">已發布</div><div style="font-size:32px;font-weight:700;color:var(--success);margin-top:4px;font-variant-numeric:tabular-nums">${d.published.length}</div></div>
   </div>`;
 
   if(Object.keys(d.status_counts).length) {
-    html += '<h3 style="margin-bottom:8px;font-size:13px;font-weight:700;color:var(--text-secondary)">狀態分布</h3><div class="check-row">';
+    html += '<h3 style="margin-bottom:8px;font-size:13px;font-weight:700;color:var(--text-secondary)">狀態分佈</h3><div class="check-row">';
     const sorted = Object.entries(d.status_counts).sort((a,b)=>b[1]-a[1]);
     for(const [st,cnt] of sorted) {
-      html += `<span class="badge" style="background:${STATUS_COLORS[st]||'#554c44'}18;color:${STATUS_COLORS[st]||'var(--text)'};border:1px solid ${STATUS_COLORS[st]||'#554c44'}33">${st} ×${cnt}</span>`;
+      html += `<span class="badge" style="background:${STATUS_COLORS[st]||'#554c44'}18;color:${STATUS_COLORS[st]||'var(--text)'};border:1px solid ${STATUS_COLORS[st]||'#554c44'}33">${st} &times;${cnt}</span>`;
     }
     html += '</div>';
   }
@@ -911,20 +986,20 @@ async function loadStats() {
   const allCats = Object.keys(CATEGORIES);
   const hasData = allCats.some(k => (d.cat_created[k]||0)+(d.cat_active[k]||0)+(d.cat_published[k]||0) > 0);
   if(hasData) {
-    html += '<h3 style="margin:16px 0 8px;font-size:13px;font-weight:700;color:var(--text-secondary)">業務線明細</h3>';
+    html += '<h3 style="margin:16px 0 8px;font-size:13px;font-weight:700;color:var(--text-secondary)">分類明細</h3>';
     html += `<div class="card" style="overflow-x:auto;padding:14px"><table style="width:100%;font-size:12px;border-collapse:collapse">
-      <tr style="color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.04em"><td style="padding:8px 12px">業務線</td><td style="padding:8px 12px;text-align:center">新建</td><td style="padding:8px 12px;text-align:center">有進度</td><td style="padding:8px 12px;text-align:center">已發布</td></tr>`;
+      <tr style="color:var(--text-muted);font-weight:600;font-size:10.5px;letter-spacing:0.04em"><td style="padding:8px 12px">分類</td><td style="padding:8px 12px;text-align:center">新建</td><td style="padding:8px 12px;text-align:center">進行中</td><td style="padding:8px 12px;text-align:center">已發布</td></tr>`;
     for(const k of allCats) {
       const cc=d.cat_created[k]||0, ca=d.cat_active[k]||0, cp=d.cat_published[k]||0;
       if(!cc&&!ca&&!cp) continue;
-      html += `<tr><td style="padding:7px 12px;font-weight:500">${CATEGORIES[k]}</td><td style="padding:7px 12px;text-align:center;color:${cc?'var(--accent)':'var(--muted)'};font-weight:${cc?'600':'400'};font-variant-numeric:tabular-nums">${cc}</td><td style="padding:7px 12px;text-align:center;color:${ca?'#d4956b':'var(--muted)'};font-weight:${ca?'600':'400'};font-variant-numeric:tabular-nums">${ca}</td><td style="padding:7px 12px;text-align:center;color:${cp?'var(--success)':'var(--muted)'};font-weight:${cp?'600':'400'};font-variant-numeric:tabular-nums">${cp}</td></tr>`;
+      html += `<tr><td style="padding:7px 12px;font-weight:500">${CATEGORIES[k]}</td><td style="padding:7px 12px;text-align:center;color:${cc?'var(--accent)':'var(--text-muted)'};font-weight:${cc?'600':'400'};font-variant-numeric:tabular-nums">${cc}</td><td style="padding:7px 12px;text-align:center;color:${ca?'#d4956b':'var(--text-muted)'};font-weight:${ca?'600':'400'};font-variant-numeric:tabular-nums">${ca}</td><td style="padding:7px 12px;text-align:center;color:${cp?'var(--success)':'var(--text-muted)'};font-weight:${cp?'600':'400'};font-variant-numeric:tabular-nums">${cp}</td></tr>`;
     }
     html += '</table></div>';
   } else {
-    html += '<div class="empty">此期間尚無影片紀錄</div>';
+    html += '<div class="empty">此區間尚無影片紀錄</div>';
   }
 
-  html += '<h3 style="margin:20px 0 10px;font-size:13px;font-weight:700;color:var(--text-secondary)">數據圖表</h3><div id="chartsArea"></div>';
+  html += '<h3 style="margin:20px 0 10px;font-size:13px;font-weight:700;color:var(--text-secondary)">圖表</h3><div id="chartsArea"></div>';
 
   document.getElementById('statsContent').innerHTML = html;
 
@@ -949,7 +1024,7 @@ function renderCharts(d) {
   const hasTrend = d.trend.months && d.trend.months.length>0;
 
   if(!hasCatData && !hasStData && !hasTrend) {
-    area.innerHTML = '<div class="empty">此期間尚無數據可繪製圖表</div>'; return;
+    area.innerHTML = '<div class="empty">無圖表資料</div>'; return;
   }
 
   area.innerHTML = `
@@ -958,30 +1033,30 @@ function renderCharts(d) {
     ${hasTrend ? '<div class="chart-wrap"><canvas id="lineChart"></canvas></div>' : ''}
   `;
 
-  Chart.defaults.color = '#9a9aaa';
-  Chart.defaults.borderColor = 'rgba(255,255,255,0.04)';
+  Chart.defaults.color = '#9494a8';
+  Chart.defaults.borderColor = 'rgba(255,255,255,0.03)';
 
   if(hasCatData) {
     new Chart(document.getElementById('pieChart'), {
       type:'pie', data:{labels:catLabels,datasets:[{data:catValues,backgroundColor:['#c9946e','#d4956b','#4dab8e','#d4a843','#6ebccf','#e0556a','#8b6fbf','#c46a8a','#7a7a88','#5b8cc9','#3d9478','#c43b50']}]},
-      options:{plugins:{legend:{position:'bottom',labels:{font:{size:10,family:"'Plus Jakarta Sans',sans-serif"},color:'#9a9aaa',padding:12},onClick:function(){return false}}}}
+      options:{plugins:{legend:{position:'bottom',labels:{font:{size:10,family:"'Plus Jakarta Sans',sans-serif"},color:'#9494a8',padding:12},onClick:function(){return false}}}}
     });
   }
 
   if(hasStData) {
     new Chart(document.getElementById('barChart'), {
       type:'bar', data:{labels:stLabels,datasets:[{data:stValues,backgroundColor:stColors,borderRadius:4}]},
-      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5e5e72',font:{size:10}}},y:{grid:{display:false},ticks:{color:'#9a9aaa',font:{size:10}}}}}
+      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#5c5c72',font:{size:10}}},y:{grid:{display:false},ticks:{color:'#9494a8',font:{size:10}}}}}
     });
   }
 
   if(hasTrend) {
     new Chart(document.getElementById('lineChart'), {
       type:'line', data:{labels:d.trend.months,datasets:[
-        {label:'建立專案',data:d.trend.created,borderColor:'#c9946e',backgroundColor:'rgba(201,148,110,0.08)',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#c9946e'},
+        {label:'新建',data:d.trend.created,borderColor:'#c9946e',backgroundColor:'rgba(201,148,110,0.08)',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#c9946e'},
         {label:'已發布',data:d.trend.published,borderColor:'#4dab8e',backgroundColor:'rgba(77,171,142,0.08)',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#4dab8e'}
       ]},
-      options:{plugins:{legend:{labels:{color:'#9a9aaa',font:{size:11},padding:16,usePointStyle:true}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5e5e72',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5e5e72',font:{size:10}}}}}
+      options:{plugins:{legend:{labels:{color:'#9494a8',font:{size:11},padding:16,usePointStyle:true}}},scales:{x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#5c5c72',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#5c5c72',font:{size:10}}}}}
     });
   }
 }
@@ -1000,7 +1075,7 @@ async function exportReport(elementId, format) {
     el.style.maxHeight = 'none';
 
     const canvas = await html2canvas(el, {
-      backgroundColor: '#080812',
+      backgroundColor: '#0a0a12',
       scale: 2,
       logging: false,
     });
@@ -1044,7 +1119,7 @@ async function exportReport(elementId, format) {
   el.style.maxHeight = 'none';
 
   const canvas = await html2canvas(el, {
-    backgroundColor: '#080812',
+    backgroundColor: '#0a0a12',
     scale: 2,
     logging: false,
   });
@@ -1075,7 +1150,9 @@ function injectResizeHandles() {
 }
 
 function restoreColWidths() {
-  const saved = localStorage.getItem('colWidths_viewer');
+  const h2text = document.querySelector('#main h2')?.textContent || '';
+  const pageKey = h2text.includes('素材') ? 'colWidths_viewer_v6_materials' : 'colWidths_viewer_v6_projects';
+  const saved = localStorage.getItem(pageKey);
   if (!saved) return;
   const widths = JSON.parse(saved);
   document.querySelectorAll('.table-header').forEach(header => {
@@ -1121,13 +1198,16 @@ document.addEventListener('mouseup', () => {
     const h = colResize.span.querySelector('.resize-handle');
     if (h) h.classList.remove('active');
     document.body.classList.remove('col-resizing');
+    const h2text = document.querySelector('#main h2')?.textContent || '';
+    const pageKey = h2text.includes('素材') ? 'colWidths_viewer_v6_materials' : 'colWidths_viewer_v6_projects';
     const widths = [];
     colResize.header.querySelectorAll('span').forEach(s => widths.push(s.style.width || s.offsetWidth+'px'));
-    localStorage.setItem('colWidths_viewer', JSON.stringify(widths));
+    localStorage.setItem(pageKey, JSON.stringify(widths));
     colResize = null;
   }
 });
 
+// sync table-header horizontal scroll
 document.addEventListener('scroll', e => {
   const t = e.target;
   if (t.classList.contains('main-scroll')) {
@@ -1142,7 +1222,7 @@ document.addEventListener('scroll', e => {
   const handle = document.getElementById('sidebarResize');
   let sbResize = null;
 
-  const savedW = localStorage.getItem('sidebarWidth_viewer');
+  const savedW = localStorage.getItem('sidebarWidth_viewer_v6');
   if (savedW) { const w = parseInt(savedW); if (w >= 140 && w <= 600) sidebar.style.width = w + 'px'; }
 
   handle.addEventListener('mousedown', e => {
@@ -1157,7 +1237,7 @@ document.addEventListener('scroll', e => {
     const diff = e.clientX - sbResize.startX;
     const newW = Math.max(140, Math.min(600, sbResize.startW + diff));
     sidebar.style.width = newW + 'px';
-    localStorage.setItem('sidebarWidth_viewer', newW);
+    localStorage.setItem('sidebarWidth_viewer_v6', newW);
   });
 
   document.addEventListener('mouseup', () => {
