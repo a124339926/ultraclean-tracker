@@ -1102,7 +1102,7 @@ function showEditModal(pid, name, note, editDate, reviewDate, publishDate) {
 function editDateInline(pid, field, curValue) {
   const tempInput = document.createElement('input');
   tempInput.type = 'date';
-  tempInput.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:0;height:0;pointer-events:none;visibility:hidden';
+  tempInput.style.cssText = 'position:fixed;top:50px;left:50%;transform:translateX(-50%);opacity:0;pointer-events:none;width:0;height:0';
   const datePart = (curValue || '').substring(0, 10);
   if (datePart) tempInput.value = datePart;
   document.body.appendChild(tempInput);
