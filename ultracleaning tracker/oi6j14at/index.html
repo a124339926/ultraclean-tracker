@@ -12,6 +12,8 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <style>
 /* ══════════════════════════════════════════════════════════════
    UltraClean Tracker v6.0 — Design System
@@ -687,13 +689,13 @@ function renderBatchOps(projects) {
     <select id="batchStatus" style="width:130px">${STATUSES.map(s=>`<option>${s}</option>`).join('')}</select>
     <button class="btn btn-sm btn-accent" onclick="batchUpdateStatus()">套用</button>
     <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">剪輯：</span>
-    <input type="date" id="batchEditDate" style="width:120px">
+    <input type="date" id="batchEditDate" style="width:120px" onkeydown="return false">
     <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('edit_date')">套用</button>
     <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">送審：</span>
-    <input type="date" id="batchReviewDate" style="width:120px">
+    <input type="date" id="batchReviewDate" style="width:120px" onkeydown="return false">
     <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('review_date')">套用</button>
     <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">發佈：</span>
-    <input type="date" id="batchPublishDate" style="width:120px">
+    <input type="date" id="batchPublishDate" style="width:120px" onkeydown="return false">
     <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('publish_date')">套用</button>
     <button class="btn btn-sm btn-danger" style="margin-left:auto" onclick="batchDelete()"><i class="ph ph-trash"></i> 刪除選取</button>
   `;
@@ -782,6 +784,7 @@ async function renderMaterials() {
   await loadMaterials();
   injectResizeHandles();
   restoreColWidths();
+  applySidebarWidth();
 }
 
 function matSortArrow(col) { return matState.sortCol===col ? (matState.sortAsc?'&#9650;':'&#9660;') : ''; }
@@ -993,6 +996,7 @@ function showModal(title, bodyHtml, onSave) {
     <button class="btn btn-accent" id="modalSave">確認</button>
   </div></div>`;
   document.body.appendChild(overlay);
+  initFlatpickr();
   overlay.querySelector('#modalSave').onclick = () => { onSave(overlay); };
   overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
 }
@@ -1077,9 +1081,9 @@ function showEditModal(pid, name, note, editDate, reviewDate, publishDate) {
   showModal('編輯專案', `
     <div class="field"><label>影片名稱</label><input id="mName" value="${name.replace(/"/g,'&quot;')}"></div>
     <div class="field"><label>備註</label><input id="mNote" value="${note.replace(/"/g,'&quot;')}"></div>
-    <div class="field"><label>剪輯日期</label><input type="date" id="mEditDate" value="${ed}"></div>
-    <div class="field"><label>送審日期</label><input type="date" id="mReviewDate" value="${rd}"></div>
-    <div class="field"><label>發佈日期</label><input type="date" id="mPublishDate" value="${pd}"></div>
+    <div class="field"><label>剪輯日期</label><input type="date" id="mEditDate" value="${ed}" onkeydown="return false"></div>
+    <div class="field"><label>送審日期</label><input type="date" id="mReviewDate" value="${rd}" onkeydown="return false"></div>
+    <div class="field"><label>發佈日期</label><input type="date" id="mPublishDate" value="${pd}" onkeydown="return false"></div>
   `, async (ov) => {
     const nm = ov.querySelector('#mName').value.trim();
     if(!nm) return;
@@ -1099,7 +1103,7 @@ function showEditTimeModal(pid, cur) {
   const dp = cur.substring(0,10)||'';
   const tp = cur.substring(11,19)||'00:00:00';
   showModal('編輯更新時間', `
-    <div class="field"><label>日期</label><input type="date" id="mDate" value="${dp}"></div>
+    <div class="field"><label>日期</label><input type="date" id="mDate" value="${dp}" onkeydown="return false"></div>
     <div class="field"><label>時間</label><input id="mTime" value="${tp}" placeholder="HH:MM:SS"></div>
     <button class="btn btn-sm btn-gray" onclick="document.getElementById('mDate').value='${new Date().toISOString().substring(0,10)}';document.getElementById('mTime').value='${new Date().toTimeString().substring(0,8)}'" style="margin-top:4px">現在</button>
   `, async (ov) => {
@@ -1113,7 +1117,7 @@ function showEditDateModal(pid, field, cur) {
   const label = field==='edit_date'?'剪輯日期':field==='review_date'?'送審日期':'發佈日期';
   const dp = cur.substring(0,10)||'';
   showModal(`編輯${label}`, `
-    <div class="field"><label>${label}</label><input type="date" id="mDate" value="${dp}"></div>
+    <div class="field"><label>${label}</label><input type="date" id="mDate" value="${dp}" onkeydown="return false"></div>
     <button class="btn btn-sm btn-gray" onclick="document.getElementById('mDate').value='${new Date().toISOString().substring(0,10)}'">今天</button>
     <button class="btn btn-sm btn-outline" onclick="document.getElementById('mDate').value=''">清除</button>
   `, async (ov) => {
@@ -1220,6 +1224,7 @@ ${fmt(d.todo)}`;
     </div>
     <div class="main-scroll"><div class="report-box" id="dailyContent">${report.replace(/\n/g,'<br>')}</div></div>
   `;
+  applySidebarWidth();
 }
 
 // ── Weekly Report ─────────────────────────────────────────────
@@ -1277,6 +1282,7 @@ ${fmt(d.pending)}`;
     </div>
     <div class="main-scroll"><div class="report-box" id="weeklyContent">${report.replace(/\n/g,'<br>')}</div></div>
   `;
+  applySidebarWidth();
 }
 
 // ── Dashboard ─────────────────────────────────────────────────
@@ -1329,6 +1335,7 @@ async function renderDashboard() {
     `).join('')}</div>`:''}
     </div>
   `;
+  applySidebarWidth();
 }
 
 // ── Stats / Report Center ─────────────────────────────────────
@@ -1406,6 +1413,7 @@ async function loadStats() {
   document.getElementById('statsContent').innerHTML = html;
 
   setTimeout(() => renderCharts(d), 100);
+  applySidebarWidth();
 }
 
 function renderCharts(d) {
@@ -1494,6 +1502,7 @@ async function renderTrash() {
       <button class="btn btn-sm btn-gray" style="margin-left:auto" onclick="trashClearAll()">清空垃圾桶</button>
     </div>
   `;
+  applySidebarWidth();
 }
 
 function getTrashSelectedIds() {
@@ -1682,11 +1691,13 @@ document.addEventListener('scroll', e => {
 
 // ── Sidebar Resize ────────────────────────────────────────────
 function applySidebarWidth() {
+  const sidebar = document.querySelector('.sidebar');
+  if (!sidebar) return;
   const savedW = localStorage.getItem('sidebarWidth_v6');
   if (savedW) {
     const w = parseInt(savedW);
     if (w >= 140 && w <= 600) {
-      document.querySelector('.sidebar').style.width = w + 'px';
+      sidebar.style.width = w + 'px';
     }
   }
 }
@@ -1723,11 +1734,29 @@ function applySidebarWidth() {
     if (sbResize) {
       localStorage.setItem('sidebarWidth_v6', sbResize.newW);
       handle.classList.remove('active');
-      document.body.classList.remove('sidebar-resizing');
+      // Block imminent click from reaching nav buttons
+      const blockClick = (ce) => { ce.stopPropagation(); ce.preventDefault(); document.removeEventListener('click', blockClick, true); };
+      document.addEventListener('click', blockClick, true);
+      setTimeout(() => document.body.classList.remove('sidebar-resizing'), 0);
       sbResize = null;
     }
   });
 })();
+
+// ── Flatpickr Date Picker Init ─────────────────────────────────
+function initFlatpickr() {
+  if (typeof flatpickr === 'undefined') return;
+  document.querySelectorAll('input[type="date"]').forEach(input => {
+    if (input._flatpickr) return; // 避免重复初始化
+    flatpickr(input, {
+      dateFormat: 'Y-m-d',
+      allowInput: false,  // 禁止键盘输入，只能通过日历选择
+      disableMobile: true, // 在移动端也使用 desktop 日历而非原生
+      appendTo: document.body // 日历挂载到 body，避免被 modal overflow 裁切
+    });
+  });
+}
+initFlatpickr();
 
 // ── Init ──────────────────────────────────────────────────────
 loadPage('projects');
