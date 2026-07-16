@@ -1099,6 +1099,42 @@ function showEditModal(pid, name, note, editDate, reviewDate, publishDate) {
   });
 }
 
+function editDateInline(pid, field, curValue) {
+  const tempInput = document.createElement('input');
+  tempInput.type = 'date';
+  tempInput.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:0;height:0;pointer-events:none;visibility:hidden';
+  const datePart = (curValue || '').substring(0, 10);
+  if (datePart) tempInput.value = datePart;
+  document.body.appendChild(tempInput);
+  const fp = flatpickr(tempInput, {
+    dateFormat: 'Y-m-d',
+    allowInput: false,
+    disableMobile: true,
+    appendTo: document.body,
+    defaultDate: datePart || undefined,
+    onClose: async (selectedDates, dateStr) => {
+      if (!dateStr) { fp.destroy(); tempInput.remove(); return; }
+      let saveValue;
+      if (field === 'updated_at') {
+        const timePart = (curValue || '').substring(10) || ' 00:00:00';
+        saveValue = dateStr + timePart;
+      } else {
+        saveValue = dateStr;
+      }
+      const origDate = (curValue || '').substring(0, 10);
+      if (dateStr === origDate) { fp.destroy(); tempInput.remove(); return; }
+      const body = {}; body[field] = saveValue;
+      await api(`/api/projects/${pid}`, {method:'PATCH',body:JSON.stringify(body)});
+      const label = field==='edit_date'?'剪輯日期':field==='review_date'?'送審日期':field==='publish_date'?'發佈日期':'更新日期';
+      toast(`#${pid} ${label} 已更新`);
+      renderProjects();
+      fp.destroy();
+      tempInput.remove();
+    }
+  });
+  fp.open();
+}
+
 function showEditTimeModal(pid, cur) {
   const dp = cur.substring(0,10)||'';
   const tp = cur.substring(11,19)||'00:00:00';
