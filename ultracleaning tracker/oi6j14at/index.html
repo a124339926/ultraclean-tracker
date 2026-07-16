@@ -1,4 +1,4 @@
-<!-- deploy: 2026-07-16-v6.0 taste-redesign -->
+<!-- deploy: 2026-07-16-v6.0 taste-redesign-zh -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -81,20 +81,7 @@ body{
   color:var(--text);
   display:flex;
   min-height:100vh;
-  scroll-behavior:smooth;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  letter-spacing:-0.01em;
-}
-
-/* Grain texture */
-body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:9999;
-  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
   opacity:.45
 }
 
@@ -220,9 +207,7 @@ input:focus,select:focus,textarea:focus{
 }
 select{
   min-width:120px;cursor:pointer;color-scheme:dark;
-  appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239494a8'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 10px center;
+   background-repeat:no-repeat;background-position:right 10px center;
   padding-right:28px;
 }
 select option{background:var(--bg-raised);color:var(--text)}
@@ -465,15 +450,15 @@ canvas{max-width:100%}
 
 <!-- ═══════════════ SIDEBAR ═══════════════ -->
 <nav class="sidebar">
-  <div class="logo"><h1>Ultra Cleaning</h1><span>Video Workflow v6.0</span></div>
-  <div class="nav-title">Navigation</div>
-  <button class="nav-btn active" data-page="projects"><span class="nav-icon"><i class="ph ph-film-slate"></i></span> Projects</button>
-  <button class="nav-btn" data-page="materials"><span class="nav-icon"><i class="ph ph-files"></i></span> Materials</button>
-  <button class="nav-btn" data-page="daily"><span class="nav-icon"><i class="ph ph-calendar-blank"></i></span> Daily Report</button>
-  <button class="nav-btn" data-page="weekly"><span class="nav-icon"><i class="ph ph-calendar"></i></span> Weekly Report</button>
-  <button class="nav-btn" data-page="dashboard"><span class="nav-icon"><i class="ph ph-chart-pie"></i></span> Overview</button>
-  <button class="nav-btn" data-page="stats"><span class="nav-icon"><i class="ph ph-chart-bar"></i></span> Analytics</button>
-  <button class="nav-btn" data-page="trash"><span class="nav-icon"><i class="ph ph-trash"></i></span> Trash</button>
+  <div class="logo"><h1>Ultra Cleaning</h1><span>影片工作流 v6.0</span></div>
+  <div class="nav-title">功能選單</div>
+  <button class="nav-btn active" data-page="projects"><span class="nav-icon"><i class="ph ph-film-slate"></i></span> 專案管理</button>
+  <button class="nav-btn" data-page="materials"><span class="nav-icon"><i class="ph ph-files"></i></span> 素材庫存</button>
+  <button class="nav-btn" data-page="daily"><span class="nav-icon"><i class="ph ph-calendar-blank"></i></span> 每日日報</button>
+  <button class="nav-btn" data-page="weekly"><span class="nav-icon"><i class="ph ph-calendar"></i></span> 每週週報</button>
+  <button class="nav-btn" data-page="dashboard"><span class="nav-icon"><i class="ph ph-chart-pie"></i></span> 狀態總覽</button>
+  <button class="nav-btn" data-page="stats"><span class="nav-icon"><i class="ph ph-chart-bar"></i></span> 報表中心</button>
+  <button class="nav-btn" data-page="trash"><span class="nav-icon"><i class="ph ph-trash"></i></span> 垃圾桶</button>
 </nav>
 <div class="sidebar-resize" id="sidebarResize"></div>
 
@@ -531,14 +516,14 @@ async function api(url, opts={}) {
     headers: {'Content-Type':'application/json'},
     ...opts
   });
-  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error||'Request failed'); }
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error||'請求失敗'); }
   return res;
 }
 
 // ── Page loader ───────────────────────────────────────────────
 async function loadPage(page) {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty" style="padding-top:80px">Loading...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   try {
     switch(page) {
       case 'projects': await renderProjects(); break;
@@ -549,7 +534,7 @@ async function loadPage(page) {
       case 'stats': await renderStats(); break;
       case 'trash': await renderTrash(); break;
     }
-  } catch(e) { main.innerHTML = `<div class="empty" style="color:var(--danger);padding-top:80px">Error: ${e.message}</div>`; }
+  } catch(e) { main.innerHTML = `<div class="empty" style="color:var(--danger);padding-top:80px">錯誤：${e.message}</div>`; }
 }
 
 // ── Projects Page ─────────────────────────────────────────────
@@ -559,28 +544,28 @@ let lastClickedPid = null;
 async function renderProjects() {
   const main = document.getElementById('main');
   main.innerHTML = `
-    <div class="toolbar"><h2>Projects</h2>
-      <input id="projSearch" placeholder="Search name..." style="width:180px" oninput="projState.search=this.value;projState.page=0;renderProjects()">
+    <div class="toolbar"><h2>專案管理</h2>
+      <input id="projSearch" placeholder="搜尋名稱..." style="width:180px" oninput="projState.search=this.value;projState.page=0;renderProjects()">
       <select id="projStatusFilter" onchange="projState.status=this.value;projState.page=0;renderProjects()">
-        <option value="">All Status</option>${STATUSES.map(s=>`<option>${s}</option>`).join('')}
+        <option value="">全部狀態</option>${STATUSES.map(s=>`<option>${s}</option>`).join('')}
       </select>
       <select id="projCatFilter" onchange="projState.category=this.value;projState.page=0;renderProjects()">
-        <option value="">All Categories</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
+        <option value="">全部業務線</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
       </select>
-      <button class="btn btn-accent" onclick="showAddModal()"><i class="ph ph-plus"></i> New Project</button>
-      <button class="btn btn-purple" onclick="exportDB()"><i class="ph ph-download-simple"></i> Export</button>
-      <button class="btn btn-primary" onclick="showImportDialog()"><i class="ph ph-upload-simple"></i> Import</button>
+      <button class="btn btn-accent" onclick="showAddModal()"><i class="ph ph-plus"></i> 新增專案</button>
+      <button class="btn btn-purple" onclick="exportDB()"><i class="ph ph-download-simple"></i> 匯出</button>
+      <button class="btn btn-primary" onclick="showImportDialog()"><i class="ph ph-upload-simple"></i> 匯入</button>
     </div>
     <div class="table-header">
       <span style="width:50px" onclick="toggleSort('id')">ID <span class="sort-arrow">${sortArrow('id')}</span></span>
-      <span style="width:280px" onclick="toggleSort('name')">Name <span class="sort-arrow">${sortArrow('name')}</span></span>
-      <span style="width:90px" onclick="toggleSort('category')">Category <span class="sort-arrow">${sortArrow('category')}</span></span>
-      <span style="width:105px" onclick="toggleSort('current_status')">Status <span class="sort-arrow">${sortArrow('current_status')}</span></span>
-      <span style="width:120px">Note</span>
-      <span style="width:90px" onclick="toggleSort('edit_date')">Edit Date <span class="sort-arrow">${sortArrow('edit_date')}</span></span>
-      <span style="width:90px" onclick="toggleSort('review_date')">Review Date <span class="sort-arrow">${sortArrow('review_date')}</span></span>
-      <span style="width:90px" onclick="toggleSort('publish_date')">Publish Date <span class="sort-arrow">${sortArrow('publish_date')}</span></span>
-      <span style="width:115px" onclick="toggleSort('updated_at')">Updated <span class="sort-arrow">${sortArrow('updated_at')}</span></span>
+      <span style="width:280px" onclick="toggleSort('name')">影片名稱 <span class="sort-arrow">${sortArrow('name')}</span></span>
+      <span style="width:90px" onclick="toggleSort('category')">業務線 <span class="sort-arrow">${sortArrow('category')}</span></span>
+      <span style="width:105px" onclick="toggleSort('current_status')">狀態 <span class="sort-arrow">${sortArrow('current_status')}</span></span>
+      <span style="width:120px">備註</span>
+      <span style="width:90px" onclick="toggleSort('edit_date')">剪輯日期 <span class="sort-arrow">${sortArrow('edit_date')}</span></span>
+      <span style="width:90px" onclick="toggleSort('review_date')">送審日期 <span class="sort-arrow">${sortArrow('review_date')}</span></span>
+      <span style="width:90px" onclick="toggleSort('publish_date')">發佈日期 <span class="sort-arrow">${sortArrow('publish_date')}</span></span>
+      <span style="width:115px" onclick="toggleSort('updated_at')">更新時間 <span class="sort-arrow">${sortArrow('updated_at')}</span></span>
       <span style="width:160px"></span>
     </div>
     <div class="main-scroll"><div class="scroll" id="projList">${showSkeleton(10)}</div></div>
@@ -615,13 +600,13 @@ async function loadProjects() {
 
 function renderProjectRows(projects) {
   const list = document.getElementById('projList');
-  if(!projects.length) { list.innerHTML='<div class="empty">No projects yet<br><br><button class="btn btn-accent" onclick="showAddModal()"><i class="ph ph-plus"></i> Create first project</button></div>'; return; }
+  if(!projects.length) { list.innerHTML='<div class="empty">尚無專案<br><br><button class="btn btn-accent" onclick="showAddModal()"><i class="ph ph-plus"></i> 建立第一個專案</button></div>'; return; }
   list.innerHTML = projects.map(r => {
     const cat = CATEGORIES[r.category] || r.category;
     const updated = (r.updated_at||'').substring(0,10);
-    const editD = (r.edit_date||'').substring(0,10)||'Not set';
-    const revD = (r.review_date||'').substring(0,10)||'Not set';
-    const pubD = (r.publish_date||'').substring(0,10)||'Not set';
+    const editD = (r.edit_date||'').substring(0,10)||'未設定';
+    const revD = (r.review_date||'').substring(0,10)||'未設定';
+    const pubD = (r.publish_date||'').substring(0,10)||'未設定';
     return `<div class="row" data-id="${r.id}">
       <span style="width:50px"><input type="checkbox" data-pid="${r.id}" onclick="handleCheckClick(event,${r.id})" onchange="toggleSelect(${r.id},this.checked)"> ${r.id}</span>
       <span style="width:280px" title="${r.name}">${r.name}</span>
@@ -634,14 +619,14 @@ function renderProjectRows(projects) {
         </select>
       </span>
       <span style="width:120px;color:var(--text-muted)">${(r.note||'').substring(0,18)}</span>
-      <span style="width:90px;color:${editD!=='Not set'?'#9ec5fe':'var(--text-muted)'};cursor:pointer;font-weight:${editD!=='Not set'?'500':'400'}" onclick="showEditDateModal(${r.id},'edit_date','${r.edit_date||''}')">${editD}</span>
-      <span style="width:90px;color:${revD!=='Not set'?'var(--warning)':'var(--text-muted)'};cursor:pointer;font-weight:${revD!=='Not set'?'500':'400'}" onclick="showEditDateModal(${r.id},'review_date','${r.review_date||''}')">${revD}</span>
-      <span style="width:90px;color:${pubD!=='Not set'?'#20c997':'var(--text-muted)'};cursor:pointer;font-weight:${pubD!=='Not set'?'500':'400'}" onclick="showEditDateModal(${r.id},'publish_date','${r.publish_date||''}')">${pubD}</span>
+      <span style="width:90px;color:${editD!=='未設定'?'#9ec5fe':'var(--text-muted)'};cursor:pointer;font-weight:${editD!=='未設定'?'500':'400'}" onclick="showEditDateModal(${r.id},'edit_date','${r.edit_date||''}')">${editD}</span>
+      <span style="width:90px;color:${revD!=='未設定'?'var(--warning)':'var(--text-muted)'};cursor:pointer;font-weight:${revD!=='未設定'?'500':'400'}" onclick="showEditDateModal(${r.id},'review_date','${r.review_date||''}')">${revD}</span>
+      <span style="width:90px;color:${pubD!=='未設定'?'#20c997':'var(--text-muted)'};cursor:pointer;font-weight:${pubD!=='未設定'?'500':'400'}" onclick="showEditDateModal(${r.id},'publish_date','${r.publish_date||''}')">${pubD}</span>
       <span style="width:115px;color:var(--text-muted);cursor:pointer;font-weight:400" onclick="showEditTimeModal(${r.id},'${r.updated_at||''}')">${updated}</span>
       <span style="width:160px;display:flex;gap:4px">
-        <button class="btn btn-sm btn-primary" onclick="showStatusModal(${r.id},'${r.current_status}')">Status</button>
-        <button class="btn btn-sm btn-gray" onclick="showEditModal(${r.id},'${r.name}','${(r.note||'').replace(/'/g,"\\'")}')">Edit</button>
-        <button class="btn btn-sm btn-purple" onclick="showDetailModal(${r.id})">Detail</button>
+        <button class="btn btn-sm btn-primary" onclick="showStatusModal(${r.id},'${r.current_status}')">變更</button>
+        <button class="btn btn-sm btn-gray" onclick="showEditModal(${r.id},'${r.name}','${(r.note||'').replace(/'/g,"\\'")}')">編輯</button>
+        <button class="btn btn-sm btn-purple" onclick="showDetailModal(${r.id})">詳情</button>
       </span>
     </div>`;
   }).join('');
@@ -683,20 +668,20 @@ function renderBatchOps(projects) {
   if(!projects.length){ el.style.display='none'; return; }
   el.style.display='flex';
   el.innerHTML = `
-    <label style="font-size:12px;cursor:pointer"><input type="checkbox" id="selectAll" onchange="toggleAll(this.checked)"> Select All</label>
-    <span style="color:var(--text-muted);font-size:11.5px;margin-left:8px">Batch Status:</span>
+    <label style="font-size:12px;cursor:pointer"><input type="checkbox" id="selectAll" onchange="toggleAll(this.checked)"> 全選</label>
+    <span style="color:var(--text-muted);font-size:11.5px;margin-left:8px">批次狀態：</span>
     <select id="batchStatus" style="width:130px">${STATUSES.map(s=>`<option>${s}</option>`).join('')}</select>
-    <button class="btn btn-sm btn-accent" onclick="batchUpdateStatus()">Apply</button>
-    <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">Edit:</span>
+    <button class="btn btn-sm btn-accent" onclick="batchUpdateStatus()">套用</button>
+    <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">剪輯：</span>
     <input id="batchEditDate" placeholder="YYYY-MM-DD" style="width:105px">
-    <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('edit_date')">Apply</button>
-    <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">Review:</span>
+    <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('edit_date')">套用</button>
+    <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">送審：</span>
     <input id="batchReviewDate" placeholder="YYYY-MM-DD" style="width:105px">
-    <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('review_date')">Apply</button>
-    <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">Publish:</span>
+    <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('review_date')">套用</button>
+    <span style="color:var(--text-muted);font-size:11.5px;margin-left:10px">發佈：</span>
     <input id="batchPublishDate" placeholder="YYYY-MM-DD" style="width:105px">
-    <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('publish_date')">Apply</button>
-    <button class="btn btn-sm btn-danger" style="margin-left:auto" onclick="batchDelete()"><i class="ph ph-trash"></i> Delete Selected</button>
+    <button class="btn btn-sm btn-outline" onclick="batchUpdateDate('publish_date')">套用</button>
+    <button class="btn btn-sm btn-danger" style="margin-left:auto" onclick="batchDelete()"><i class="ph ph-trash"></i> 刪除選取</button>
   `;
 }
 
@@ -716,36 +701,36 @@ function updateBatchUI() {
 function getSelectedIds() { return [...projState.selected]; }
 
 async function batchUpdateStatus() {
-  const ids = getSelectedIds(); if(!ids.length) return toast('No projects selected');
+  const ids = getSelectedIds(); if(!ids.length) return toast('未選取任何專案');
   const st = document.getElementById('batchStatus').value;
   await api('/api/projects/batch/status', {method:'POST',body:JSON.stringify({ids,status:st})});
-  toast(`Updated ${ids.length} projects to "${st}"`);
+  toast(`已更新 ${ids.length} 個專案為「${st}」`);
   projState.selected.clear(); renderProjects();
 }
 
 async function batchUpdateDate(field) {
-  const ids = getSelectedIds(); if(!ids.length) return toast('No projects selected');
+  const ids = getSelectedIds(); if(!ids.length) return toast('未選取任何專案');
   const elId = field==='edit_date'?'batchEditDate':field==='review_date'?'batchReviewDate':field==='publish_date'?'batchPublishDate':'batchUpdateDate';
   const dateVal = document.getElementById(elId).value.trim();
   await api(`/api/projects/batch/date/${field}`, {method:'POST',body:JSON.stringify({ids,date:dateVal||null})});
-  toast(`Updated dates for ${ids.length} projects`);
+  toast(`已更新 ${ids.length} 個專案日期`);
   projState.selected.clear(); renderProjects();
 }
 
 async function batchDelete() {
-  const ids = getSelectedIds(); if(!ids.length) return toast('No projects selected');
-  if(!confirm(`Move ${ids.length} projects to trash?`)) return;
+  const ids = getSelectedIds(); if(!ids.length) return toast('未選取任何專案');
+  if(!confirm(`將 ${ids.length} 個專案移至垃圾桶？`)) return;
   await api('/api/projects/batch/delete', {method:'POST',body:JSON.stringify({ids})});
-  toast(`Moved ${ids.length} projects to trash`);
+  toast(`已將 ${ids.length} 個專案移至垃圾桶`);
   projState.selected.clear(); renderProjects();
 }
 
 function renderPaging(total, current) {
   const totalPages = Math.max(1, Math.ceil(total/200));
   const page = projState.page + 1;
-  let html = `Showing ${current} / ${total} &emsp; Page ${page}/${totalPages} `;
-  if(page>1) html += `<button class="btn btn-sm btn-gray" onclick="projState.page--;renderProjects()">Previous</button>`;
-  if(page<totalPages) html += `<button class="btn btn-sm btn-gray" onclick="projState.page++;renderProjects()">Next</button>`;
+  let html = `顯示 ${current} / ${total} 筆　第 ${page}/${totalPages} 頁 `;
+  if(page>1) html += `<button class="btn btn-sm btn-gray" onclick="projState.page--;renderProjects()">上一頁</button>`;
+  if(page<totalPages) html += `<button class="btn btn-sm btn-gray" onclick="projState.page++;renderProjects()">下一頁</button>`;
   document.getElementById('projPaging').innerHTML = html;
 }
 
@@ -757,21 +742,21 @@ const MAT_PAGE_SIZE = 50;
 async function renderMaterials() {
   const main = document.getElementById('main');
   main.innerHTML = `
-    <div class="toolbar"><h2>Materials</h2>
-      <input id="matSearch" placeholder="Search name..." style="width:180px" oninput="matState.search=this.value;matState.page=0;renderMaterials()">
+    <div class="toolbar"><h2>素材庫存</h2>
+      <input id="matSearch" placeholder="搜尋名稱..." style="width:180px" oninput="matState.search=this.value;matState.page=0;renderMaterials()">
       <select id="matCatFilter" onchange="matState.category=this.value;matState.page=0;renderMaterials()">
-        <option value="">All Categories</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
+        <option value="">全部業務線</option>${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}
       </select>
-      <button class="btn btn-accent" onclick="showMatAddModal()"><i class="ph ph-plus"></i> New Material</button>
-      <button class="btn btn-sm btn-outline" onclick="showMatBatchAddModal()">Batch Add</button>
+      <button class="btn btn-accent" onclick="showMatAddModal()"><i class="ph ph-plus"></i> 新增素材</button>
+      <button class="btn btn-sm btn-outline" onclick="showMatBatchAddModal()">批次新增</button>
     </div>
     <div class="table-header">
       <span style="width:50px" onclick="matToggleSort('id')">ID <span class="sort-arrow">${matSortArrow('id')}</span></span>
-      <span style="width:290px" onclick="matToggleSort('name')">Name <span class="sort-arrow">${matSortArrow('name')}</span></span>
-      <span style="width:120px" onclick="matToggleSort('category')">Category <span class="sort-arrow">${matSortArrow('category')}</span></span>
-      <span style="width:180px">Note</span>
-      <span style="width:135px" onclick="matToggleSort('created_at')">Created <span class="sort-arrow">${matSortArrow('created_at')}</span></span>
-      <span style="width:135px" onclick="matToggleSort('updated_at')">Updated <span class="sort-arrow">${matSortArrow('updated_at')}</span></span>
+      <span style="width:290px" onclick="matToggleSort('name')">素材名稱 <span class="sort-arrow">${matSortArrow('name')}</span></span>
+      <span style="width:120px" onclick="matToggleSort('category')">業務線 <span class="sort-arrow">${matSortArrow('category')}</span></span>
+      <span style="width:180px">備註</span>
+      <span style="width:135px" onclick="matToggleSort('created_at')">建立日期 <span class="sort-arrow">${matSortArrow('created_at')}</span></span>
+      <span style="width:135px" onclick="matToggleSort('updated_at')">更新時間 <span class="sort-arrow">${matSortArrow('updated_at')}</span></span>
       <span style="width:240px"></span>
     </div>
     <div class="main-scroll"><div class="scroll" id="matList">${showSkeleton(8)}</div></div>
@@ -807,7 +792,7 @@ async function loadMaterials() {
 
 function renderMaterialRows(materials) {
   const list = document.getElementById('matList');
-  if(!materials.length) { list.innerHTML='<div class="empty">No materials yet<br><br><button class="btn btn-accent" onclick="showMatAddModal()"><i class="ph ph-plus"></i> Create first material</button></div>'; return; }
+  if(!materials.length) { list.innerHTML='<div class="empty">尚無素材<br><br><button class="btn btn-accent" onclick="showMatAddModal()"><i class="ph ph-plus"></i> 建立第一個素材</button></div>'; return; }
   list.innerHTML = materials.map(m => {
     const cat = CATEGORIES[m.category] || m.category;
     const created = (m.created_at||'').substring(0,10);
@@ -821,9 +806,9 @@ function renderMaterialRows(materials) {
       <span style="width:135px;color:var(--text-muted)">${created}</span>
       <span style="width:135px;color:var(--text-muted)">${updated}</span>
       <span style="width:240px;display:flex;gap:4px">
-        <button class="btn btn-sm btn-gray" onclick="showMatEditModal(${m.id},'${(m.name||'').replace(/'/g,"\\'")}','${(m.category||'').replace(/'/g,"\\'")}','${(m.note||'').replace(/'/g,"\\'").replace(/\n/g,'\\n')}')">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteMaterial(${m.id})">Delete</button>
-        <button class="btn btn-sm btn-accent" onclick="startEditMaterial(${m.id})">Start Edit</button>
+        <button class="btn btn-sm btn-gray" onclick="showMatEditModal(${m.id},'${(m.name||'').replace(/'/g,"\\'")}','${(m.category||'').replace(/'/g,"\\'")}','${(m.note||'').replace(/'/g,"\\'").replace(/\n/g,'\\n')}')">編輯</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteMaterial(${m.id})">刪除</button>
+        <button class="btn btn-sm btn-accent" onclick="startEditMaterial(${m.id})">開始剪輯</button>
       </span>
     </div>`;
   }).join('');
@@ -865,8 +850,8 @@ function matRenderBatchOps(materials) {
   if(!materials.length){ el.style.display='none'; return; }
   el.style.display='flex';
   el.innerHTML = `
-    <label style="font-size:12px;cursor:pointer"><input type="checkbox" id="matSelectAll" onchange="matToggleAll(this.checked)"> Select All</label>
-    <button class="btn btn-sm btn-danger" style="margin-left:10px" onclick="matBatchDelete()"><i class="ph ph-trash"></i> Batch Delete</button>
+    <label style="font-size:12px;cursor:pointer"><input type="checkbox" id="matSelectAll" onchange="matToggleAll(this.checked)"> 全選</label>
+    <button class="btn btn-sm btn-danger" style="margin-left:10px" onclick="matBatchDelete()"><i class="ph ph-trash"></i> 批次刪除</button>
   `;
 }
 
@@ -886,32 +871,32 @@ function matUpdateBatchUI() {
 function matGetSelectedIds() { return [...matState.selected]; }
 
 async function matBatchDelete() {
-  const ids = matGetSelectedIds(); if(!ids.length) return toast('No materials selected');
-  if(!confirm(`Delete ${ids.length} materials?`)) return;
+  const ids = matGetSelectedIds(); if(!ids.length) return toast('未選取任何素材');
+  if(!confirm(`刪除 ${ids.length} 個素材？`)) return;
   let success = 0, fail = 0;
   for(const id of ids) {
     try { await api(`/api/materials/${id}`, {method:'DELETE'}); success++; }
     catch(e) { fail++; }
   }
-  toast(`Deleted ${success} materials${fail>0?`, ${fail} failed`:''}`);
+  toast(`已刪除 ${success} 個素材${fail>0?`，${fail} 個失敗`:''}`);
   matState.selected.clear(); renderMaterials();
 }
 
 function matRenderPaging(total, current) {
   const totalPages = Math.max(1, Math.ceil(total/MAT_PAGE_SIZE));
   const page = matState.page + 1;
-  let html = `Showing ${current} / ${total} &emsp; Page ${page}/${totalPages} `;
-  if(page>1) html += `<button class="btn btn-sm btn-gray" onclick="matState.page--;renderMaterials()">Previous</button>`;
-  if(page<totalPages) html += `<button class="btn btn-sm btn-gray" onclick="matState.page++;renderMaterials()">Next</button>`;
+  let html = `顯示 ${current} / ${total} 筆　第 ${page}/${totalPages} 頁 `;
+  if(page>1) html += `<button class="btn btn-sm btn-gray" onclick="matState.page--;renderMaterials()">上一頁</button>`;
+  if(page<totalPages) html += `<button class="btn btn-sm btn-gray" onclick="matState.page++;renderMaterials()">下一頁</button>`;
   document.getElementById('matPaging').innerHTML = html;
 }
 
 // ── Material Modals ───────────────────────────────────────────
 function showMatAddModal() {
-  showModal('New Material', `
-    <div class="field"><label>Material Name</label><input id="matName" placeholder="e.g. Termite case raw footage"></div>
-    <div class="field"><label>Category</label><select id="matCat">${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}</select></div>
-    <div class="field"><label>Note</label><textarea id="matNote" rows="3" placeholder="Material description, source, etc."></textarea></div>
+  showModal('新增素材', `
+    <div class="field"><label>素材名稱</label><input id="matName" placeholder="例：白蟻案例原始素材"></div>
+    <div class="field"><label>業務線</label><select id="matCat">${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}</select></div>
+    <div class="field"><label>備註</label><textarea id="matNote" rows="3" placeholder="素材說明、來源等"></textarea></div>
   `, async (ov) => {
     const name = ov.querySelector('#matName').value.trim();
     if(!name) return;
@@ -919,24 +904,24 @@ function showMatAddModal() {
     const category = catMap[ov.querySelector('#matCat').value] || 'pest_care';
     const note = ov.querySelector('#matNote').value.trim();
     await api('/api/materials', {method:'POST',body:JSON.stringify({name,category,note})});
-    ov.remove(); toast(`Added: ${name}`); renderMaterials();
+    ov.remove(); toast(`已新增：${name}`); renderMaterials();
   });
 }
 
 function showMatBatchAddModal() {
-  showModal('Batch Add Materials', `
-    <div class="field"><label>Category</label><select id="matBatchCat">${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}</select></div>
-    <div class="field"><label>Count</label><input type="number" id="matBatchCount" value="5" min="1" max="50" style="width:100px"></div>
-    <div class="field"><label>Base Name (auto-numbered if empty)</label><input id="matBatchName" placeholder="e.g. Termite case material"></div>
-    <div class="field"><label>Note (applied to all)</label><textarea id="matBatchNote" rows="2" placeholder="Optional"></textarea></div>
+  showModal('批次新增素材', `
+    <div class="field"><label>業務線</label><select id="matBatchCat">${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}</select></div>
+    <div class="field"><label>數量</label><input type="number" id="matBatchCount" value="5" min="1" max="50" style="width:100px"></div>
+    <div class="field"><label>基礎名稱（留空將自動編號）</label><input id="matBatchName" placeholder="例：白蟻案例素材"></div>
+    <div class="field"><label>備註（套用全部）</label><textarea id="matBatchNote" rows="2" placeholder="選填"></textarea></div>
   `, async (ov) => {
     const catMap = {}; for(const [k,v] of Object.entries(CATEGORIES)) catMap[v]=k;
     const category = catMap[ov.querySelector('#matBatchCat').value] || 'pest_care';
     const count = parseInt(ov.querySelector('#matBatchCount').value) || 5;
-    const baseName = ov.querySelector('#matBatchName').value.trim() || 'Unnamed Material';
+    const baseName = ov.querySelector('#matBatchName').value.trim() || '未命名素材';
     const note = ov.querySelector('#matBatchNote').value.trim();
     ov.remove();
-    toast(`Adding ${count} materials...`);
+    toast(`正在新增 ${count} 個素材...`);
     let success = 0, fail = 0;
     for(let i = 1; i <= count; i++) {
       const name = `${baseName}_${String(i).padStart(2,'0')}`;
@@ -945,17 +930,17 @@ function showMatBatchAddModal() {
         success++;
       } catch(e) { fail++; }
     }
-    toast(`Added ${success} materials${fail>0?`, ${fail} failed`:''}`);
+    toast(`已新增 ${success} 個素材${fail>0?`，${fail} 個失敗`:''}`);
     renderMaterials();
   });
 }
 
 function showMatEditModal(mid, name, category, note) {
   const currentLabel = CATEGORIES[category] || category;
-  showModal('Edit Material', `
-    <div class="field"><label>Material Name</label><input id="matName" value="${name.replace(/"/g,'&quot;')}"></div>
-    <div class="field"><label>Category</label><select id="matCat">${ALL_CATEGORY_LABELS.map(l=>`<option ${l===currentLabel?'selected':''}>${l}</option>`).join('')}</select></div>
-    <div class="field"><label>Note</label><textarea id="matNote" rows="3">${note.replace(/"/g,'&quot;')}</textarea></div>
+  showModal('編輯素材', `
+    <div class="field"><label>素材名稱</label><input id="matName" value="${name.replace(/"/g,'&quot;')}"></div>
+    <div class="field"><label>業務線</label><select id="matCat">${ALL_CATEGORY_LABELS.map(l=>`<option ${l===currentLabel?'selected':''}>${l}</option>`).join('')}</select></div>
+    <div class="field"><label>備註</label><textarea id="matNote" rows="3">${note.replace(/"/g,'&quot;')}</textarea></div>
   `, async (ov) => {
     const nm = ov.querySelector('#matName').value.trim();
     if(!nm) return;
@@ -963,26 +948,26 @@ function showMatEditModal(mid, name, category, note) {
     const cat = catMap[ov.querySelector('#matCat').value] || category;
     const nt = ov.querySelector('#matNote').value.trim();
     await api(`/api/materials/${mid}`, {method:'PUT',body:JSON.stringify({name:nm,category:cat,note:nt})});
-    ov.remove(); toast(`Updated: ${nm}`); renderMaterials();
+    ov.remove(); toast(`已更新：${nm}`); renderMaterials();
   });
 }
 
 async function deleteMaterial(mid) {
-  if(!confirm('Delete this material?')) return;
+  if(!confirm('刪除此素材？')) return;
   await api(`/api/materials/${mid}`, {method:'DELETE'});
-  toast(`Deleted material #${mid}`); renderMaterials();
+  toast(`已刪除素材 #${mid}`); renderMaterials();
 }
 
 async function startEditMaterial(mid) {
   try {
     const res = await api(`/api/materials/${mid}/start-edit`, {method:'POST'});
     const data = await res.json();
-    toast(`Material #${mid} converted to project "${data.project_name}"`);
+    toast(`素材 #${mid} 已轉為專案「${data.project_name}」`);
     document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active'));
     document.querySelector('[data-page="projects"]').classList.add('active');
     loadPage('projects');
   } catch(e) {
-    toast(`Failed: ${e.message}`);
+    toast(`失敗：${e.message}`);
   }
 }
 
@@ -990,8 +975,8 @@ async function startEditMaterial(mid) {
 function showModal(title, bodyHtml, onSave) {
   const overlay = document.createElement('div'); overlay.className='modal-overlay';
   overlay.innerHTML = `<div class="modal"><h3>${title}</h3>${bodyHtml}<div class="btn-row">
-    <button class="btn btn-gray" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
-    <button class="btn btn-accent" id="modalSave">Confirm</button>
+    <button class="btn btn-gray" onclick="this.closest('.modal-overlay').remove()">取消</button>
+    <button class="btn btn-accent" id="modalSave">確認</button>
   </div></div>`;
   document.body.appendChild(overlay);
   overlay.querySelector('#modalSave').onclick = () => { onSave(overlay); };
@@ -999,10 +984,10 @@ function showModal(title, bodyHtml, onSave) {
 }
 
 function showAddModal() {
-  showModal('New Project', `
-    <div class="field"><label>Video Name</label><input id="mName" placeholder="e.g. 20260703 Kitchen Termite Case"></div>
-    <div class="field"><label>Category</label><select id="mCat">${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}</select></div>
-    <div class="field"><label>Note</label><input id="mNote"></div>
+  showModal('新增專案', `
+    <div class="field"><label>影片名稱</label><input id="mName" placeholder="例：20260703 廚房白蟻案例"></div>
+    <div class="field"><label>業務線</label><select id="mCat">${ALL_CATEGORY_LABELS.map(l=>`<option>${l}</option>`).join('')}</select></div>
+    <div class="field"><label>備註</label><input id="mNote"></div>
   `, async (ov) => {
     const name = ov.querySelector('#mName').value.trim();
     if(!name) return;
@@ -1010,68 +995,68 @@ function showAddModal() {
     const cat = catMap[ov.querySelector('#mCat').value] || 'pest_care';
     const note = ov.querySelector('#mNote').value.trim();
     await api('/api/projects', {method:'POST',body:JSON.stringify({name,category:cat,note})});
-    ov.remove(); toast(`Created: ${name}`); renderProjects();
+    ov.remove(); toast(`已建立：${name}`); renderProjects();
   });
 }
 
 async function quickUpdateStatus(pid, newStatus, oldStatus) {
   if (newStatus === oldStatus) return;
   await api(`/api/projects/${pid}/status`, {method:'PUT',body:JSON.stringify({status:newStatus,note:''})});
-  toast(`#${pid}: ${oldStatus} &#8594; ${newStatus}`);
+  toast(`#${pid}：${oldStatus} &#8594; ${newStatus}`);
   renderProjects();
 }
 
 function showStatusModal(pid, current) {
-  showModal('Update Status', `
-    <p style="margin-bottom:12px;font-size:13px">Current: <span class="status-tag" style="background:${STATUS_COLORS[current]||'#554c44'}22;color:${STATUS_COLORS[current]||'#fff'};border:1px solid ${STATUS_COLORS[current]||'#554c44'}44">${current}</span></p>
-    <div class="field"><label>New Status</label><select id="mStatus">${STATUSES.map(s=>`<option ${s===current?'selected':''}>${s}</option>`).join('')}</select></div>
-    <div class="field"><label>Note</label><input id="mNote"></div>
+  showModal('變更狀態', `
+    <p style="margin-bottom:12px;font-size:13px">目前狀態：<span class="status-tag" style="background:${STATUS_COLORS[current]||'#554c44'}22;color:${STATUS_COLORS[current]||'#fff'};border:1px solid ${STATUS_COLORS[current]||'#554c44'}44">${current}</span></p>
+    <div class="field"><label>新狀態</label><select id="mStatus">${STATUSES.map(s=>`<option ${s===current?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="field"><label>備註</label><input id="mNote"></div>
   `, async (ov) => {
     const st = ov.querySelector('#mStatus').value;
     const note = ov.querySelector('#mNote').value.trim();
     await api(`/api/projects/${pid}/status`, {method:'PUT',body:JSON.stringify({status:st,note})});
-    ov.remove(); toast(`Status updated to "${st}"`); renderProjects();
+    ov.remove(); toast(`狀態已更新為「${st}」`); renderProjects();
   });
 }
 
 function showEditModal(pid, name, note) {
-  showModal('Edit Project', `
-    <div class="field"><label>Video Name</label><input id="mName" value="${name.replace(/"/g,'&quot;')}"></div>
-    <div class="field"><label>Note</label><input id="mNote" value="${note.replace(/"/g,'&quot;')}"></div>
+  showModal('編輯專案', `
+    <div class="field"><label>影片名稱</label><input id="mName" value="${name.replace(/"/g,'&quot;')}"></div>
+    <div class="field"><label>備註</label><input id="mNote" value="${note.replace(/"/g,'&quot;')}"></div>
   `, async (ov) => {
     const nm = ov.querySelector('#mName').value.trim();
     if(!nm) return;
     await api(`/api/projects/${pid}`, {method:'PUT',body:JSON.stringify({name:nm,note:ov.querySelector('#mNote').value.trim()})});
-    ov.remove(); toast(`Updated: ${nm}`); renderProjects();
+    ov.remove(); toast(`已更新：${nm}`); renderProjects();
   });
 }
 
 function showEditTimeModal(pid, cur) {
   const dp = cur.substring(0,10)||'';
   const tp = cur.substring(11,19)||'00:00:00';
-  showModal('Edit Update Time', `
-    <div class="field"><label>Date</label><input type="date" id="mDate" value="${dp}"></div>
-    <div class="field"><label>Time</label><input id="mTime" value="${tp}" placeholder="HH:MM:SS"></div>
-    <button class="btn btn-sm btn-gray" onclick="document.getElementById('mDate').value='${new Date().toISOString().substring(0,10)}';document.getElementById('mTime').value='${new Date().toTimeString().substring(0,8)}'" style="margin-top:4px">Now</button>
+  showModal('編輯更新時間', `
+    <div class="field"><label>日期</label><input type="date" id="mDate" value="${dp}"></div>
+    <div class="field"><label>時間</label><input id="mTime" value="${tp}" placeholder="HH:MM:SS"></div>
+    <button class="btn btn-sm btn-gray" onclick="document.getElementById('mDate').value='${new Date().toISOString().substring(0,10)}';document.getElementById('mTime').value='${new Date().toTimeString().substring(0,8)}'" style="margin-top:4px">現在</button>
   `, async (ov) => {
     const dt = `${ov.querySelector('#mDate').value.trim()} ${ov.querySelector('#mTime').value.trim()}`;
     await api(`/api/projects/${pid}`, {method:'PATCH',body:JSON.stringify({updated_at:dt})});
-    ov.remove(); toast(`Updated #${pid} timestamp`); renderProjects();
+    ov.remove(); toast(`已更新 #${pid} 時間戳`); renderProjects();
   });
 }
 
 function showEditDateModal(pid, field, cur) {
-  const label = field==='edit_date'?'Edit Date':field==='review_date'?'Review Date':'Publish Date';
+  const label = field==='edit_date'?'剪輯日期':field==='review_date'?'送審日期':'發佈日期';
   const dp = cur.substring(0,10)||'';
-  showModal(`Edit ${label}`, `
+  showModal(`編輯${label}`, `
     <div class="field"><label>${label}</label><input type="date" id="mDate" value="${dp}"></div>
-    <button class="btn btn-sm btn-gray" onclick="document.getElementById('mDate').value='${new Date().toISOString().substring(0,10)}'">Today</button>
-    <button class="btn btn-sm btn-outline" onclick="document.getElementById('mDate').value=''">Clear</button>
+    <button class="btn btn-sm btn-gray" onclick="document.getElementById('mDate').value='${new Date().toISOString().substring(0,10)}'">今天</button>
+    <button class="btn btn-sm btn-outline" onclick="document.getElementById('mDate').value=''">清除</button>
   `, async (ov) => {
     const v = ov.querySelector('#mDate').value.trim() || null;
     const body = {}; body[field] = v;
     await api(`/api/projects/${pid}`, {method:'PATCH',body:JSON.stringify(body)});
-    ov.remove(); toast(`Updated #${pid} ${label}`); renderProjects();
+    ov.remove(); toast(`已更新 #${pid} ${label}`); renderProjects();
   });
 }
 
@@ -1082,11 +1067,11 @@ async function showDetailModal(pid) {
   const name = el ? el.querySelector('span:nth-child(2)').textContent : `#${pid}`;
   let html = `<h3>${name}</h3><div style="max-height:300px;overflow-y:auto;margin-bottom:10px">`;
   html += data.logs.map(l => {
-    const arrow = `${l.old_status||'Created'} &#8594; ${l.new_status}`;
+    const arrow = `${l.old_status||'建立'} &#8594; ${l.new_status}`;
     return `<div style="font-size:12px;padding:4px 0;color:var(--text-muted)">${l.changed_at} <span style="color:var(--text)">${arrow}</span></div>`;
   }).join('');
   html += '</div>';
-  showModal('Project Detail - Status History', html, ov => ov.remove());
+  showModal('專案詳情 - 狀態歷程', html, ov => ov.remove());
 }
 
 // ── Import / Export ───────────────────────────────────────────
@@ -1094,15 +1079,15 @@ function showImportDialog() {
   const input = document.createElement('input'); input.type='file'; input.accept='.db,.sqlite,.sqlite3,.csv';
   input.onchange = async () => {
     const file = input.files[0]; if(!file) return;
-    toast('Importing, please wait...');
+    toast('匯入中，請稍候...');
     const fd = new FormData(); fd.append('file', file);
     try {
       const res = await fetch(`${API_BASE}/api/import`, {method:'POST',body:fd});
       const d = await res.json();
-      if(res.ok) toast(`Import complete! Added ${d.imported}, skipped ${d.skipped||0}`);
-      else toast(`Import failed: ${d.error}`);
+      if(res.ok) toast(`匯入完成！新增 ${d.imported}，跳過 ${d.skipped||0}`);
+      else toast(`匯入失敗：${d.error}`);
       renderProjects();
-    } catch(e) { toast(`Import failed: ${e.message}`); }
+    } catch(e) { toast(`匯入失敗：${e.message}`); }
   };
   input.click();
 }
@@ -1114,60 +1099,60 @@ function exportDB() {
 // ── Daily Report ──────────────────────────────────────────────
 async function renderDaily() {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty" style="padding-top:80px">Loading...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   const res = await api('/api/reports/daily');
   const d = await res.json();
   const range = d.range_start===d.range_end ? d.range_start : `${d.range_start} ~ ${d.range_end}`;
 
   function fmt(arr) {
-    if(!arr.length) return '  (None)\n';
+    if(!arr.length) return '  （無）\n';
     return arr.map(r => `  \u2022 [${CATEGORIES[r.category]||r.category}] ${r.name}`).join('\n') + '\n';
   }
 
-  const report = `Ultra Cleaning Video Editing Daily Report
+  const report = `Ultra Cleaning 影片剪輯日報
 
-Date: ${d.date} (${d.day_name})
-Range: ${range}
+日期：${d.date}（${d.day_name}）
+統計範圍：${range}
 
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-Today's Editing (edit_date today)
+今日剪輯（edit_date 為今天）
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.editing_today)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-Today's Submissions (review_date today)
+今日送審（review_date 為今天）
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.review_today)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-In Review (MKT / Boss)
+審核中（MKT / 老闆）
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.in_review)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-Copywriting in Progress
+社群文案撰寫中
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.copywriting)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-Ready to Schedule
+準備排程
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.ready)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-Scheduled
+已排程
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.scheduled)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-Published (${range})
+已發布（${range}）
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.published)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-Action Items
+待辦事項
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.todo)}`;
 
   main.innerHTML = `
-    <div class="toolbar"><h2>Daily Report</h2><span style="color:var(--text-muted);font-size:12px">${d.date}</span>
-      <button class="btn btn-gray" onclick="renderDaily()"><i class="ph ph-arrow-clockwise"></i> Refresh</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PNG')">Export PNG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','JPG')">Export JPG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PDF')">Export PDF</button>
+    <div class="toolbar"><h2>每日日報</h2><span style="color:var(--text-muted);font-size:12px">${d.date}</span>
+      <button class="btn btn-gray" onclick="renderDaily()"><i class="ph ph-arrow-clockwise"></i> 重新整理</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PNG')">匯出 PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','JPG')">匯出 JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('dailyContent','PDF')">匯出 PDF</button>
     </div>
     <div class="main-scroll"><div class="report-box" id="dailyContent">${report.replace(/\n/g,'<br>')}</div></div>
   `;
@@ -1176,55 +1161,55 @@ ${fmt(d.todo)}`;
 // ── Weekly Report ─────────────────────────────────────────────
 async function renderWeekly() {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty" style="padding-top:80px">Loading...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   const res = await api('/api/reports/weekly');
   const d = await res.json();
 
   function fmt(arr) {
-    if(!arr.length) return '  (None)\n';
+    if(!arr.length) return '  （無）\n';
     return arr.map(r => `  \u2022 [${CATEGORIES[r.category]||r.category}] ${r.name}`).join('\n') + '\n';
   }
   function fmtStatus(arr) {
-    if(!arr.length) return '  (None)\n';
+    if(!arr.length) return '  （無）\n';
     return arr.map(r => `  \u2022 [${CATEGORIES[r.category]||r.category}] ${r.name} \u2192 ${r.current_status}`).join('\n') + '\n';
   }
 
-  const report = `Ultra Cleaning Video Editing Weekly Report
+  const report = `Ultra Cleaning 影片剪輯週報
 
-Week: ${d.monday} (Mon) ~ ${d.sunday} (Sun)
-Generated: ${d.today}
+週次：${d.monday}（一）～ ${d.sunday}（日）
+產出日期：${d.today}
 
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-This Week's Editing (${d.editing_week.length} videos)
+本週剪輯（edit_date 範圍：${d.editing_week.length} 部）
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.editing_week)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-This Week's Submissions (${d.review_week.length} videos)
+本週送審（review_date 範圍：${d.review_week.length} 部）
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.review_week)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-Active Projects (${d.active.length})
+本週活動（${d.active.length} 部）
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmtStatus(d.active)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-Published This Week (${d.published.length})
+本週已發布（${d.published.length} 部）
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.published)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-In Review (${d.in_review.length})
+審核中（${d.in_review.length} 部）
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.in_review)}
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-Pending (${d.pending.length})
+待處理（${d.pending.length} 部）
 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 ${fmt(d.pending)}`;
 
   main.innerHTML = `
-    <div class="toolbar"><h2>Weekly Report</h2><span style="color:var(--text-muted);font-size:12px">${d.monday} (Mon) ~ ${d.sunday} (Sun)</span>
-      <button class="btn btn-gray" onclick="renderWeekly()"><i class="ph ph-arrow-clockwise"></i> Refresh</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PNG')">Export PNG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','JPG')">Export JPG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PDF')">Export PDF</button>
+    <div class="toolbar"><h2>每週週報</h2><span style="color:var(--text-muted);font-size:12px">${d.monday}（一）～ ${d.sunday}（日）</span>
+      <button class="btn btn-gray" onclick="renderWeekly()"><i class="ph ph-arrow-clockwise"></i> 重新整理</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PNG')">匯出 PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','JPG')">匯出 JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('weeklyContent','PDF')">匯出 PDF</button>
     </div>
     <div class="main-scroll"><div class="report-box" id="weeklyContent">${report.replace(/\n/g,'<br>')}</div></div>
   `;
@@ -1233,36 +1218,36 @@ ${fmt(d.pending)}`;
 // ── Dashboard ─────────────────────────────────────────────────
 async function renderDashboard() {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty" style="padding-top:80px">Loading...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   const res = await api('/api/dashboard');
   const d = await res.json();
 
   main.innerHTML = `
-    <h2 style="margin-bottom:20px;font-weight:700;font-size:19px;letter-spacing:-0.025em">Overview</h2>
+    <h2 style="margin-bottom:20px;font-weight:700;font-size:19px;letter-spacing:-0.025em">狀態總覽</h2>
     <div class="main-scroll">
     <div class="dash-overview">
       <div class="dash-card">
         <div class="dash-icon" style="color:var(--accent)"><i class="ph ph-film-slate"></i></div>
-        <div class="dash-label">Total Projects</div>
+        <div class="dash-label">專案總數</div>
         <div class="dash-val" style="color:var(--accent)">${d.total}</div>
       </div>
       <div class="dash-card">
         <div class="dash-icon" style="color:#d4956b"><i class="ph ph-play"></i></div>
-        <div class="dash-label">Active</div>
+        <div class="dash-label">活躍專案</div>
         <div class="dash-val" style="color:#d4956b">${d.active}</div>
       </div>
       <div class="dash-card">
         <div class="dash-icon" style="color:var(--success)"><i class="ph ph-squares-four"></i></div>
-        <div class="dash-label">Categories</div>
+        <div class="dash-label">業務線</div>
         <div class="dash-val" style="color:var(--success)">${d.category_count}</div>
       </div>
       <div class="dash-card">
         <div class="dash-icon" style="color:var(--danger)"><i class="ph ph-trash"></i></div>
-        <div class="dash-label">Trash</div>
+        <div class="dash-label">垃圾桶</div>
         <div class="dash-val" style="color:var(--danger)">${d.trash}</div>
       </div>
     </div>
-    <h3 style="margin-bottom:12px;font-size:13px;font-weight:700;color:var(--text-secondary)">Status Distribution</h3>
+    <h3 style="margin-bottom:12px;font-size:13px;font-weight:700;color:var(--text-secondary)">各狀態分布</h3>
     <div class="card-grid" style="margin-bottom:24px">${d.status_stats.map(s=>`
       <div class="status-card">
         <div class="status-dot" style="background:${s.color}"></div>
@@ -1271,7 +1256,7 @@ async function renderDashboard() {
       </div>
     `).join('')}</div>
     ${d.category_stats.length ? `
-    <h3 style="margin-bottom:12px;font-size:13px;font-weight:700;color:var(--text-secondary)">Category Breakdown</h3>
+    <h3 style="margin-bottom:12px;font-size:13px;font-weight:700;color:var(--text-secondary)">業務線分布</h3>
     <div class="scroll" style="max-height:220px">${d.category_stats.map(c=>`
       <div class="progress-row"><span class="lbl">${c.label}</span>
         <div class="bar-outer"><div class="bar-inner" style="width:${(c.count/Math.max(...d.category_stats.map(x=>x.count)))*100}%"></div></div>
@@ -1288,20 +1273,20 @@ let statsState = {period:'monthly',idx:0};
 async function renderStats() {
   const main = document.getElementById('main');
   main.innerHTML = `
-    <div class="toolbar"><h2>Analytics</h2></div>
+    <div class="toolbar"><h2>報表中心</h2></div>
     <div class="tab-bar" id="periodTabs">
       ${['daily','weekly','monthly','quarterly','yearly'].map(p=>`
-        <button class="btn btn-sm ${statsState.period===p?'btn-accent':'btn-outline'}" data-period="${p}" onclick="switchPeriod('${p}')">${{daily:'Daily',weekly:'Weekly',monthly:'Monthly',quarterly:'Quarterly',yearly:'Yearly'}[p]}</button>
+        <button class="btn btn-sm ${statsState.period===p?'btn-accent':'btn-outline'}" data-period="${p}" onclick="switchPeriod('${p}')">${{daily:'日',weekly:'週',monthly:'月',quarterly:'季',yearly:'年'}[p]}</button>
       `).join('')}
     </div>
     <div class="toolbar">
       <button class="btn btn-sm btn-gray" onclick="statsState.idx--;renderStats()"><i class="ph ph-caret-left"></i></button>
       <span id="statsLabel" style="font-weight:700;margin:0 15px;font-size:13px"></span>
       <button class="btn btn-sm btn-gray" onclick="statsState.idx++;renderStats()"><i class="ph ph-caret-right"></i></button>
-      <button class="btn btn-sm btn-gray" onclick="statsState.idx=0;renderStats()" style="margin-left:auto">Today</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PNG')">Export PNG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','JPG')">Export JPG</button>
-      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PDF')">Export PDF</button>
+      <button class="btn btn-sm btn-gray" onclick="statsState.idx=0;renderStats()" style="margin-left:auto">今天</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PNG')">匯出 PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','JPG')">匯出 JPG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportReport('statsContent','PDF')">匯出 PDF</button>
     </div>
     <div class="main-scroll" id="statsContent"></div>
   `;
@@ -1322,13 +1307,13 @@ async function loadStats() {
   document.getElementById('statsLabel').textContent = d.label;
 
   let html = `<div class="card-grid" style="margin-bottom:16px">
-    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--text-muted);font-size:11px;font-weight:600;letter-spacing:0.04em">New Videos</div><div style="font-size:32px;font-weight:700;color:var(--accent);margin-top:4px;font-variant-numeric:tabular-nums">${d.created.length}</div></div>
-    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--text-muted);font-size:11px;font-weight:600;letter-spacing:0.04em">In Progress</div><div style="font-size:32px;font-weight:700;color:#d4956b;margin-top:4px;font-variant-numeric:tabular-nums">${d.active.length}</div></div>
-    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--text-muted);font-size:11px;font-weight:600;letter-spacing:0.04em">Published</div><div style="font-size:32px;font-weight:700;color:var(--success);margin-top:4px;font-variant-numeric:tabular-nums">${d.published.length}</div></div>
+    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--text-muted);font-size:11px;font-weight:600;letter-spacing:0.04em">新增影片</div><div style="font-size:32px;font-weight:700;color:var(--accent);margin-top:4px;font-variant-numeric:tabular-nums">${d.created.length}</div></div>
+    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--text-muted);font-size:11px;font-weight:600;letter-spacing:0.04em">進行中</div><div style="font-size:32px;font-weight:700;color:#d4956b;margin-top:4px;font-variant-numeric:tabular-nums">${d.active.length}</div></div>
+    <div class="card" style="text-align:center;padding:20px"><div style="color:var(--text-muted);font-size:11px;font-weight:600;letter-spacing:0.04em">已發布</div><div style="font-size:32px;font-weight:700;color:var(--success);margin-top:4px;font-variant-numeric:tabular-nums">${d.published.length}</div></div>
   </div>`;
 
   if(Object.keys(d.status_counts).length) {
-    html += '<h3 style="margin-bottom:8px;font-size:13px;font-weight:700;color:var(--text-secondary)">Status Distribution</h3><div class="check-row">';
+    html += '<h3 style="margin-bottom:8px;font-size:13px;font-weight:700;color:var(--text-secondary)">狀態分布</h3><div class="check-row">';
     const sorted = Object.entries(d.status_counts).sort((a,b)=>b[1]-a[1]);
     for(const [st,cnt] of sorted) {
       html += `<span class="badge" style="background:${STATUS_COLORS[st]||'#554c44'}18;color:${STATUS_COLORS[st]||'var(--text)'};border:1px solid ${STATUS_COLORS[st]||'#554c44'}33">${st} &times;${cnt}</span>`;
@@ -1339,9 +1324,9 @@ async function loadStats() {
   const allCats = Object.keys(CATEGORIES);
   const hasData = allCats.some(k => (d.cat_created[k]||0)+(d.cat_active[k]||0)+(d.cat_published[k]||0) > 0);
   if(hasData) {
-    html += '<h3 style="margin:16px 0 8px;font-size:13px;font-weight:700;color:var(--text-secondary)">Category Details</h3>';
+    html += '<h3 style="margin:16px 0 8px;font-size:13px;font-weight:700;color:var(--text-secondary)">業務線明細</h3>';
     html += `<div class="card" style="overflow-x:auto;padding:14px"><table style="width:100%;font-size:12px;border-collapse:collapse">
-      <tr style="color:var(--text-muted);font-weight:600;font-size:10.5px;letter-spacing:0.04em"><td style="padding:8px 12px">Category</td><td style="padding:8px 12px;text-align:center">New</td><td style="padding:8px 12px;text-align:center">In Progress</td><td style="padding:8px 12px;text-align:center">Published</td></tr>`;
+      <tr style="color:var(--text-muted);font-weight:600;font-size:10.5px;letter-spacing:0.04em"><td style="padding:8px 12px">業務線</td><td style="padding:8px 12px;text-align:center">新增</td><td style="padding:8px 12px;text-align:center">進行中</td><td style="padding:8px 12px;text-align:center">已發布</td></tr>`;
     for(const k of allCats) {
       const cc=d.cat_created[k]||0, ca=d.cat_active[k]||0, cp=d.cat_published[k]||0;
       if(!cc&&!ca&&!cp) continue;
@@ -1349,10 +1334,10 @@ async function loadStats() {
     }
     html += '</table></div>';
   } else {
-    html += '<div class="empty">No video records for this period</div>';
+    html += '<div class="empty">本期間無影片紀錄</div>';
   }
 
-  html += '<h3 style="margin:20px 0 10px;font-size:13px;font-weight:700;color:var(--text-secondary)">Charts</h3><div id="chartsArea"></div>';
+  html += '<h3 style="margin:20px 0 10px;font-size:13px;font-weight:700;color:var(--text-secondary)">圖表</h3><div id="chartsArea"></div>';
 
   document.getElementById('statsContent').innerHTML = html;
 
@@ -1377,37 +1362,19 @@ function renderCharts(d) {
   const hasTrend = d.trend.months && d.trend.months.length>0;
 
   if(!hasCatData && !hasStData && !hasTrend) {
-    area.innerHTML = '<div class="empty">No chart data available</div>'; return;
+    area.innerHTML = '<div class="empty">無圖表資料</div>'; return;
   }
 
   area.innerHTML = `
     ${hasCatData ? '<div class="chart-wrap" style="max-width:480px"><canvas id="pieChart"></canvas></div>' : ''}
     ${hasStData ? '<div class="chart-wrap" style="max-width:500px"><canvas id="barChart"></canvas></div>' : ''}
-    ${hasTrend ? '<div class="chart-wrap"><canvas id="lineChart"></canvas></div>' : ''}
-  `;
-
-  Chart.defaults.color = '#9494a8';
-  Chart.defaults.borderColor = 'rgba(255,255,255,0.03)';
-
-  if(hasCatData) {
-    new Chart(document.getElementById('pieChart'), {
-      type:'pie', data:{labels:catLabels,datasets:[{data:catValues,backgroundColor:['#c9946e','#d4956b','#4dab8e','#d4a843','#6ebccf','#e0556a','#8b6fbf','#c46a8a','#7a7a88','#5b8cc9','#3d9478','#c43b50']}]},
+    ${hasTrend ? '<div class="chart-wrap"><canvas id="','#c43b50']}]},
       options:{plugins:{legend:{position:'bottom',labels:{font:{size:10,family:"'Plus Jakarta Sans',sans-serif"},color:'#9494a8',padding:12},onClick:function(){return false}}}}
     });
   }
 
   if(hasStData) {
-    new Chart(document.getElementById('barChart'), {
-      type:'bar', data:{labels:stLabels,datasets:[{data:stValues,backgroundColor:stColors,borderRadius:4}]},
-      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#5c5c72',font:{size:10}}},y:{grid:{display:false},ticks:{color:'#9494a8',font:{size:10}}}}}
-    });
-  }
-
-  if(hasTrend) {
-    new Chart(document.getElementById('lineChart'), {
-      type:'line', data:{labels:d.trend.months,datasets:[
-        {label:'Created',data:d.trend.created,borderColor:'#c9946e',backgroundColor:'rgba(201,148,110,0.08)',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#c9946e'},
-        {label:'Published',data:d.trend.published,borderColor:'#4dab8e',backgroundColor:'rgba(77,171,142,0.08)',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#4dab8e'}
+    new Chart(document.getElementById('barChartublished,borderColor:'#4dab8e',backgroundColor:'rgba(77,171,142,0.08)',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#4dab8e'}
       ]},
       options:{plugins:{legend:{labels:{color:'#9494a8',font:{size:11},padding:16,usePointStyle:true}}},scales:{x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#5c5c72',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#5c5c72',font:{size:10}}}}}
     });
@@ -1417,14 +1384,14 @@ function renderCharts(d) {
 // ── Trash ─────────────────────────────────────────────────────
 async function renderTrash() {
   const main = document.getElementById('main');
-  main.innerHTML = '<div class="empty" style="padding-top:80px">Loading...</div>';
+  main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
   const res = await api('/api/trash');
   const d = await res.json();
 
   main.innerHTML = `
-    <div class="toolbar"><h2 style="color:var(--danger)">Trash</h2><span style="color:var(--text-muted);font-size:11.5px">Deleted projects - restore or permanently delete</span></div>
+    <div class="toolbar"><h2 style="color:var(--danger)">垃圾桶</h2><span style="color:var(--text-muted);font-size:11.5px">已刪除專案 - 可還原或永久刪除</span></div>
     <div class="table-header">
-      <span style="width:50px">ID</span><span style="width:330px">Name</span><span style="width:100px">Category</span><span style="width:140px">Deleted</span><span style="width:110px">Status</span>
+      <span style="width:50px">ID</span><span style="width:330px">名稱</span><span style="width:100px">業務線</span><span style="width:140px">刪除時間</span><span style="width:110px">狀態</span>
     </div>
     <div class="main-scroll"><div class="scroll" id="trashList">${d.projects.length ? d.projects.map(r => {
       const cat = CATEGORIES[r.category]||r.category;
@@ -1437,12 +1404,12 @@ async function renderTrash() {
         <span style="width:140px;color:var(--text-muted)">${dt}</span>
         <span style="width:110px"><span style="color:${color}">&#9679;</span> ${r.current_status}</span>
       </div>`;
-    }).join('') : '<div class="empty">Trash is empty</div>'}</div></div>
+    }).join('') : '<div class="empty">垃圾桶是空的</div>'}</div></div>
     <div class="check-row">
-      <label style="font-size:12px;cursor:pointer"><input type="checkbox" id="trashSelectAll" onchange="document.querySelectorAll('#trashList input[type=checkbox]').forEach(c=>c.checked=this.checked)"> Select All</label>
-      <button class="btn btn-sm btn-accent" onclick="trashRestore()"><i class="ph ph-arrow-u-up-left"></i> Restore</button>
-      <button class="btn btn-sm btn-danger" onclick="trashPurge()"><i class="ph ph-x-circle"></i> Delete Forever</button>
-      <button class="btn btn-sm btn-gray" style="margin-left:auto" onclick="trashClearAll()">Empty Trash</button>
+      <label style="font-size:12px;cursor:pointer"><input type="checkbox" id="trashSelectAll" onchange="document.querySelectorAll('#trashList input[type=checkbox]').forEach(c=>c.checked=this.checked)"> 全選</label>
+      <button class="btn btn-sm btn-accent" onclick="trashRestore()"><i class="ph ph-arrow-u-up-left"></i> 還原</button>
+      <button class="btn btn-sm btn-danger" onclick="trashPurge()"><i class="ph ph-x-circle"></i> 永久刪除</button>
+      <button class="btn btn-sm btn-gray" style="margin-left:auto" onclick="trashClearAll()">清空垃圾桶</button>
     </div>
   `;
 }
@@ -1452,31 +1419,31 @@ function getTrashSelectedIds() {
 }
 
 async function trashRestore() {
-  const ids = getTrashSelectedIds(); if(!ids.length) return toast('No projects selected');
+  const ids = getTrashSelectedIds(); if(!ids.length) return toast('未選取任何專案');
   const res = await api('/api/trash/restore', {method:'POST',body:JSON.stringify({ids})});
   const d = await res.json();
-  toast(`Restored ${d.restored} projects`); renderTrash();
+  toast(`已還原 ${d.restored} 個專案`); renderTrash();
 }
 
 async function trashPurge() {
-  const ids = getTrashSelectedIds(); if(!ids.length) return toast('No projects selected');
-  if(!confirm(`Permanently delete ${ids.length} projects? This cannot be undone.`)) return;
+  const ids = getTrashSelectedIds(); if(!ids.length) return toast('未選取任何專案');
+  if(!confirm(`永久刪除 ${ids.length} 個專案？此操作無法復原。`)) return;
   const res = await api('/api/trash/purge', {method:'POST',body:JSON.stringify({ids})});
   const d = await res.json();
-  toast(`Permanently deleted ${d.purged} projects`); renderTrash();
+  toast(`已永久刪除 ${d.purged} 個專案`); renderTrash();
 }
 
 async function trashClearAll() {
-  if(!confirm('Permanently delete everything in trash? This cannot be undone.')) return;
+  if(!confirm('永久刪除垃圾桶內所有專案？此操作無法復原。')) return;
   const res = await api('/api/trash/clear', {method:'POST'});
   const d = await res.json();
-  toast(`Emptied trash (${d.purged} projects)`); renderTrash();
+  toast(`已清空垃圾桶（${d.purged} 個專案）`); renderTrash();
 }
 
 // ── Export ────────────────────────────────────────────────────
 async function exportReport(elementId, format) {
   const el = document.getElementById(elementId);
-  if (!el) return toast('Report content not found');
+  if (!el) return toast('找不到報表內容');
 
   if (format === 'PDF') {
     const origWidth = el.style.width;
@@ -1517,8 +1484,8 @@ async function exportReport(elementId, format) {
       heightLeft -= pageH;
     }
 
-    pdf.save(`report-${new Date().toISOString().slice(0,10)}.pdf`);
-    toast('PDF downloading...');
+    pdf.save(`報表-${new Date().toISOString().slice(0,10)}.pdf`);
+    toast('PDF 下載中...');
     return;
   }
 
@@ -1540,10 +1507,10 @@ async function exportReport(elementId, format) {
   el.style.maxHeight = origMaxH;
 
   const link = document.createElement('a');
-  link.download = `report-${new Date().toISOString().slice(0,10)}.${ext}`;
+  link.download = `報表-${new Date().toISOString().slice(0,10)}.${ext}`;
   link.href = canvas.toDataURL(mime, 0.95);
   link.click();
-  toast(`${format} downloading...`);
+  toast(`${format} 下載中...`);
 }
 
 // ── Column Resize ──────────────────────────────────────────────
@@ -1563,7 +1530,7 @@ function injectResizeHandles() {
 
 function restoreColWidths() {
   const h2text = document.querySelector('#main h2')?.textContent || '';
-  const pageKey = h2text.includes('Material') ? 'colWidths_v6_materials' : 'colWidths_v6_projects';
+  const pageKey = h2text.includes('素材') ? 'colWidths_v6_materials' : 'colWidths_v6_projects';
   const saved = localStorage.getItem(pageKey);
   if (!saved) return;
   const widths = JSON.parse(saved);
@@ -1610,7 +1577,7 @@ document.addEventListener('mouseup', () => {
     const h = colResize.span.querySelector('.resize-handle');
     if (h) h.classList.remove('active');
     document.body.classList.remove('col-resizing');
-    const pageKey = 'colWidths_v6_' + (colResize.header.closest('#main')?.querySelector('h2')?.textContent?.includes('Material') ? 'materials' : 'projects');
+    const pageKey = 'colWidths_v6_' + (colResize.header.closest('#main')?.querySelector('h2')?.textContent?.includes('素材') ? 'materials' : 'projects');
     const widths = [];
     colResize.header.querySelectorAll('span').forEach(s => widths.push(s.style.width || s.offsetWidth+'px'));
     localStorage.setItem(pageKey, JSON.stringify(widths));
