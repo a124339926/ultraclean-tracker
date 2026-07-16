@@ -1551,7 +1551,11 @@ function restoreColWidths() {
   const pageKey = h2text.includes('素材') ? 'colWidths_v6_materials' : 'colWidths_v6_projects';
   const saved = localStorage.getItem(pageKey);
   if (!saved) return;
-  const widths = JSON.parse(saved);
+  let widths;
+  try { widths = JSON.parse(saved); } catch(e) { return; }
+  if (!Array.isArray(widths) || widths.length === 0) return;
+  // 保护：任一列宽 < 30px 视为损坏数据，丢弃
+  if (widths.some(w => parseFloat(w) < 30)) return;
   document.querySelectorAll('.table-header').forEach(header => {
     const spans = header.querySelectorAll(':scope > span');
     widths.forEach((w, i) => { if (spans[i]) spans[i].style.width = w; });
@@ -1576,29 +1580,22 @@ document.addEventListener('mousedown', e => {
   e.preventDefault();
 });
 
-let colRaf = null;
 document.addEventListener('mousemove', e => {
   if (!colResize) return;
-  if (colRaf) return;
-  colRaf = requestAnimationFrame(() => {
-    colRaf = null;
-    if (!colResize) return;
-    const diff = e.clientX - colResize.startX;
-    const newW = Math.max(40, colResize.startW + diff);
-    colResize.span.style.width = newW + 'px';
-    const container = colResize.header.nextElementSibling;
-    if (container) {
-      container.querySelectorAll('.row').forEach(row => {
-        const spans = row.querySelectorAll(':scope > span');
-        if (spans[colResize.idx]) spans[colResize.idx].style.width = newW + 'px';
-      });
-    }
-  });
+  const diff = e.clientX - colResize.startX;
+  const newW = Math.max(40, colResize.startW + diff);
+  colResize.span.style.width = newW + 'px';
+  const container = colResize.header.nextElementSibling;
+  if (container) {
+    container.querySelectorAll('.row').forEach(row => {
+      const spans = row.querySelectorAll(':scope > span');
+      if (spans[colResize.idx]) spans[colResize.idx].style.width = newW + 'px';
+    });
+  }
 });
 
 document.addEventListener('mouseup', () => {
   if (colResize) {
-    if (colRaf) { cancelAnimationFrame(colRaf); colRaf = null; }
     const h = colResize.span.querySelector('.resize-handle');
     if (h) h.classList.remove('active');
     document.body.classList.remove('col-resizing');
@@ -1635,22 +1632,15 @@ document.addEventListener('scroll', e => {
     e.preventDefault();
   });
 
-  let sbRaf = null;
   document.addEventListener('mousemove', e => {
     if (!sbResize) return;
-    if (sbRaf) return;
-    sbRaf = requestAnimationFrame(() => {
-      sbRaf = null;
-      if (!sbResize) return;
-      const diff = e.clientX - sbResize.startX;
-      const newW = Math.max(140, Math.min(600, sbResize.startW + diff));
-      sidebar.style.width = newW + 'px';
-    });
+    const diff = e.clientX - sbResize.startX;
+    const newW = Math.max(140, Math.min(600, sbResize.startW + diff));
+    sidebar.style.width = newW + 'px';
   });
 
   document.addEventListener('mouseup', () => {
     if (sbResize) {
-      if (sbRaf) { cancelAnimationFrame(sbRaf); sbRaf = null; }
       const finalW = parseInt(sidebar.style.width);
       if (finalW >= 140 && finalW <= 600) localStorage.setItem('sidebarWidth_v6', finalW);
       handle.classList.remove('active');
