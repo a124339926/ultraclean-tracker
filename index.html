@@ -12,7 +12,12 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+<style>
+/* flatpickr input visibility fallback: ensure date inputs remain visible regardless of theme */
+.flatpickr-input { background: #fff !important; color: #2a2a35 !important; border: 1px solid #d1d1d8 !important; }
+.flatpickr-input::placeholder { color: #9999aa !important; }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <style>
 /* ══════════════════════════════════════════════════════════════
@@ -1288,7 +1293,7 @@ ${unassignedMats.length ? unassignedMats.map(m => `  \u2022 ${m.name} [${m.statu
     </div>
     <div class="main-scroll"><div class="report-box" id="dailyContent">${report.replace(/\n/g,'<br>')}</div></div>
   `;
-  flatpickr('#dailyPicker', { dateFormat: 'Y-m-d', onClose: (sel,picked)=>{ if(picked) renderDaily(picked); } });
+  if (typeof flatpickr !== 'undefined') flatpickr('#dailyPicker', { dateFormat: 'Y-m-d', onClose: (sel,picked)=>{ if(picked) renderDaily(picked); } });
   applySidebarWidth();
 }
 
@@ -1393,7 +1398,7 @@ ${unassignedMats.length ? unassignedMats.map(m => `  \u2022 ${m.name} [${m.statu
     </div>
     <div class="main-scroll"><div class="report-box" id="weeklyContent">${report.replace(/\n/g,'<br>')}</div></div>
   `;
-  flatpickr('#weeklyPicker', { dateFormat: 'Y-m-d', onClose: (sel,picked)=>{ if(picked) renderWeekly(picked); } });
+  if (typeof flatpickr !== 'undefined') flatpickr('#weeklyPicker', { dateFormat: 'Y-m-d', onClose: (sel,picked)=>{ if(picked) renderWeekly(picked); } });
   applySidebarWidth();
 }
 
