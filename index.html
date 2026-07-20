@@ -1202,12 +1202,34 @@ function exportDB() {
 async function renderDaily(dateStr) {
   const main = document.getElementById('main');
   main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
-  const res = await api('/api/reports/daily' + (dateStr ? '?date='+dateStr : ''));
-  const d = await res.json();
-  const matRes = await fetch(`${API_BASE}/api/materials`);
+
+  const targetDate = dateStr || new Date().toISOString().substring(0, 10);
+
+  const [reportRes, projRes, matRes] = await Promise.all([
+    api('/api/reports/daily'),
+    api('/api/projects?limit=999&page=0&sort_col=id&sort_asc=true'),
+    fetch(`${API_BASE}/api/materials`)
+  ]);
+  const d = await reportRes.json();
+  const projData = await projRes.json();
   const matData = await matRes.json();
+  const allProjects = projData.projects || [];
   const unassignedMats = (matData.materials || []).filter(m => !m.project_id);
-  const range = d.range_start===d.range_end ? d.range_start : `${d.range_start} ~ ${d.range_end}`;
+
+  // Override date-dependent fields with client-side filtering
+  d.date = targetDate;
+  const dayNames = ['日', '一', '二', '三', '四', '五', '六'];
+  d.day_name = dayNames[new Date(targetDate + 'T00:00:00').getDay()];
+  d.range_start = targetDate;
+  d.range_end = targetDate;
+
+  d.editing_today = allProjects.filter(p => (p.edit_date || '').substring(0, 10) === targetDate);
+  d.review_today = allProjects.filter(p => (p.review_date || '').substring(0, 10) === targetDate);
+  d.published = allProjects.filter(p =>
+    p.current_status === '已發布' && (p.publish_date || '').substring(0, 10) === targetDate
+  );
+
+  const range = targetDate;
 
   function fmt(arr) {
     if(!arr.length) return '  （無）\n';
@@ -1274,11 +1296,49 @@ ${unassignedMats.length ? unassignedMats.map(m => `  \u2022 ${m.name} [${m.statu
 async function renderWeekly(dateStr) {
   const main = document.getElementById('main');
   main.innerHTML = '<div class="empty" style="padding-top:80px">載入中...</div>';
-  const res = await api('/api/reports/weekly' + (dateStr ? '?date='+dateStr : ''));
-  const d = await res.json();
-  const matRes = await fetch(`${API_BASE}/api/materials`);
+
+  const targetDate = dateStr || new Date().toISOString().substring(0, 10);
+  const dt = new Date(targetDate + 'T00:00:00');
+  const dayOfWeek = dt.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(dt);
+  monday.setDate(dt.getDate() + mondayOffset);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const mondayStr = monday.toISOString().substring(0, 10);
+  const sundayStr = sunday.toISOString().substring(0, 10);
+  const todayStr = new Date().toISOString().substring(0, 10);
+
+  const [reportRes, projRes, matRes] = await Promise.all([
+    api('/api/reports/weekly'),
+    api('/api/projects?limit=999&page=0&sort_col=id&sort_asc=true'),
+    fetch(`${API_BASE}/api/materials`)
+  ]);
+  const d = await reportRes.json();
+  const projData = await projRes.json();
   const matData = await matRes.json();
+  const allProjects = projData.projects || [];
   const unassignedMats = (matData.materials || []).filter(m => !m.project_id);
+
+  // Override date-dependent fields
+  d.monday = mondayStr;
+  d.sunday = sundayStr;
+  d.today = todayStr;
+
+  d.editing_week = allProjects.filter(p => {
+    const ed = (p.edit_date || '').substring(0, 10);
+    return ed >= mondayStr && ed <= sundayStr;
+  });
+  d.review_week = allProjects.filter(p => {
+    const rd = (p.review_date || '').substring(0, 10);
+    return rd >= mondayStr && rd <= sundayStr;
+  });
+  d.published = allProjects.filter(p => {
+    if (p.current_status !== '已發布') return false;
+    const pd = (p.publish_date || '').substring(0, 10);
+    return pd >= mondayStr && pd <= sundayStr;
+  });
+  // d.active / d.in_review / d.pending are status-based → use API result as-is
 
   function fmt(arr) {
     if(!arr.length) return '  （無）\n';
